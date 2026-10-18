@@ -16,7 +16,7 @@ CNTChangeHistoryCommand *-[CNTChangeHistoryCommand initWithArguments:logger:](id
 
 id -[CNTChangeHistoryCommand run:](id *a1)
 {
-    CNTChangeHistoryClearToAnchorTask *implementationTask = [self implementationTask];
+    id implementationTask = [self implementationTask];
     id v1 = nil;
     id v2 = [implementationTask run:&v1];
     if (a1 != 0 && !v2) {
@@ -40,40 +40,36 @@ CNTChangeHistoryClearToAnchorTask *-[CNTChangeHistoryCommand implementationTask]
     if (([@"show-changes" _cn_caseInsensitiveIsEqual:firstObject] & 1) != 0 || [@"list" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
         v7 = [CNTChangeHistoryShowChangesTask alloc];
         logger = [self logger];
-        return [v7 initWithClientIdentifier:v6 logger:logger];
-    }
-    if ([@"monitor" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
+    } else if ([@"monitor" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
         v7 = [CNTChangeHistoryMonitorTask alloc];
         logger = [self logger];
-        return [v7 initWithClientIdentifier:v6 logger:logger];
-    }
-    if (([@"register-client" _cn_caseInsensitiveIsEqual:firstObject] & 1) != 0 || [@"register" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
+    } else if (([@"register-client" _cn_caseInsensitiveIsEqual:firstObject] & 1) != 0 || [@"register" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
         v7 = [CNTChangeHistoryRegisterClientTask alloc];
         logger = [self logger];
-        return [v7 initWithClientIdentifier:v6 logger:logger];
-    }
-    long v12 = [@"unregister-client" _cn_caseInsensitiveIsEqual:firstObject];
-    if ((v12 & 1) != 0 || [@"unregister" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
-        v7 = [CNTChangeHistoryUnregisterClientTask alloc];
-        logger = [self logger];
-        return [v7 initWithClientIdentifier:v6 logger:logger];
-    }
-    long v13 = [@"clear-history" _cn_caseInsensitiveIsEqual:firstObject];
-    if ((v13 & 1) != 0 || [@"clear" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
-        if ([v4 count] <= 1) {
-            NSDictionary *v16 = @{NSLocalizedFailureReasonErrorKey: @"Invalid syntax"};
-            NSError *v17 = [NSError errorWithDomain:@"CNTErrorDomain" code:1 userInfo:v16];
-            v10 = [CNTask taskWithError:v17];
+    } else {
+        long v12 = [@"unregister-client" _cn_caseInsensitiveIsEqual:firstObject];
+        if ((v12 & 1) != 0 || [@"unregister" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
+            v7 = [CNTChangeHistoryUnregisterClientTask alloc];
+            logger = [self logger];
         } else {
-            id v19 = [v4 objectAtIndexedSubscript:2];
-            v10 = [[CNTChangeHistoryClearToAnchorTask alloc] initWithAnchorString:v19 clientIdentifier:v6 logger:[self logger]];
+            long v13 = [@"clear-history" _cn_caseInsensitiveIsEqual:firstObject];
+            if ((v13 & 1) != 0 || [@"clear" _cn_caseInsensitiveIsEqual:firstObject] != 0) {
+                if ([v4 count] <= 1) {
+                    NSDictionary *v16 = @{NSLocalizedFailureReasonErrorKey: @"Invalid syntax"};
+                    NSError *v17 = [NSError errorWithDomain:@"CNTErrorDomain" code:1 userInfo:v16];
+                    v10 = [CNTask taskWithError:v17];
+                } else {
+                    id v19 = [v4 objectAtIndexedSubscript:2];
+                    v10 = [[CNTChangeHistoryClearToAnchorTask alloc] initWithAnchorString:v19 clientIdentifier:v6 logger:[self logger]];
+                }
+                return v10;
+            }
+            NSDictionary *v22 = @{NSLocalizedFailureReasonErrorKey: @"Invalid syntax"};
+            NSError *v23 = [NSError errorWithDomain:@"CNTErrorDomain" code:1 userInfo:v22];
+            return [CNTask taskWithError:v23];
         }
-        return v10;
     }
-    NSDictionary *v22 = @{NSLocalizedFailureReasonErrorKey: @"Invalid syntax"};
-    NSError *v23 = [NSError errorWithDomain:@"CNTErrorDomain" code:1 userInfo:v22];
-    v10 = [CNTask taskWithError:v23];
-    return v10;
+    return [v7 initWithClientIdentifier:v6 logger:logger];
 }
 
 

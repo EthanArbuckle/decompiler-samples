@@ -44,8 +44,7 @@ NSInteger -[CNTContactsTool mainWithArguments:](id a1)
     id<CNTLogger> logger = [self logger];
     NSString *localizedDescription = [v10 localizedDescription];
     [logger log:localizedDescription];
-    NSInteger code = [v10 code];
-    return code;
+    return [v10 code];
 }
 
 

@@ -1,76 +1,58 @@
 CNTLogTask *+[CNTCommandFactory commandForArguments:factory:logger:](id a1, id a2, id a3)
 {
     CNTLogTask *v4;
-    id v7;
     CNTChangeHistoryCommand *v24;
     CNTWhoAmICommand *v25;
-    NSMutableArray *v27;
-    Class v28;
-    id v29;
-    id v30;
-    id v31;
     if (![a1 count]) {
         v4 = [a2 showHelpTaskWithLogger:a3];
     } else {
-        do {
-            Class v6 = [self class];
-            v7 = a1;
-            id v8 = [v6 parseOptionsInArgs:&v7];
-            long v15 = 0;
-            for (id v32 in v8) {
-                v15 |= [v32 options];
-            }
-            bool v14 = v15 & 1;
-            id v18 = [v7 objectAtIndexedSubscript:0];
-            NSArray<NSString *> *v19 = [v18 componentsSeparatedByString:@"="];
-            if ([v19 count] == 1) {
-                id v22 = [v7 objectAtIndexedSubscript:0];
-                if (![@"whoami" _cn_caseInsensitiveIsEqual:v22]) {
-                    if (![@"history" _cn_caseInsensitiveIsEqual:v22]) {
-                        if (!([@"benchmark" _cn_caseInsensitiveIsEqual:v22] & 1)) {
-                            break;
-                        }
-                        id v23 = [v7 _cn_skip:1];
-                        v24 = [a2 benchmarkTaskWithArguments:v23 logger:a3];
-                    } else {
-                        id v26 = [v7 _cn_skip:1];
-                        v24 = [a2 historyTaskWithArguments:v26 logger:a3];
+        Class v6 = [self class];
+        id v7 = a1;
+        id v8 = [v6 parseOptionsInArgs:&v7];
+        long v15 = 0;
+        for (id v32 in v8) {
+            v15 |= [v32 options];
+        }
+        bool v14 = v15 & 1;
+        id v18 = [v7 objectAtIndexedSubscript:0];
+        NSArray<NSString *> *v19 = [v18 componentsSeparatedByString:@"="];
+        if ([v19 count] != 1) {
+            [v19 count];
+blk_1000081d0:
+            id v20 = [v7 objectAtIndexedSubscript:0];
+            NSString *v21 = [NSString stringWithFormat:@"Unrecognized command: %@", v20];
+            v4 = [a2 showHelpTaskWithMessage:v21 logger:a3];
+        } else {
+            id v22 = [v7 objectAtIndexedSubscript:0];
+            if (![@"whoami" _cn_caseInsensitiveIsEqual:v22]) {
+                if ([@"history" _cn_caseInsensitiveIsEqual:v22] != 0) {
+                    id v31 = [v7 _cn_skip:1];
+                    v24 = [a2 historyTaskWithArguments:v31 logger:a3];
+                } else {
+                    if (([@"benchmark" _cn_caseInsensitiveIsEqual:v22] & 1) == 0) {
+                        goto blk_1000081d0;
                     }
-                    v25 = v24;
-                    if (!v25) {
-                        break;
-                    }
-                    v27 = [NSMutableArray arrayWithCapacity:5];
-                    v28 = [self class];
-                    v29 = [CNScheduler immediateScheduler];
-                    v30 = [v28 performanceTaskWithTask:v25 scheduler:v29 logger:a3];
-                    [v27 addObject:v30];
-                    if (v14) {
-                        v31 = [a2 keepAliveTaskWithLogger:a3];
-                        [v27 addObject:v31];
-                    }
-                    return [CNTask taskWithName:@"com.apple.contacts.tool" subtasks:v27];
+                    id v23 = [v7 _cn_skip:1];
+                    v24 = [a2 benchmarkTaskWithArguments:v23 logger:a3];
                 }
-                v25 = [a2 whoAmITaskWithLogger:a3];
-                if (v25 != nil) {
-                    v27 = [NSMutableArray arrayWithCapacity:5];
-                    v28 = [self class];
-                    v29 = [CNScheduler immediateScheduler];
-                    v30 = [v28 performanceTaskWithTask:v25 scheduler:v29 logger:a3];
-                    [v27 addObject:v30];
-                    if (v14) {
-                        v31 = [a2 keepAliveTaskWithLogger:a3];
-                        [v27 addObject:v31];
-                    }
-                    return [CNTask taskWithName:@"com.apple.contacts.tool" subtasks:v27];
-                }
+                v25 = v24;
             } else {
-                [v19 count];
+                v25 = [a2 whoAmITaskWithLogger:a3];
             }
-        } while (0);
-        id v20 = [v7 objectAtIndexedSubscript:0];
-        NSString *v21 = [NSString stringWithFormat:@"Unrecognized command: %@", v20];
-        v4 = [a2 showHelpTaskWithMessage:v21 logger:a3];
+            if (!v25) {
+                goto blk_1000081d0;
+            }
+            NSMutableArray *v26 = [NSMutableArray arrayWithCapacity:5];
+            Class v27 = [self class];
+            id immediateScheduler = [CNScheduler immediateScheduler];
+            id v29 = [v27 performanceTaskWithTask:v25 scheduler:immediateScheduler logger:a3];
+            [v26 addObject:v29];
+            if (v14) {
+                id v30 = [a2 keepAliveTaskWithLogger:a3];
+                [v26 addObject:v30];
+            }
+            v4 = [CNTask taskWithName:@"com.apple.contacts.tool" subtasks:v26];
+        }
     }
     return v4;
 }

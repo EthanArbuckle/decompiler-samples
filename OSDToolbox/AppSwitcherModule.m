@@ -36,7 +36,6 @@ void -[AppSwitcherModule addOptions](void)
 int -[AppSwitcherModule moduleMain](void)
 {
     os_log_t v20;
-    int v15;
     FTOptions *options = [self options];
     id v2 = [options objectForKeyedSubscript:@"list"];
     if (v2 != nil) {
@@ -76,7 +75,6 @@ int -[AppSwitcherModule moduleMain](void)
             v20 = osd_shared_log_handle(v36);
             if (os_log_type_enabled(v20, OS_LOG_TYPE_ERROR)) {
                 sub_10000c020(v20);
-                return 1;
             }
             return 1;
         }
@@ -111,10 +109,10 @@ int -[AppSwitcherModule moduleMain](void)
             NSString *v26 = [NSString stringWithFormat:@"[ERROR] Task switch was a failure"];
             fprintf(v24, "%s\n", [v26 UTF8String]);
             v20 = osd_shared_log_handle(v26);
-            if (os_log_type_enabled(v20, OS_LOG_TYPE_ERROR)) {
-                sub_10000bff4(v20);
+            if (!os_log_type_enabled(v20, OS_LOG_TYPE_ERROR)) {
                 return 1;
             }
+            sub_10000bff4(v20);
             return 1;
         }
         NSString *v27 = [NSString stringWithFormat:@"Task switch was a success"];
@@ -134,27 +132,25 @@ int -[AppSwitcherModule moduleMain](void)
         if (os_log_type_enabled(oslog5, OS_LOG_TYPE_ERROR)) {
             sub_10000bf9c(oslog5);
         }
-        v15 = 0;
-    } else {
-        long requestUnloadCurrentTask = [RTTaskSwitcher requestUnloadCurrentTask];
-        FILE *v17 = stderr;
-        if (requestUnloadCurrentTask != 0) {
-            NSString *v21 = [NSString stringWithFormat:@"Task unload was a success"];
-            fprintf(v17, "%s\n", [v21 UTF8String]);
-            os_log_t oslog6 = osd_shared_log_handle(v21);
-            if (os_log_type_enabled(oslog6, OS_LOG_TYPE_DEFAULT)) {
-                os_log_with_type(oslog6, OS_LOG_TYPE_DEFAULT, "Task unload was a success");
-                return 0;
-            }
+        return 0;
+    }
+    long requestUnloadCurrentTask = [RTTaskSwitcher requestUnloadCurrentTask];
+    FILE *v17 = stderr;
+    if (requestUnloadCurrentTask != 0) {
+        NSString *v21 = [NSString stringWithFormat:@"Task unload was a success"];
+        fprintf(v17, "%s\n", [v21 UTF8String]);
+        os_log_t oslog6 = osd_shared_log_handle(v21);
+        if (os_log_type_enabled(oslog6, OS_LOG_TYPE_DEFAULT)) {
+            os_log_with_type(oslog6, OS_LOG_TYPE_DEFAULT, "Task unload was a success");
             return 0;
         }
-        NSString *v19 = [NSString stringWithFormat:@"[ERROR] Task unload was a failure"];
-        fprintf(v17, "%s\n", [v19 UTF8String]);
-        v20 = osd_shared_log_handle(v19);
-        if (os_log_type_enabled(v20, OS_LOG_TYPE_ERROR)) {
-            sub_10000bfc8(v20);
-        }
-        v15 = 1;
+        return 0;
     }
-    return v15;
+    NSString *v19 = [NSString stringWithFormat:@"[ERROR] Task unload was a failure"];
+    fprintf(v17, "%s\n", [v19 UTF8String]);
+    v20 = osd_shared_log_handle(v19);
+    if (os_log_type_enabled(v20, OS_LOG_TYPE_ERROR)) {
+        sub_10000bfc8(v20);
+    }
+    return 1;
 }

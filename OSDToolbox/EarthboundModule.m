@@ -151,132 +151,131 @@ void -[EarthboundModule removeFileAtPath:error:](NSString *a1, NSError **a2)
 
 bool -[EarthboundModule resetEarthbound:](bool a1)
 {
-    OSDEFIBootArgParser *v12;
-    NSString *v16;
-    int v30;
-    NSError *v32;
-    glob_t v52;
+    OSDEFIBootArgParser *v11;
+    NSString *v15;
+    int v28;
+    NSError *v31;
+    glob_t v51;
     @autoreleasepool {
-        NSString *v2 = [NSString stringWithFormat:@"Stopping Earthbound"];
-        fprintf(stderr, "%s\n", [v2 UTF8String]);
-        os_log_t oslog3 = osd_shared_log_handle(v2);
-        if (os_log_type_enabled(oslog3, OS_LOG_TYPE_DEFAULT)) {
-            os_log_with_type(oslog3, OS_LOG_TYPE_DEFAULT, "Stopping Earthbound");
+        NSString *v1 = [NSString stringWithFormat:@"Stopping Earthbound"];
+        fprintf(stderr, "%s\n", [v1 UTF8String]);
+        os_log_t oslog = osd_shared_log_handle(v1);
+        if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
+            os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "Stopping Earthbound");
         }
         [self stopEarthbound];
         NSFileManager *defaultManager = [NSFileManager defaultManager];
         id sharedInstance = [OSDDeviceModelInfo sharedInstance];
         NSString *name = [sharedInstance name];
-        NSString *v8 = [kEarthboundDefaultSequenceName stringByAppendingPathExtension:@"sqlite"];
-        NSString *v11 = [[[OSDBootArgs alloc] init] bootArgWithName:@"burnin"];
-        if (v11) {
-            v12 = [[OSDEFIBootArgParser alloc] initWithString:v11];
+        NSString *v7 = [kEarthboundDefaultSequenceName stringByAppendingPathExtension:@"sqlite"];
+        NSString *v10 = [[[OSDBootArgs alloc] init] bootArgWithName:@"burnin"];
+        if (v10) {
+            v11 = [[OSDEFIBootArgParser alloc] initWithString:v10];
         } else {
-            v12 = nil;
+            v11 = nil;
         }
-        NSArray *values = [v12 values];
+        NSArray *values = [v11 values];
         if (![values count]) {
-            v16 = v8;
+            v15 = v7;
         } else {
-            NSArray *values2 = [v12 values];
+            NSArray *values2 = [v11 values];
             id firstObject = [values2 firstObject];
-            v16 = [NSString stringWithFormat:@"%@.sqlite", firstObject];
+            v15 = [NSString stringWithFormat:@"%@.sqlite", firstObject];
         }
-        id v20 = kEarthboundDefaultDBDirectory;
-        NSString *v22 = [v20 stringByAppendingPathComponent:v16];
-        NSString *v23 = [v20 stringByAppendingPathComponent:name];
-        NSString *v24 = [v23 stringByAppendingPathComponent:v16];
-        NSString *v25 = [v24 stringByAppendingPathExtension:@"backup"];
-        NSString *v26 = [v22 stringByAppendingString:@"-wal"];
-        NSString *v27 = [v22 stringByAppendingString:@"-shm"];
-        NSString *v28 = [NSString stringWithFormat:@"Unloading Earthbound"];
-        fprintf(stderr, "%s\n", [v28 UTF8String]);
-        os_log_t oslog2 = osd_shared_log_handle(v28);
+        NSString *v20 = [kEarthboundDefaultDBDirectory stringByAppendingPathComponent:v15];
+        NSString *v21 = [kEarthboundDefaultDBDirectory stringByAppendingPathComponent:name];
+        NSString *v22 = [v21 stringByAppendingPathComponent:v15];
+        NSString *v23 = [v22 stringByAppendingPathExtension:@"backup"];
+        NSString *v24 = [v20 stringByAppendingString:@"-wal"];
+        NSString *v25 = [v20 stringByAppendingString:@"-shm"];
+        NSString *v26 = [NSString stringWithFormat:@"Unloading Earthbound"];
+        fprintf(stderr, "%s\n", [v26 UTF8String]);
+        os_log_t oslog2 = osd_shared_log_handle(v26);
         if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
             os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "Unloading Earthbound");
         }
-        v30 = [OSDLaunch unload:@"/AppleInternal/Diags/Earthbound/com.apple.osdiags.Earthbound.plist"];
-        if ((v30 & 1) == 0) {
-            NSString *v31 = [NSString stringWithFormat:@"[ERROR] Error unloading Earthbound"];
-            fprintf(stderr, "%s\n", [v31 UTF8String]);
-            os_log_t oslog = osd_shared_log_handle(v31);
-            if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                sub_10000be54(oslog);
+        v28 = [OSDLaunch unload:@"/AppleInternal/Diags/Earthbound/com.apple.osdiags.Earthbound.plist"];
+        if ((v28 & 1) == 0) {
+            NSString *v29 = [NSString stringWithFormat:@"[ERROR] Error unloading Earthbound"];
+            fprintf(stderr, "%s\n", [v29 UTF8String]);
+            os_log_t oslog3 = osd_shared_log_handle(v29);
+            if (os_log_type_enabled(oslog3, OS_LOG_TYPE_ERROR)) {
+                sub_10000be54(oslog3);
             }
         }
         if (!a1) {
-            v32 = nil;
-        } else if (![defaultManager fileExistsAtPath:v25]) {
-            v32 = nil;
+            v31 = nil;
+        } else if (![defaultManager fileExistsAtPath:v23]) {
+            v31 = nil;
         } else {
             NSError *error = nil;
-            [defaultManager removeItemAtPath:v24 error:&error];
-            NSError *v35 = error;
-            [defaultManager copyItemAtPath:v25 toPath:v24 error:&v35];
-            v32 = v35;
+            [defaultManager removeItemAtPath:v22 error:&error];
+            NSError *v34 = error;
+            [defaultManager copyItemAtPath:v23 toPath:v22 error:&v34];
+            v31 = v34;
         }
-        NSString *v21 = [@"/private/var/mobile/Media/FactoryLogs/LogCollector/Earthbound/" stringByAppendingPathComponent:@".FactoryLogsWaitingToBeCollected"];
-        NSArray<NSString *> *v37 = @[v22, v26, v27, v21];
-        NSMutableArray<NSString *> *v38 = [NSMutableArray arrayWithArray:v37];
+        NSString *v19 = [@"/private/var/mobile/Media/FactoryLogs/LogCollector/Earthbound/" stringByAppendingPathComponent:@".FactoryLogsWaitingToBeCollected"];
+        NSArray<NSString *> *v36 = @[v20, v24, v25, v19];
+        NSMutableArray<NSString *> *v37 = [NSMutableArray arrayWithArray:v36];
         if (a1) {
-            NSSet *v43 = [NSSet setWithObjects:kEarthboundDefaultStagingLogsPath, @"/private/var/mobile/Media/FactoryLogs/LogCollector/Earthbound*", kEarthboundDefaultWorkingDirectory, @"/AppleInternal/Diags/Logs/Bonfire/NAND.log", @"/AppleInternal/Diags/Logs/Bonfire/result.txt", @"/AppleInternal/Diags/Logs/Smokey/*/Smokey.log", @"/AppleInternal/Diags/Logs/Smokey/*/Earthbound.sig", @"/AppleInternal/Diags/Logs/Smokey/*/PDCA.plist", nil];
-            NSMutableOrderedSet *v44 = [NSMutableOrderedSet new];
-            for (NSString *v1 in v43) {
-                const char *UTF8String = [v1 UTF8String];
-                int v51 = glob(UTF8String, 2184, NULL, &v52);
-                if (!v51 && v52.field_8 >= 1) {
-                    long v53 = 0;
+            NSSet *v42 = [NSSet setWithObjects:kEarthboundDefaultStagingLogsPath, @"/private/var/mobile/Media/FactoryLogs/LogCollector/Earthbound*", kEarthboundDefaultWorkingDirectory, @"/AppleInternal/Diags/Logs/Bonfire/NAND.log", @"/AppleInternal/Diags/Logs/Bonfire/result.txt", @"/AppleInternal/Diags/Logs/Smokey/*/Smokey.log", @"/AppleInternal/Diags/Logs/Smokey/*/Earthbound.sig", @"/AppleInternal/Diags/Logs/Smokey/*/PDCA.plist", nil];
+            NSMutableOrderedSet *v43 = [NSMutableOrderedSet new];
+            for (NSString *v8 in v42) {
+                const char *UTF8String = [v8 UTF8String];
+                int v50 = glob(UTF8String, 2184, NULL, &v51);
+                if (!v50 && v51.field_8 >= 1) {
+                    long v52 = 0;
                     do {
-                        NSString *v54 = [NSString stringWithUTF8String:v52.field_32[v53]];
-                        [v44 addObject:v54];
-                        v53++;
-                    } while (v53 < v52.field_8);
+                        NSString *v53 = [NSString stringWithUTF8String:v51.field_32[v52]];
+                        [v43 addObject:v53];
+                        v52++;
+                    } while (v52 < v51.field_8);
                 }
-                globfree(&v52);
+                globfree(&v51);
             }
-            id v55 = [v44 copy];
-            NSArray<NSString *> *array = [v55 array];
-            [v38 addObjectsFromArray:array];
+            id v54 = [v43 copy];
+            NSArray<NSString *> *array = [v54 array];
+            [v37 addObjectsFromArray:array];
         }
-        for (NSString *v9 in v38) {
-            NSError *v62 = v32;
-            NSError *v63 = v62;
-            [self removeFileAtPath:v9 error:&v63];
-            v32 = v63;
+        for (NSString *v12 in v37) {
+            NSError *v61 = v31;
+            NSError *v62 = v61;
+            [self removeFileAtPath:v12 error:&v62];
+            v31 = v62;
         }
         if (a1) {
-            [defaultManager createDirectoryAtPath:kEarthboundDefaultWorkingDirectory withIntermediateDirectories:YES attributes:nil error:&v32];
+            [defaultManager createDirectoryAtPath:kEarthboundDefaultWorkingDirectory withIntermediateDirectories:YES attributes:nil error:&v31];
         }
-        if (!v32) {
-            long v67 = [[[OSDBootArgs alloc] init] hasBootArg:@"burnin"];
-            FILE *v68 = stderr;
-            if (!v67) {
-                NSString *v70 = [NSString stringWithFormat:@"Not loading Earthbound because there is no burnin bootarg!"];
-                fprintf(v68, "%s\n", [v70 UTF8String]);
-                os_log_t oslog4 = osd_shared_log_handle(v70);
+        if (!v31) {
+            long v66 = [[[OSDBootArgs alloc] init] hasBootArg:@"burnin"];
+            FILE *v67 = stderr;
+            if (!v66) {
+                NSString *v69 = [NSString stringWithFormat:@"Not loading Earthbound because there is no burnin bootarg!"];
+                fprintf(v67, "%s\n", [v69 UTF8String]);
+                os_log_t oslog4 = osd_shared_log_handle(v69);
                 if (os_log_type_enabled(oslog4, OS_LOG_TYPE_DEFAULT)) {
                     os_log_with_type(oslog4, OS_LOG_TYPE_DEFAULT, "Not loading Earthbound because there is no burnin bootarg!");
                 }
             } else {
-                NSString *v72 = [NSString stringWithFormat:@"Loading Earthbound"];
-                fprintf(v68, "%s\n", [v72 UTF8String]);
-                os_log_t oslog5 = osd_shared_log_handle(v72);
+                NSString *v71 = [NSString stringWithFormat:@"Loading Earthbound"];
+                fprintf(v67, "%s\n", [v71 UTF8String]);
+                os_log_t oslog5 = osd_shared_log_handle(v71);
                 if (os_log_type_enabled(oslog5, OS_LOG_TYPE_DEFAULT)) {
                     os_log_with_type(oslog5, OS_LOG_TYPE_DEFAULT, "Loading Earthbound");
                 }
-                v30 = [OSDLaunch load:@"/AppleInternal/Diags/Earthbound/com.apple.osdiags.Earthbound.plist"];
+                v28 = [OSDLaunch load:@"/AppleInternal/Diags/Earthbound/com.apple.osdiags.Earthbound.plist"];
             }
         } else {
-            NSString *v74 = [NSString stringWithFormat:@"[ERROR] Erroring deleting Sequences\n"];
-            fprintf(stderr, "%s\n", [v74 UTF8String]);
-            os_log_t oslog6 = osd_shared_log_handle(v74);
+            NSString *v73 = [NSString stringWithFormat:@"[ERROR] Erroring deleting Sequences\n"];
+            fprintf(stderr, "%s\n", [v73 UTF8String]);
+            os_log_t oslog6 = osd_shared_log_handle(v73);
             if (os_log_type_enabled(oslog6, OS_LOG_TYPE_ERROR)) {
                 sub_10000be20(oslog6);
             }
-            v30 = 0;
+            v28 = 0;
         }
     }
-    return v30;
+    return v28;
 }
 
 

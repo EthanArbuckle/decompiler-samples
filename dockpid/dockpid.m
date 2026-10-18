@@ -46,8 +46,7 @@ void DockPidLoadPrefs(void)
     } else {
         v4 = true;
     }
-    bool v5 = v4;
-    gEnabled = v5;
+    gEnabled = v4;
     id v6 = PSPreferencesCopyAppValue(@"style", @"com.doraorak.dockpid");
     Class v7 = [NSString class];
     if (![v6 isKindOfClass:v7]) {
@@ -74,10 +73,10 @@ void DockPidRefreshTiles(void)
         return;
     }
     NSArray *allObjects = [gTiles allObjects];
-    for (id v7 in allObjects) {
-        NSString *v8 = DockPidDecoratedLabel(v7);
-        if (v8 != nil && [v7 respondsToSelector:@selector(setLabel:stripAppSuffix:)]) {
-            [v7 setLabel:v8 stripAppSuffix:1];
+    for (id v6 in allObjects) {
+        NSString *v7 = DockPidDecoratedLabel(v6);
+        if (v7 != nil && [v6 respondsToSelector:@selector(setLabel:stripAppSuffix:)]) {
+            [v6 setLabel:v7 stripAppSuffix:1];
         }
     }
 }
@@ -89,10 +88,10 @@ void DockPidRestoreTiles(void)
         return;
     }
     NSArray *allObjects = [gTiles allObjects];
-    for (id v7 in allObjects) {
-        id v8 = objc_getAssociatedObject(v7, @selector(label));
-        if (v8 != nil && [v7 respondsToSelector:@selector(setLabel:stripAppSuffix:)]) {
-            [v7 setLabel:v8 stripAppSuffix:1];
+    for (id v6 in allObjects) {
+        id v7 = objc_getAssociatedObject(v6, @selector(label));
+        if (v7 != nil && [v6 respondsToSelector:@selector(setLabel:stripAppSuffix:)]) {
+            [v6 setLabel:v7 stripAppSuffix:1];
         }
     }
 }
@@ -173,8 +172,7 @@ id _logos_method$_ungrouped$DOCKFileTile$label(id a1, SEL a2)
         v4 = v14;
     }
     [a1 setLabel:v4 stripAppSuffix:1];
-    id v10 = [v4 copy];
-    return v10;
+    return [v4 copy];
 }
 
 
@@ -261,21 +259,17 @@ id DockPidStripSuffix(id a1)
             NSString *v6 = a1;
             while (1) {
                 NSUInteger length = [v6 length];
-                long v17 = 0;
-                NSTextCheckingResult *v8 = [re firstMatchInString:v6 options:0 range:(NSRange){v17, length}];
+                NSTextCheckingResult *v8 = [re firstMatchInString:v6 options:0 range:(NSRange){0, length}];
                 bool v9 = true;
-                if (v8 != nil) {
+                if (v8 != nil && ([v8 range]).location != NSNotFound) {
                     NSRange range = [v8 range];
-                    if (range.location != NSNotFound) {
-                        NSRange range2 = [v8 range];
-                        v9 = !range2.length;
-                    }
+                    v9 = !range.length;
                 }
                 if (v9) {
                     break;
                 } else {
-                    NSRange range3 = [v8 range];
-                    NSString *v14 = [v6 substringToIndex:range3.location];
+                    NSRange range2 = [v8 range];
+                    NSString *v14 = [v6 substringToIndex:range2.location];
                     v6 = v14;
                 }
             }

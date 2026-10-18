@@ -10,7 +10,6 @@ NSString *+[CNBAddressBookLegacyImplementation name](void)
 
 NSMutableArray *+[CNBAddressBookLegacyImplementation ABPropertiesForCNBProperties:](unsigned long a1)
 {
-    NSNumber *v6;
     NSMutableArray *array = [NSMutableArray array];
     if ((a1 & 4) != 0) {
         NSNumber *v2 = [NSNumber numberWithInt:kABPersonFirstNameProperty];
@@ -24,27 +23,18 @@ NSMutableArray *+[CNBAddressBookLegacyImplementation ABPropertiesForCNBPropertie
         NSNumber *v8 = [NSNumber numberWithInt:kABPersonEmailProperty];
         [array addObject:v8];
         if ((a1 & 2) == 0) {
-            if ((a1 & 8) != 0) {
-                goto blk_1000054d0;
-            }
-            if ((a1 & 16) != 0) {
-                v6 = [NSNumber numberWithInt:kABPersonInstantMessageProperty];
-                [array addObject:v6];
-            }
-            return array;
+            goto blk_100005300;
         } else {
             goto blk_100005484;
         }
     }
     if ((a1 & 2) == 0) {
+blk_100005300:
         if ((a1 & 8) != 0) {
             goto blk_1000054d0;
+        } else {
+            goto blk_100005304;
         }
-        if ((a1 & 16) != 0) {
-            v6 = [NSNumber numberWithInt:kABPersonInstantMessageProperty];
-            [array addObject:v6];
-        }
-        return array;
     }
 blk_100005484:
     NSNumber *v5 = [NSNumber numberWithInt:kABPersonPhoneProperty];
@@ -54,8 +44,9 @@ blk_1000054d0:
         NSNumber *v7 = [NSNumber numberWithInt:kABPersonAddressProperty];
         [array addObject:v7];
     }
+blk_100005304:
     if ((a1 & 16) != 0) {
-        v6 = [NSNumber numberWithInt:kABPersonInstantMessageProperty];
+        NSNumber *v6 = [NSNumber numberWithInt:kABPersonInstantMessageProperty];
         [array addObject:v6];
     }
     return array;

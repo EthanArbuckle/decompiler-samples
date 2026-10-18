@@ -116,29 +116,27 @@ void _logosLocalCtor_b2eb7349(void)
     NSString *systemVersion = [currentDevice systemVersion];
     if ([systemVersion compare:@"14.0" options:NSNumericSearch] == NSOrderedAscending) {
         return;
-    } else {
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        NSString *bundleIdentifier = [mainBundle bundleIdentifier];
-        if (![bundleIdentifier isEqualToString:@"com.apple.CarPlayApp"]) {
-            return;
-        }
     }
-    Class v5 = object_getClass(objc_getClass("CARApplication"));
-    MSHookMessageEx(v5, @selector(_newApplicationLibrary), &_logos_meta_method$CARPLAY$CARApplication$_newApplicationLibrary, &_logos_meta_orig$CARPLAY$CARApplication$_newApplicationLibrary);
-    Class v6 = objc_getClass("SBIconListGridLayoutConfiguration");
-    MSHookMessageEx(v6, @selector(numberOfPortraitColumns), &_logos_method$CARPLAY$SBIconListGridLayoutConfiguration$numberOfPortraitColumns, &_logos_orig$CARPLAY$SBIconListGridLayoutConfiguration$numberOfPortraitColumns);
-    MSHookMessageEx(v6, @selector(iconImageInfoForGridSizeClass:), &_logos_method$CARPLAY$SBIconListGridLayoutConfiguration$iconImageInfoForGridSizeClass$, &_logos_orig$CARPLAY$SBIconListGridLayoutConfiguration$iconImageInfoForGridSizeClass$);
-    Class v7 = object_getClass(objc_getClass("CARApplicationLaunchInfo"));
-    MSHookMessageEx(v7, @selector(launchInfoForApplication:withActivationSettings:), &_logos_meta_method$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication$withActivationSettings$, &_logos_meta_orig$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication$withActivationSettings$);
-    Class v8 = objc_getClass("CARAppDockViewController");
-    MSHookMessageEx(v8, @selector(_dockButtonPressed:), &_logos_method$CARPLAY$CARAppDockViewController$_dockButtonPressed$, &_logos_orig$CARPLAY$CARAppDockViewController$_dockButtonPressed$);
-    Class v9 = objc_getClass("_CARDashboardHomeViewController");
-    MSHookMessageEx(v9, @selector(initWithEnvironment:), &_logos_method$CARPLAY$_CARDashboardHomeViewController$initWithEnvironment$, &_logos_orig$CARPLAY$_CARDashboardHomeViewController$initWithEnvironment$);
-    MSHookMessageEx(v9, @selector(_handleAppLibraryRefresh), &_logos_method$CARPLAY$_CARDashboardHomeViewController$_handleAppLibraryRefresh, &_logos_orig$CARPLAY$_CARDashboardHomeViewController$_handleAppLibraryRefresh);
-    Class cls = objc_getClass("CARIconView");
-    _strcpy(v12, "v@:@");
-    class_addMethod(cls, @selector(handleLaunchAppInNormalMode:), &_logos_method$CARPLAY$CARIconView$handleLaunchAppInNormalMode$, (const char *)v12);
-    MSHookMessageEx(cls, @selector(initWithConfigurationOptions:listLayoutProvider:), &_logos_method$CARPLAY$CARIconView$initWithConfigurationOptions$listLayoutProvider$, &_logos_orig$CARPLAY$CARIconView$initWithConfigurationOptions$listLayoutProvider$);
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *bundleIdentifier = [mainBundle bundleIdentifier];
+    if ([bundleIdentifier isEqualToString:@"com.apple.CarPlayApp"]) {
+        Class v5 = object_getClass(objc_getClass("CARApplication"));
+        MSHookMessageEx(v5, @selector(_newApplicationLibrary), &_logos_meta_method$CARPLAY$CARApplication$_newApplicationLibrary, &_logos_meta_orig$CARPLAY$CARApplication$_newApplicationLibrary);
+        Class v6 = objc_getClass("SBIconListGridLayoutConfiguration");
+        MSHookMessageEx(v6, @selector(numberOfPortraitColumns), &_logos_method$CARPLAY$SBIconListGridLayoutConfiguration$numberOfPortraitColumns, &_logos_orig$CARPLAY$SBIconListGridLayoutConfiguration$numberOfPortraitColumns);
+        MSHookMessageEx(v6, @selector(iconImageInfoForGridSizeClass:), &_logos_method$CARPLAY$SBIconListGridLayoutConfiguration$iconImageInfoForGridSizeClass$, &_logos_orig$CARPLAY$SBIconListGridLayoutConfiguration$iconImageInfoForGridSizeClass$);
+        Class v7 = object_getClass(objc_getClass("CARApplicationLaunchInfo"));
+        MSHookMessageEx(v7, @selector(launchInfoForApplication:withActivationSettings:), &_logos_meta_method$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication$withActivationSettings$, &_logos_meta_orig$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication$withActivationSettings$);
+        Class v8 = objc_getClass("CARAppDockViewController");
+        MSHookMessageEx(v8, @selector(_dockButtonPressed:), &_logos_method$CARPLAY$CARAppDockViewController$_dockButtonPressed$, &_logos_orig$CARPLAY$CARAppDockViewController$_dockButtonPressed$);
+        Class v9 = objc_getClass("_CARDashboardHomeViewController");
+        MSHookMessageEx(v9, @selector(initWithEnvironment:), &_logos_method$CARPLAY$_CARDashboardHomeViewController$initWithEnvironment$, &_logos_orig$CARPLAY$_CARDashboardHomeViewController$initWithEnvironment$);
+        MSHookMessageEx(v9, @selector(_handleAppLibraryRefresh), &_logos_method$CARPLAY$_CARDashboardHomeViewController$_handleAppLibraryRefresh, &_logos_orig$CARPLAY$_CARDashboardHomeViewController$_handleAppLibraryRefresh);
+        Class cls = objc_getClass("CARIconView");
+        _strcpy(v12, "v@:@");
+        class_addMethod(cls, @selector(handleLaunchAppInNormalMode:), &_logos_method$CARPLAY$CARIconView$handleLaunchAppInNormalMode$, (const char *)v12);
+        MSHookMessageEx(cls, @selector(initWithConfigurationOptions:listLayoutProvider:), &_logos_method$CARPLAY$CARIconView$initWithConfigurationOptions$listLayoutProvider$, &_logos_orig$CARPLAY$CARIconView$initWithConfigurationOptions$listLayoutProvider$);
+    }
 }
 
 
@@ -215,19 +213,14 @@ int _logos_meta_method$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication
     NSString *v6;
     id v10;
     id v12;
-    SEL v17;
-    NSString *v18;
+    NSString *v17;
+    id v18;
     id v19;
-    SEL v20;
+    UIViewController *v20;
     id v21;
-    UIViewController *v22;
+    id v22;
     id v23;
-    SEL v24;
     id v25;
-    SEL v26;
-    id v27;
-    bool v28;
-    id v30;
     SEL v0 = NSSelectorFromString(@"tags");
     if (![a3 respondsToSelector:v0]) {
         v1 = nil;
@@ -247,8 +240,7 @@ int _logos_meta_method$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication
     } else {
         v6 = [a3 bundleIdentifier];
     }
-    NSDictionary<NSString *, NSString *> *aUserInfo = @{@"identifier": v6};
-    [defaultCenter postNotificationName:@"com.carplayenable" object:nil userInfo:aUserInfo];
+    [defaultCenter postNotificationName:@"com.carplayenable" object:nil userInfo:@{@"identifier": v6}];
     UIApplication *sharedApplication = [UIApplication sharedApplication];
     if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentAppHistory")]) {
         v10 = nil;
@@ -263,152 +255,80 @@ int _logos_meta_method$CARPLAY$CARApplicationLaunchInfo$launchInfoForApplication
     } else {
         v12 = [v10 orderedAppHistory];
     }
-    if ([v12 count] <= 0) {
-        v17 = NSSelectorFromString(@"bundleIdentifier");
-        if (![a3 respondsToSelector:v17]) {
-            v18 = nil;
-            LogSelectorError(a3, NSSelectorFromString(@"bundleIdentifier"));
+    if ([v12 count] > 0) {
+        id firstObject = [v12 firstObject];
+        if (![firstObject respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
+            id firstObject2 = [v12 firstObject];
+            LogSelectorError(firstObject2, NSSelectorFromString(@"bundleIdentifier"));
         } else {
-            v18 = [a3 bundleIdentifier];
+            id firstObject3 = [v12 firstObject];
+            v11 = [firstObject3 bundleIdentifier];
         }
-        [v10 _bundleIdentifierDidBecomeVisible:v18 previousBundleIdentifier:v11];
+    }
+    if (![a3 respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
+        v17 = nil;
+        LogSelectorError(a3, NSSelectorFromString(@"bundleIdentifier"));
+    } else {
+        v17 = [a3 bundleIdentifier];
+    }
+    [v10 _bundleIdentifierDidBecomeVisible:v17 previousBundleIdentifier:v11];
+    if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
+        v18 = nil;
+        LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
+    } else {
+        v18 = [sharedApplication _currentDashboard];
+    }
+    if (![v18 respondsToSelector:NSSelectorFromString(@"rootViewController")]) {
         if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
             v19 = nil;
             LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
         } else {
             v19 = [sharedApplication _currentDashboard];
         }
-        v20 = NSSelectorFromString(@"rootViewController");
-        if (![v19 respondsToSelector:v20]) {
-            if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
-                v21 = nil;
-                LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
-            } else {
-                v21 = [sharedApplication _currentDashboard];
-            }
-            v22 = nil;
-            LogSelectorError(v21, NSSelectorFromString(@"rootViewController"));
-        } else {
-            if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
-                v23 = nil;
-                LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
-            } else {
-                v23 = [sharedApplication _currentDashboard];
-            }
-            v22 = [v23 rootViewController];
-        }
-        v24 = NSSelectorFromString(@"appDockViewController");
-        if (![v22 respondsToSelector:v24]) {
-            v25 = nil;
-            LogSelectorError(v22, NSSelectorFromString(@"appDockViewController"));
-        } else {
-            v25 = [v22 appDockViewController];
-        }
-        v26 = NSSelectorFromString(@"_refreshAppDock");
-        if (![v25 respondsToSelector:v26]) {
-            LogSelectorError(v25, NSSelectorFromString(@"_refreshAppDock"));
-        } else {
-            [v25 _refreshAppDock];
-        }
-        if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
-            v27 = nil;
-            LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
-        } else {
-            v27 = [sharedApplication _currentDashboard];
-        }
-        v28 = !v27;
-        if (v28) {
-            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CARDashboard", v27];
-        } else if ([v27 isKindOfClass:NSClassFromString(@"CARDashboard")]) {
-            goto blk_5808;
-        }
-        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CARDashboard", v27];
-    }
-    id firstObject = [v12 firstObject];
-    if (![firstObject respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
-        id firstObject2 = [v12 firstObject];
-        LogSelectorError(firstObject2, NSSelectorFromString(@"bundleIdentifier"));
+        v20 = nil;
+        LogSelectorError(v19, NSSelectorFromString(@"rootViewController"));
     } else {
-        id firstObject3 = [v12 firstObject];
-        v11 = [firstObject3 bundleIdentifier];
-    }
-    v17 = NSSelectorFromString(@"bundleIdentifier");
-    if (![a3 respondsToSelector:v17]) {
-        v18 = nil;
-        LogSelectorError(a3, NSSelectorFromString(@"bundleIdentifier"));
-    } else {
-        v18 = [a3 bundleIdentifier];
-    }
-    [v10 _bundleIdentifierDidBecomeVisible:v18 previousBundleIdentifier:v11];
-    if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
-        v19 = nil;
-        LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
-    } else {
-        v19 = [sharedApplication _currentDashboard];
-    }
-    v20 = NSSelectorFromString(@"rootViewController");
-    if (![v19 respondsToSelector:v20]) {
         if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
             v21 = nil;
             LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
         } else {
             v21 = [sharedApplication _currentDashboard];
         }
+        v20 = [v21 rootViewController];
+    }
+    if (![v20 respondsToSelector:NSSelectorFromString(@"appDockViewController")]) {
         v22 = nil;
-        LogSelectorError(v21, NSSelectorFromString(@"rootViewController"));
+        LogSelectorError(v20, NSSelectorFromString(@"appDockViewController"));
     } else {
-        if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
-            v23 = nil;
-            LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
-        } else {
-            v23 = [sharedApplication _currentDashboard];
-        }
-        v22 = [v23 rootViewController];
+        v22 = [v20 appDockViewController];
     }
-    v24 = NSSelectorFromString(@"appDockViewController");
-    if (![v22 respondsToSelector:v24]) {
-        v25 = nil;
-        LogSelectorError(v22, NSSelectorFromString(@"appDockViewController"));
+    if (![v22 respondsToSelector:NSSelectorFromString(@"_refreshAppDock")]) {
+        LogSelectorError(v22, NSSelectorFromString(@"_refreshAppDock"));
     } else {
-        v25 = [v22 appDockViewController];
-    }
-    v26 = NSSelectorFromString(@"_refreshAppDock");
-    if (![v25 respondsToSelector:v26]) {
-        LogSelectorError(v25, NSSelectorFromString(@"_refreshAppDock"));
-    } else {
-        [v25 _refreshAppDock];
+        [v22 _refreshAppDock];
     }
     if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentDashboard")]) {
-        v27 = nil;
+        v23 = nil;
         LogSelectorError(sharedApplication, NSSelectorFromString(@"_currentDashboard"));
     } else {
-        v27 = [sharedApplication _currentDashboard];
+        v23 = [sharedApplication _currentDashboard];
     }
-    v28 = !v27;
-    if (v28) {
-        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CARDashboard", v27];
-    } else if ([v27 isKindOfClass:NSClassFromString(@"CARDashboard")]) {
-        goto blk_5808;
+    if (!v23 || ![v23 isKindOfClass:NSClassFromString(@"CARDashboard")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CARDashboard", v23];
     }
-    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CARDashboard", v27];
-blk_5808:
-    SEL v29 = NSSelectorFromString(@"identifierToForegroundAppScenesMap");
-    if (![v27 respondsToSelector:v29]) {
-        v30 = nil;
-        LogSelectorError(v27, NSSelectorFromString(@"identifierToForegroundAppScenesMap"));
+    if (![v23 respondsToSelector:NSSelectorFromString(@"identifierToForegroundAppScenesMap")]) {
+        v25 = nil;
+        LogSelectorError(v23, NSSelectorFromString(@"identifierToForegroundAppScenesMap"));
     } else {
-        v30 = [v27 identifierToForegroundAppScenesMap];
+        v25 = [v23 identifierToForegroundAppScenesMap];
     }
-    NSArray *allKeys = [v30 allKeys];
+    NSArray *allKeys = [v25 allKeys];
     if ([allKeys count] > 0) {
-        id v33 = [objc_getClass("CAREvent") eventWithType:1 context:@"Close carplay app"];
-        if (!v33) {
-            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CAREvent", v33];
-        } else if ([v33 isKindOfClass:NSClassFromString(@"CAREvent")]) {
-            [v27 handleEvent:v33];
-            return 0;
+        id v28 = [objc_getClass("CAREvent") eventWithType:1 context:@"Close carplay app"];
+        if (!v28 || ![v28 isKindOfClass:NSClassFromString(@"CAREvent")]) {
+            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CAREvent", v28];
         }
-        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CAREvent", v33];
+        [v23 handleEvent:v28];
     }
     return 0;
 }
@@ -442,10 +362,10 @@ BOOL _logos_method$CARPLAY$CARAppDockViewController$_dockButtonPressed$(id a1, l
         v5 = [v4 tags];
     }
     BOOL v6 = [v5 containsObject:@"CarPlayEnable"];
-    if (v6) {
-        return [a1 setDockEnabled:1];
+    if (!v6) {
+        return v6;
     }
-    return v6;
+    return [a1 setDockEnabled:1];
 }
 
 
@@ -523,9 +443,7 @@ void _logos_method$CARPLAY$CARIconView$handleLaunchAppInNormalMode$(id a1, SEL a
     } else {
         v1 = [a1 icon];
     }
-    if (!v1) {
-        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBIcon", v1];
-    } else if (![v1 isKindOfClass:NSClassFromString(@"SBIcon")]) {
+    if (!v1 || ![v1 isKindOfClass:NSClassFromString(@"SBIcon")]) {
         [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBIcon", v1];
     }
     if (![v1 respondsToSelector:NSSelectorFromString(@"applicationBundleID")]) {
@@ -535,8 +453,7 @@ void _logos_method$CARPLAY$CARIconView$handleLaunchAppInNormalMode$(id a1, SEL a
         v3 = [v1 applicationBundleID];
     }
     NSDistributedNotificationCenter *defaultCenter = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
-    NSDictionary<NSString *, id> *aUserInfo = @{@"identifier": v3};
-    [defaultCenter postNotificationName:@"com.carplayenable" object:nil userInfo:aUserInfo];
+    [defaultCenter postNotificationName:@"com.carplayenable" object:nil userInfo:@{@"identifier": v3}];
     UIApplication *sharedApplication = [UIApplication sharedApplication];
     if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_currentAppHistory")]) {
         v9 = nil;
@@ -772,62 +689,58 @@ void _logosLocalCtor_63538fe6(void)
     uint8_t v20[4];
     uint8_t v24[4];
     uint8_t v29[4];
-    uint8_t v35[4];
+    uint8_t v34[4];
+    uint8_t v37[4];
     uint8_t v39[4];
-    uint8_t v41[4];
-    uint8_t v45[36];
+    uint8_t v43[36];
     long hook_BKSDisplayServicesSetScreenBlanked;
     UIDevice *currentDevice = [UIDevice currentDevice];
     NSString *systemVersion = [currentDevice systemVersion];
     if ([systemVersion compare:@"14.0" options:NSNumericSearch] == NSOrderedAscending) {
         return;
-    } else {
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        NSString *bundleIdentifier = [mainBundle bundleIdentifier];
-        if (![bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
-            return;
-        }
     }
-    Class v5 = objc_getClass("SBSuspendedUnderLockManager");
-    MSHookMessageEx(v5, @selector(_shouldBeBackgroundUnderLockForScene:withSettings:), &_logos_method$SPRINGBOARD$SBSuspendedUnderLockManager$_shouldBeBackgroundUnderLockForScene$withSettings$, &_logos_orig$SPRINGBOARD$SBSuspendedUnderLockManager$_shouldBeBackgroundUnderLockForScene$withSettings$);
-    Class cls4 = objc_getClass("SpringBoard");
-    _strcpy(v8, "v@:@");
-    class_addMethod(cls4, @selector(handleCarPlayLaunchNotification:), &_logos_method$SPRINGBOARD$SpringBoard$handleCarPlayLaunchNotification$, (const char *)v8);
-    _strcpy(v13, "v@:@");
-    class_addMethod(cls4, @selector(launchAppOnCarplay:), &_logos_method$SPRINGBOARD$SpringBoard$launchAppOnCarplay$, (const char *)v13);
-    MSHookMessageEx(cls4, @selector(applicationDidFinishLaunching:), &_logos_method$SPRINGBOARD$SpringBoard$applicationDidFinishLaunching$, &_logos_orig$SPRINGBOARD$SpringBoard$applicationDidFinishLaunching$);
-    _strcpy(v18, "@@:");
-    class_addMethod(cls4, @selector(liveCarplayWindow), &_logos_method$SPRINGBOARD$SpringBoard$liveCarplayWindow, (const char *)v18);
-    _strcpy(v20, "v@:");
-    class_addMethod(cls4, @selector(carplayIsConnectedChanged), &_logos_method$SPRINGBOARD$SpringBoard$carplayIsConnectedChanged, (const char *)v20);
-    Class v21 = objc_getClass("SBSceneView");
-    MSHookMessageEx(v21, @selector(_updateReferenceSize:andOrientation:), &_logos_method$SPRINGBOARD$SBSceneView$_updateReferenceSize$andOrientation$, &_logos_orig$SPRINGBOARD$SBSceneView$_updateReferenceSize$andOrientation$);
-    Class cls = objc_getClass("FBScene");
-    MSHookMessageEx(cls, @selector(updateSettings:withTransitionContext:completion:), &_logos_method$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$, &_logos_orig$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$);
-    _strcpy(v24, "@@:");
-    class_addMethod(cls, @selector(client), &_logos_method$SPRINGBOARD$FBScene$client, (const char *)v24);
-    Class v25 = objc_getClass("SBMainSwitcherViewController");
-    MSHookMessageEx(v25, @selector(_updateContentViewInterfaceOrientation:), &_logos_method$SPRINGBOARD$SBMainSwitcherViewController$_updateContentViewInterfaceOrientation$, &_logos_orig$SPRINGBOARD$SBMainSwitcherViewController$_updateContentViewInterfaceOrientation$);
-    Class cls2 = objc_getClass("SBDeviceApplicationSceneView");
-    _strcpy(v29, "B@:");
-    class_addMethod(cls2, @selector(isMainScreenCounterpartToLiveCarplayApp), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$isMainScreenCounterpartToLiveCarplayApp, (const char *)v29);
-    _strcpy(v35, "B@:");
-    class_addMethod(cls2, @selector(isHostingContentOnCarplayScreen), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$isHostingContentOnCarplayScreen, (const char *)v35);
-    MSHookMessageEx(cls2, @selector(layoutSubviews), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$layoutSubviews, &_logos_orig$SPRINGBOARD$SBDeviceApplicationSceneView$layoutSubviews);
-    MSHookMessageEx(cls2, @selector(homeGrabberView), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$homeGrabberView, &_logos_orig$SPRINGBOARD$SBDeviceApplicationSceneView$homeGrabberView);
-    _strcpy(v39, "v@:");
-    class_addMethod(cls2, @selector(rotateToDeviceOrientation), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$rotateToDeviceOrientation, (const char *)v39);
-    _strcpy(v41, "v@:");
-    class_addMethod(cls2, @selector(drawCarplayPlaceholder), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$drawCarplayPlaceholder, (const char *)v41);
-    MSHookMessageEx(cls2, @selector(setDisplayMode:animationFactory:completion:), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$setDisplayMode$animationFactory$completion$, &_logos_orig$SPRINGBOARD$SBDeviceApplicationSceneView$setDisplayMode$animationFactory$completion$);
-    Class cls3 = objc_getClass("UIScreen");
-    _strcpy(v45, "{CGRect={CGPoint=dd}{CGSize=dd}}@:i");
-    class_addMethod(cls3, @selector(boundsForOrientation:), &_logos_method$SPRINGBOARD$UIScreen$boundsForOrientation$, (const char *)v45);
-    Class v49 = objc_getClass("SBMainDisplaySceneManager");
-    MSHookMessageEx(v49, @selector(_sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:), &_logos_method$SPRINGBOARD$SBMainDisplaySceneManager$_sceneIdentityForApplication$createPrimaryIfRequired$sceneSessionRole$, &_logos_orig$SPRINGBOARD$SBMainDisplaySceneManager$_sceneIdentityForApplication$createPrimaryIfRequired$sceneSessionRole$);
-    void *v50 = dlopen(NULL, 0);
-    void *v51 = dlsym(v50, "BKSDisplayServicesSetScreenBlanked");
-    MSHookFunction(v51, &hook_BKSDisplayServicesSetScreenBlanked, &orig_BKSDisplayServicesSetScreenBlanked);
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *bundleIdentifier = [mainBundle bundleIdentifier];
+    if ([bundleIdentifier isEqualToString:@"com.apple.springboard"]) {
+        Class v5 = objc_getClass("SBSuspendedUnderLockManager");
+        MSHookMessageEx(v5, @selector(_shouldBeBackgroundUnderLockForScene:withSettings:), &_logos_method$SPRINGBOARD$SBSuspendedUnderLockManager$_shouldBeBackgroundUnderLockForScene$withSettings$, &_logos_orig$SPRINGBOARD$SBSuspendedUnderLockManager$_shouldBeBackgroundUnderLockForScene$withSettings$);
+        Class cls4 = objc_getClass("SpringBoard");
+        _strcpy(v8, "v@:@");
+        class_addMethod(cls4, @selector(handleCarPlayLaunchNotification:), &_logos_method$SPRINGBOARD$SpringBoard$handleCarPlayLaunchNotification$, (const char *)v8);
+        _strcpy(v13, "v@:@");
+        class_addMethod(cls4, @selector(launchAppOnCarplay:), &_logos_method$SPRINGBOARD$SpringBoard$launchAppOnCarplay$, (const char *)v13);
+        MSHookMessageEx(cls4, @selector(applicationDidFinishLaunching:), &_logos_method$SPRINGBOARD$SpringBoard$applicationDidFinishLaunching$, &_logos_orig$SPRINGBOARD$SpringBoard$applicationDidFinishLaunching$);
+        _strcpy(v18, "@@:");
+        class_addMethod(cls4, @selector(liveCarplayWindow), &_logos_method$SPRINGBOARD$SpringBoard$liveCarplayWindow, (const char *)v18);
+        _strcpy(v20, "v@:");
+        class_addMethod(cls4, @selector(carplayIsConnectedChanged), &_logos_method$SPRINGBOARD$SpringBoard$carplayIsConnectedChanged, (const char *)v20);
+        Class v21 = objc_getClass("SBSceneView");
+        MSHookMessageEx(v21, @selector(_updateReferenceSize:andOrientation:), &_logos_method$SPRINGBOARD$SBSceneView$_updateReferenceSize$andOrientation$, &_logos_orig$SPRINGBOARD$SBSceneView$_updateReferenceSize$andOrientation$);
+        Class cls = objc_getClass("FBScene");
+        MSHookMessageEx(cls, @selector(updateSettings:withTransitionContext:completion:), &_logos_method$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$, &_logos_orig$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$);
+        _strcpy(v24, "@@:");
+        class_addMethod(cls, @selector(client), &_logos_method$SPRINGBOARD$FBScene$client, (const char *)v24);
+        Class v25 = objc_getClass("SBMainSwitcherViewController");
+        MSHookMessageEx(v25, @selector(_updateContentViewInterfaceOrientation:), &_logos_method$SPRINGBOARD$SBMainSwitcherViewController$_updateContentViewInterfaceOrientation$, &_logos_orig$SPRINGBOARD$SBMainSwitcherViewController$_updateContentViewInterfaceOrientation$);
+        Class cls2 = objc_getClass("SBDeviceApplicationSceneView");
+        _strcpy(v29, "B@:");
+        class_addMethod(cls2, @selector(isMainScreenCounterpartToLiveCarplayApp), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$isMainScreenCounterpartToLiveCarplayApp, (const char *)v29);
+        _strcpy(v34, "B@:");
+        class_addMethod(cls2, @selector(isHostingContentOnCarplayScreen), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$isHostingContentOnCarplayScreen, (const char *)v34);
+        MSHookMessageEx(cls2, @selector(layoutSubviews), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$layoutSubviews, &_logos_orig$SPRINGBOARD$SBDeviceApplicationSceneView$layoutSubviews);
+        MSHookMessageEx(cls2, @selector(homeGrabberView), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$homeGrabberView, &_logos_orig$SPRINGBOARD$SBDeviceApplicationSceneView$homeGrabberView);
+        _strcpy(v37, "v@:");
+        class_addMethod(cls2, @selector(rotateToDeviceOrientation), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$rotateToDeviceOrientation, (const char *)v37);
+        _strcpy(v39, "v@:");
+        class_addMethod(cls2, @selector(drawCarplayPlaceholder), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$drawCarplayPlaceholder, (const char *)v39);
+        MSHookMessageEx(cls2, @selector(setDisplayMode:animationFactory:completion:), &_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$setDisplayMode$animationFactory$completion$, &_logos_orig$SPRINGBOARD$SBDeviceApplicationSceneView$setDisplayMode$animationFactory$completion$);
+        Class cls3 = objc_getClass("UIScreen");
+        _strcpy(v43, "{CGRect={CGPoint=dd}{CGSize=dd}}@:i");
+        class_addMethod(cls3, @selector(boundsForOrientation:), &_logos_method$SPRINGBOARD$UIScreen$boundsForOrientation$, (const char *)v43);
+        Class v46 = objc_getClass("SBMainDisplaySceneManager");
+        MSHookMessageEx(v46, @selector(_sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:), &_logos_method$SPRINGBOARD$SBMainDisplaySceneManager$_sceneIdentityForApplication$createPrimaryIfRequired$sceneSessionRole$, &_logos_orig$SPRINGBOARD$SBMainDisplaySceneManager$_sceneIdentityForApplication$createPrimaryIfRequired$sceneSessionRole$);
+        MSHookFunction(dlsym(dlopen(NULL, 0), "BKSDisplayServicesSetScreenBlanked"), &hook_BKSDisplayServicesSetScreenBlanked, &orig_BKSDisplayServicesSetScreenBlanked);
+    }
 }
 
 
@@ -1040,13 +953,11 @@ long _logos_method$SPRINGBOARD$SpringBoard$applicationDidFinishLaunching$(id a1,
                 v27 = nil;
                 LogSelectorError(v14, NSSelectorFromString(@"displayName"));
             }
-            NSDictionary<NSString *, id> *v29 = @{@"name": v27, @"bundleID": v15, @"iconImage": v25};
-            [v37 addObject:v29];
+            [v37 addObject:@{@"name": v27, @"bundleID": v15, @"iconImage": v25}];
         }
-        NSDictionary<NSString *, id> *v32 = @{@"appList": v37};
         Class v33 = objc_getClass("NSDistributedNotificationCenter");
         NSDistributedNotificationCenter *defaultCenter = [v33 defaultCenter];
-        NSNotification *notification = [NSNotification notificationWithName:@"com.carplay.prefs.app_data" object:@"Receiving" userInfo:v32];
+        NSNotification *notification = [NSNotification notificationWithName:@"com.carplay.prefs.app_data" object:@"Receiving" userInfo:@{@"appList": v37}];
         [defaultCenter postNotification:notification];
     }]);
 }
@@ -1093,16 +1004,16 @@ int _logos_method$SPRINGBOARD$SBSceneView$_updateReferenceSize$andOrientation$(s
 }
 
 
-int _logos_method$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$(id a1, long a2, id a3, long a4, long a5)
+long _logos_method$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$(id a1, long a2, id a3, long a4, long a5)
 {
     NSString *v3;
     id v15;
+    long v17;
     id v18;
     id v19;
     NSString *v20;
     id v21;
     int v23;
-    long v17;
     NSString *v1 = [NSString stringWithFormat:@"%s", "_logos_method$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$"];
     NSLog(@"carplayenable LOG_LIFECYCLE_EVENT %@", v1);
     SEL v2 = NSSelectorFromString(@"debugDescription");
@@ -1125,46 +1036,48 @@ int _logos_method$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$compl
     }
     SEL v16 = NSSelectorFromString(@"process");
     if (![v15 respondsToSelector:v16]) {
-        return _logos_orig$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$(a1, a2, a3, a4, a5);
-    }
-    if (![v15 respondsToSelector:NSSelectorFromString(@"process")]) {
-        v18 = nil;
-        LogSelectorError(v15, NSSelectorFromString(@"process"));
-    } else {
-        v18 = [v15 process];
-    }
-    if (![v18 respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
-        if (![v15 respondsToSelector:NSSelectorFromString(@"process")]) {
-            v19 = nil;
-            LogSelectorError(v15, NSSelectorFromString(@"process"));
-        } else {
-            v19 = [v15 process];
-        }
-        v20 = nil;
-        LogSelectorError(v19, NSSelectorFromString(@"bundleIdentifier"));
+        v17 = _logos_orig$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$(a1, a2, a3, a4, a5);
     } else {
         if (![v15 respondsToSelector:NSSelectorFromString(@"process")]) {
-            v21 = nil;
+            v18 = nil;
             LogSelectorError(v15, NSSelectorFromString(@"process"));
         } else {
-            v21 = [v15 process];
+            v18 = [v15 process];
         }
-        v20 = [v21 bundleIdentifier];
-    }
-    UIApplication *sharedApplication = [UIApplication sharedApplication];
-    if ([objc_getAssociatedObject(sharedApplication, NSSelectorFromString(@"lockAssertions")) containsObject:v20]) {
-        if (![a3 respondsToSelector:NSSelectorFromString(@"isForeground")]) {
-            LogSelectorError(a3, NSSelectorFromString(@"isForeground"));
-            v23 = 0;
+        if (![v18 respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
+            if (![v15 respondsToSelector:NSSelectorFromString(@"process")]) {
+                v19 = nil;
+                LogSelectorError(v15, NSSelectorFromString(@"process"));
+            } else {
+                v19 = [v15 process];
+            }
+            v20 = nil;
+            LogSelectorError(v19, NSSelectorFromString(@"bundleIdentifier"));
         } else {
-            v23 = [a3 isForeground];
-            v17 = v23;
+            if (![v15 respondsToSelector:NSSelectorFromString(@"process")]) {
+                v21 = nil;
+                LogSelectorError(v15, NSSelectorFromString(@"process"));
+            } else {
+                v21 = [v15 process];
+            }
+            v20 = [v21 bundleIdentifier];
         }
-        if ((v23 & 1) == 0) {
-            return v17;
+        UIApplication *sharedApplication = [UIApplication sharedApplication];
+        if ([objc_getAssociatedObject(sharedApplication, NSSelectorFromString(@"lockAssertions")) containsObject:v20]) {
+            if (![a3 respondsToSelector:NSSelectorFromString(@"isForeground")]) {
+                LogSelectorError(a3, NSSelectorFromString(@"isForeground"));
+                v23 = 0;
+            } else {
+                v23 = [a3 isForeground];
+                v17 = v23;
+            }
+            if ((v23 & 1) == 0) {
+                return v17;
+            }
         }
+        v17 = _logos_orig$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$(a1, a2, a3, a4, a5);
     }
-    return _logos_orig$SPRINGBOARD$FBScene$updateSettings$withTransitionContext$completion$(a1, a2, a3, a4, a5);
+    return v17;
 }
 
 
@@ -1240,10 +1153,7 @@ bool _logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$isMainScreenCounterp
     } else {
         v11 = [v10 _sceneView];
     }
-    if (!v11) {
-        return false;
-    }
-    return ![a1 isEqual:v11];
+    return v11 && ![a1 isEqual:v11];
 }
 
 
@@ -1409,7 +1319,6 @@ void _logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$rotateToDeviceOrient
 void _logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$drawCarplayPlaceholder(id a1, SEL a2)
 {
     UIView *v5;
-    int v9;
     long v28;
     NSString *v1 = [NSString stringWithFormat:@"%s", "_logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$drawCarplayPlaceholder"];
     NSLog(@"carplayenable LOG_LIFECYCLE_EVENT %@", v1);
@@ -1424,50 +1333,40 @@ void _logos_method$SPRINGBOARD$SBDeviceApplicationSceneView$drawCarplayPlacehold
     }
     if (v5 != nil) {
         id v7 = objc_getAssociatedObject(v5, &kPropertyKey_didDrawPlaceholder);
-        v9 = (!v7) ? -1 : [v7 intValue];
-        if (v9 == orientation) {
-            [v5 setWallpaperStyle:18];
-            if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
-                v28 = 0;
-                LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
-            } else {
-                v28 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
+        int v9 = (!v7) ? -1 : [v7 intValue];
+        if (v9 != orientation) {
+            if (v9 > 0) {
+                NSArray<UIView *> *subviews = [v5 subviews];
+                for (UIView *v29 in subviews) {
+                    if ([v29 isKindOfClass:objc_getClass("UILabel")]) {
+                        [v29 removeFromSuperview];
+                    }
+                }
             }
-            [a1 setDisplayMode:1 animationFactory:v28 completion:0];
-            return;
+            NSNumber *value = [NSNumber numberWithInt:orientation];
+            objc_setAssociatedObject(v5, &kPropertyKey_didDrawPlaceholder, value, OBJC_ASSOCIATION_RETAIN);
+            UIScreen *mainScreen = [UIScreen mainScreen];
+            CGRect v24 = [mainScreen boundsForOrientation:orientation];
+            UILabel *v25 = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 300.0, v24.size.width, 50.0)];
+            [v25 setText:@"Running on CarPlay Screen"];
+            [v25 setTextAlignment:NSTextAlignmentCenter];
+            UIFont *v26 = [UIFont systemFontOfSize:24.0 weight:UIFontWeightSemibold];
+            [v25 setFont:v26];
+            CGPoint center = [v5 center];
+            [v25 setCenter:center];
+            [v5 addSubview:v25];
         }
+        [v5 setWallpaperStyle:18];
+        if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
+            v28 = 0;
+            LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
+        } else {
+            v28 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
+        }
+        [a1 setDisplayMode:1 animationFactory:v28 completion:0];
     } else {
         NSLog(@"On-device app scene for a carplay-hosted app has a nil background view");
-        return;
     }
-    if (v9 > 0) {
-        NSArray<UIView *> *subviews = [v5 subviews];
-        for (UIView *v29 in subviews) {
-            if ([v29 isKindOfClass:objc_getClass("UILabel")]) {
-                [v29 removeFromSuperview];
-            }
-        }
-    }
-    NSNumber *value = [NSNumber numberWithInt:orientation];
-    objc_setAssociatedObject(v5, &kPropertyKey_didDrawPlaceholder, value, OBJC_ASSOCIATION_RETAIN);
-    UIScreen *mainScreen = [UIScreen mainScreen];
-    CGRect v24 = [mainScreen boundsForOrientation:orientation];
-    UILabel *v25 = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 300.0, v24.size.width, 50.0)];
-    [v25 setText:@"Running on CarPlay Screen"];
-    [v25 setTextAlignment:NSTextAlignmentCenter];
-    UIFont *v26 = [UIFont systemFontOfSize:24.0 weight:UIFontWeightSemibold];
-    [v25 setFont:v26];
-    CGPoint center = [v5 center];
-    [v25 setCenter:center];
-    [v5 addSubview:v25];
-    [v5 setWallpaperStyle:18];
-    if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
-        v28 = 0;
-        LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
-    } else {
-        v28 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
-    }
-    [a1 setDisplayMode:1 animationFactory:v28 completion:0];
 }
 
 
@@ -1503,16 +1402,14 @@ CGRect _logos_method$SPRINGBOARD$UIScreen$boundsForOrientation$(id a1, SEL a2, U
         if (v3 >= v5) {
             v5 = v3;
         }
-        CGSize v10 = CGSizeMake(width2, v5);
-        v1.size = v10;
+        v1.size = CGSizeMake(width2, v5);
     } else {
         double v11 = v3 >= v5;
         CGFloat width = (v11) ? v3 : v5;
         if (v3 >= v5) {
             v3 = v5;
         }
-        CGSize v14 = CGSizeMake(width, v3);
-        v1.size = v14;
+        v1.size = CGSizeMake(width, v3);
     }
     return v1;
 }
@@ -1550,30 +1447,24 @@ double CGSizeMake(double a1)
 __attribute__((constructor))
 void _logosLocalCtor_fc490ca4(void)
 {
-    NSString *bundleIdentifier;
     uint8_t v9[5];
     UIDevice *currentDevice = [UIDevice currentDevice];
     NSString *systemVersion = [currentDevice systemVersion];
     if ([systemVersion compare:@"14.0" options:NSNumericSearch] == NSOrderedAscending) {
         return;
-    } else {
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        NSString *bundlePath = [mainBundle bundlePath];
-        NSBundle *mainBundle2 = [NSBundle mainBundle];
-        bundleIdentifier = [mainBundle2 bundleIdentifier];
-        if (![bundlePath containsString:@".app"]) {
-            return;
-        }
     }
-    if ([bundleIdentifier containsString:@"com.apple."]) {
-        return;
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *bundlePath = [mainBundle bundlePath];
+    NSBundle *mainBundle2 = [NSBundle mainBundle];
+    NSString *bundleIdentifier = [mainBundle2 bundleIdentifier];
+    if ([bundlePath containsString:@".app"] && ![bundleIdentifier containsString:@"com.apple."]) {
+        Class cls = objc_getClass("UIApplication");
+        MSHookMessageEx(cls, @selector(init), &_logos_method$APPS$UIApplication$init, &_logos_orig$APPS$UIApplication$init);
+        _strcpy(v9, "v@:@");
+        class_addMethod(cls, @selector(handleRotationRequest:), &_logos_method$APPS$UIApplication$handleRotationRequest$, (const char *)v9);
+        Class v10 = objc_getClass("UIWindow");
+        MSHookMessageEx(v10, @selector(_setRotatableViewOrientation:duration:force:), &_logos_method$APPS$UIWindow$_setRotatableViewOrientation$duration$force$, &_logos_orig$APPS$UIWindow$_setRotatableViewOrientation$duration$force$);
     }
-    Class cls = objc_getClass("UIApplication");
-    MSHookMessageEx(cls, @selector(init), &_logos_method$APPS$UIApplication$init, &_logos_orig$APPS$UIApplication$init);
-    _strcpy(v9, "v@:@");
-    class_addMethod(cls, @selector(handleRotationRequest:), &_logos_method$APPS$UIApplication$handleRotationRequest$, (const char *)v9);
-    Class v10 = objc_getClass("UIWindow");
-    MSHookMessageEx(v10, @selector(_setRotatableViewOrientation:duration:force:), &_logos_method$APPS$UIWindow$_setRotatableViewOrientation$duration$force$, &_logos_orig$APPS$UIWindow$_setRotatableViewOrientation$duration$force$);
 }
 
 
@@ -1724,25 +1615,23 @@ double CGSizeMake(double a1)
 BOOL writeSymbolicatedLogToFile(NSString *a1, NSString *a2)
 {
     struct AnonymousStruct_9 v0 = CSSymbolicatorCreateWithTask(mach_task_self_);
-    unsigned long v1 = v0.field_0;
-    unsigned long v2 = v0.field_8;
-    NSString *v3 = [a1 copy];
-    NSRegularExpression *v5 = [NSRegularExpression regularExpressionWithPattern:@"0[xX][0-9a-fA-F]+" options:0 error:nil];
+    NSString *v1 = [a1 copy];
+    NSRegularExpression *v3 = [NSRegularExpression regularExpressionWithPattern:@"0[xX][0-9a-fA-F]+" options:0 error:nil];
     NSUInteger length = [a1 length];
-    NSArray<NSTextCheckingResult *> *v7 = [v5 matchesInString:a1 options:0 range:(NSRange){0, length}];
-    for (NSTextCheckingResult *v4 in v7) {
-        NSRange range = [v4 range];
+    NSArray<NSTextCheckingResult *> *v5 = [v3 matchesInString:a1 options:0 range:(NSRange){0, length}];
+    for (NSTextCheckingResult *v2 in v5) {
+        NSRange range = [v2 range];
         NSString *target = [a1 substringWithRange:range];
         const char *UTF8String = [target UTF8String];
-        struct AnonymousStruct_9 v19 = CSSymbolicatorGetSymbolWithAddressAtTime(v1, v2, strtoull(UTF8String, NULL, 0), 0x80000000);
-        unsigned long v20 = v19.field_0;
-        unsigned long v21 = v19.field_8;
-        if ((CSIsNull(v20, v19.field_8) & 255) == 0) {
-            NSString *replacement = [NSString stringWithFormat:@"%s", CSSymbolGetName(v20, v21)];
-            v3 = [v3 stringByReplacingOccurrencesOfString:target withString:replacement];
+        struct AnonymousStruct_9 v17 = CSSymbolicatorGetSymbolWithAddressAtTime(v0.field_0, v0.field_8, strtoull(UTF8String, NULL, 0), 0x80000000);
+        unsigned long v18 = v17.field_0;
+        unsigned long v19 = v17.field_8;
+        if ((CSIsNull(v18, v17.field_8) & 255) == 0) {
+            NSString *replacement = [NSString stringWithFormat:@"%s", CSSymbolGetName(v18, v19)];
+            v1 = [v1 stringByReplacingOccurrencesOfString:target withString:replacement];
         }
     }
-    return [v3 writeToFile:a2 atomically:NO encoding:NSUTF8StringEncoding error:nil];
+    return [v1 writeToFile:a2 atomically:NO encoding:NSUTF8StringEncoding error:nil];
 }
 
 

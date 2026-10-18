@@ -120,59 +120,57 @@ bool -[JWRRecorderManager validateMovieAtURL:reason:](NSURL *a1, NSString **a2)
 {
     int v1;
     Float64 v16;
-    if (!a1) {
-blk_5cc0:
+    bool v13 = !a1;
+    if (!v13) {
+        NSFileManager *defaultManager = [NSFileManager defaultManager];
+        NSString *path = [a1 path];
+        BOOL v4 = [defaultManager fileExistsAtPath:path];
+        v13 = !v4;
+    }
+    if (v13) {
         v1 = 0;
         if (a2 != 0) {
             *(a2) = @"file does not exist";
-            return v1;
-        }
-        return v1;
-    }
-    NSFileManager *defaultManager = [NSFileManager defaultManager];
-    NSString *path = [a1 path];
-    if (![defaultManager fileExistsAtPath:path]) {
-        goto blk_5cc0;
-    }
-    NSFileManager *defaultManager2 = [NSFileManager defaultManager];
-    NSString *path2 = [a1 path];
-    NSError *error = nil;
-    NSDictionary<NSFileAttributeKey, id> *v8 = [defaultManager2 attributesOfItemAtPath:path2 error:&error];
-    id v10 = [v8 objectForKeyedSubscript:NSFileSize];
-    unsigned long unsignedLongLongValue = [v10 unsignedLongLongValue];
-    if (error != nil || unsignedLongLongValue >> 14 == 0) {
-        if (!a2) {
-            v1 = 0;
-        } else {
-            NSString *v12 = [NSString stringWithFormat:@"file is too small (%llu bytes; error=%@)", unsignedLongLongValue, error];
-            v1 = 0;
-            *(a2) = v12;
         }
     } else {
-        AVURLAsset *v14 = [AVURLAsset URLAssetWithURL:a1 options:nil];
-        if (!v14) {
-            v16 = 0.0;
-        } else {
-            CMTime duration = [v14 duration];
-            v16 = 0.0;
-            if ((duration.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid) {
-                CMTime duration2 = [v14 duration];
-                v16 = CMTimeGetSeconds(duration2);
-            }
-        }
-        NSArray<AVAssetTrack *> *v18 = [v14 tracksWithMediaType:AVMediaTypeVideo];
-        NSUInteger count = [v18 count];
-        if (!count || !isfinite(v16) || v16 < 0.1) {
+        NSFileManager *defaultManager2 = [NSFileManager defaultManager];
+        NSString *path2 = [a1 path];
+        NSError *error = nil;
+        NSDictionary<NSFileAttributeKey, id> *v8 = [defaultManager2 attributesOfItemAtPath:path2 error:&error];
+        id v10 = [v8 objectForKeyedSubscript:NSFileSize];
+        unsigned long unsignedLongLongValue = [v10 unsignedLongLongValue];
+        if (error != nil || unsignedLongLongValue >> 14 == 0) {
             if (!a2) {
                 v1 = 0;
             } else {
-                bool v20 = count != 0;
-                NSString *v21 = [NSString stringWithFormat:@"missing video frames (hasVideo=%d duration=%.3f)", v20, v16];
+                NSString *v12 = [NSString stringWithFormat:@"file is too small (%llu bytes; error=%@)", unsignedLongLongValue, error];
                 v1 = 0;
-                *(a2) = v21;
+                *(a2) = v12;
             }
         } else {
-            v1 = 1;
+            AVURLAsset *v14 = [AVURLAsset URLAssetWithURL:a1 options:nil];
+            if (!v14) {
+                v16 = 0.0;
+            } else {
+                CMTime duration = [v14 duration];
+                v16 = 0.0;
+                if ((duration.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid) {
+                    v16 = CMTimeGetSeconds([v14 duration]);
+                }
+            }
+            NSArray<AVAssetTrack *> *v18 = [v14 tracksWithMediaType:AVMediaTypeVideo];
+            NSUInteger count = [v18 count];
+            if (!count || !isfinite(v16) || v16 < 0.1) {
+                if (!a2) {
+                    v1 = 0;
+                } else {
+                    NSString *v21 = [NSString stringWithFormat:@"missing video frames (hasVideo=%d duration=%.3f)", count != 0, v16];
+                    v1 = 0;
+                    *(a2) = v21;
+                }
+            } else {
+                v1 = 1;
+            }
         }
     }
     return v1;
@@ -188,48 +186,49 @@ BOOL -[JWRRecorderManager finalizeStagedVideoAtURL:recovered:finalURL:](NSURL *a
     NSFileManager *defaultManager3 = [NSFileManager defaultManager];
     NSString *path4 = [a1 path];
     if (![defaultManager3 fileExistsAtPath:path4]) {
-        return NO;
-    }
-    NSString *v5 = nil;
-    if (![self validateMovieAtURL:a1 reason:&v5]) {
-        NSFileManager *defaultManager5 = [NSFileManager defaultManager];
-        NSString *path7 = [a1 path];
-        NSDictionary<NSFileAttributeKey, id> *v10 = [defaultManager5 attributesOfItemAtPath:path7 error:nil];
-        id v11 = [v10 objectForKey:NSFileSize];
-        unsigned long unsignedLongLongValue = [v11 unsignedLongLongValue];
-        if (unsignedLongLongValue >> 14 != 0) {
-            NSString *path = [a1 path];
-            JWRLog(@"retained nontrivial invalid staged movie for manual recovery path=%@ bytes=%llu reason=%@", path, unsignedLongLongValue, v5);
-        } else {
-            NSFileManager *defaultManager = [NSFileManager defaultManager];
-            NSError *error = nil;
-            [defaultManager removeItemAtURL:a1 error:&error];
-            NSString *path2 = [a1 path];
-            JWRLog(@"discarded header-only staged movie path=%@ bytes=%llu reason=%@ removeError=%@", path2, unsignedLongLongValue, v5, error);
-        }
         v1 = NO;
     } else {
-        NSURL *v14 = [self finalURLForStagedURL:a1 recovered:a2];
-        NSFileManager *defaultManager2 = [NSFileManager defaultManager];
-        NSString *path3 = [v14 path];
-        if ([defaultManager2 fileExistsAtPath:path3]) {
-            NSURL *URLByDeletingPathExtension = [v14 URLByDeletingPathExtension];
-            NSString *lastPathComponent = [URLByDeletingPathExtension lastPathComponent];
-            NSURL *URLByDeletingLastPathComponent = [v14 URLByDeletingLastPathComponent];
-            NSUUID *UUID = [NSUUID UUID];
-            NSString *UUIDString = [UUID UUIDString];
-            NSString *pathComponent = [NSString stringWithFormat:@"%@_%@.mov", lastPathComponent, UUIDString];
-            NSURL *v28 = [URLByDeletingLastPathComponent URLByAppendingPathComponent:pathComponent];
-            v14 = v28;
-        }
-        NSFileManager *defaultManager4 = [NSFileManager defaultManager];
-        NSError *error2 = nil;
-        v1 = [defaultManager4 moveItemAtURL:a1 toURL:v14 error:&error2];
-        NSString *path5 = [a1 path];
-        NSString *path6 = [v14 path];
-        JWRLog(@"video finalize staged=%@ final=%@ moved=%d error=%@", path5, path6, v1, error2);
-        if (a3 != 0 && v1) {
-            *(a3) = v14;
+        NSString *v5 = nil;
+        if (![self validateMovieAtURL:a1 reason:&v5]) {
+            NSFileManager *defaultManager5 = [NSFileManager defaultManager];
+            NSString *path7 = [a1 path];
+            NSDictionary<NSFileAttributeKey, id> *v10 = [defaultManager5 attributesOfItemAtPath:path7 error:nil];
+            id v11 = [v10 objectForKey:NSFileSize];
+            unsigned long unsignedLongLongValue = [v11 unsignedLongLongValue];
+            if (unsignedLongLongValue >> 14 != 0) {
+                NSString *path = [a1 path];
+                JWRLog(@"retained nontrivial invalid staged movie for manual recovery path=%@ bytes=%llu reason=%@", path, unsignedLongLongValue, v5);
+            } else {
+                NSFileManager *defaultManager = [NSFileManager defaultManager];
+                NSError *error = nil;
+                [defaultManager removeItemAtURL:a1 error:&error];
+                NSString *path2 = [a1 path];
+                JWRLog(@"discarded header-only staged movie path=%@ bytes=%llu reason=%@ removeError=%@", path2, unsignedLongLongValue, v5, error);
+            }
+            v1 = NO;
+        } else {
+            NSURL *v14 = [self finalURLForStagedURL:a1 recovered:a2];
+            NSFileManager *defaultManager2 = [NSFileManager defaultManager];
+            NSString *path3 = [v14 path];
+            if ([defaultManager2 fileExistsAtPath:path3]) {
+                NSURL *URLByDeletingPathExtension = [v14 URLByDeletingPathExtension];
+                NSString *lastPathComponent = [URLByDeletingPathExtension lastPathComponent];
+                NSURL *URLByDeletingLastPathComponent = [v14 URLByDeletingLastPathComponent];
+                NSUUID *UUID = [NSUUID UUID];
+                NSString *UUIDString = [UUID UUIDString];
+                NSString *pathComponent = [NSString stringWithFormat:@"%@_%@.mov", lastPathComponent, UUIDString];
+                NSURL *v28 = [URLByDeletingLastPathComponent URLByAppendingPathComponent:pathComponent];
+                v14 = v28;
+            }
+            NSFileManager *defaultManager4 = [NSFileManager defaultManager];
+            NSError *error2 = nil;
+            v1 = [defaultManager4 moveItemAtURL:a1 toURL:v14 error:&error2];
+            NSString *path5 = [a1 path];
+            NSString *path6 = [v14 path];
+            JWRLog(@"video finalize staged=%@ final=%@ moved=%d error=%@", path5, path6, v1, error2);
+            if (a3 != 0 && v1) {
+                *(a3) = v14;
+            }
         }
     }
     return v1;
@@ -345,466 +344,257 @@ CMVideoDimensions -[JWRRecorderManager requestedVideoDimensions](void)
     if ((unsigned long)(videoQuality + 1) > 3) {
         return (CMVideoDimensions){1920, 1080};
     }
-    unsigned long packed_result1 = (&qword_10d38)[videoQuality + 1] | (&qword_10d18)[videoQuality + 1];
+    long v2 = (&qword_10d18)[videoQuality + 1];
+    unsigned long packed_result1 = (&qword_10d38)[videoQuality + 1] | v2;
     return (CMVideoDimensions){(int32_t)packed_result1, (int32_t)(packed_result1 >> 32)};
 }
 
 
 void -[JWRRecorderManager configureFormatForCamera:error:](AVCaptureDevice *a1, NSError **a2)
 {
-    long v35;
-    NSFastEnumerationState v5;
-    id v8;
+    long v34;
     CMVideoDimensions requestedVideoDimensions = [self requestedVideoDimensions];
     JWRPreferences *shared = [JWRPreferences shared];
-    long fps = [shared fps];
-    long v4 = (fps > 1) ? fps : 1;
-    _memset(v5, 0, 64);
+    long v3 = [shared fps];
+    if (v3 <= 1) {
+        v3 = 1;
+    }
     NSArray<AVCaptureDeviceFormat *> *obj = [a1 formats];
-    NSUInteger v7 = [obj countByEnumeratingWithState:&v5 objects:&v8 count:16];
-    if (!v7) {
-        JWRLog(@"no camera format available");
+    AVFrameRateRange *v9 = nil;
+    AVCaptureDeviceFormat *v8 = nil;
+    int32_t v10 = requestedVideoDimensions.height;
+    double v11 = (double)(unsigned long)v3;
+    long v13 = requestedVideoDimensions.width * requestedVideoDimensions.height;
+    long v14 = -9223372036854775808;
+    for (AVCaptureDeviceFormat *v19 in obj) {
+        CMVideoDimensions v20 = CMVideoFormatDescriptionGetDimensions([v19 formatDescription]);
+        NSArray<AVFrameRateRange *> *videoSupportedFrameRateRanges = [v19 videoSupportedFrameRateRanges];
+        long v25 = v20.width * v20.height;
+        long v26 = v25 - v13;
+        long v30 = ((((v20.height == v10) ? v20.width == requestedVideoDimensions.width && v20.height == requestedVideoDimensions.height : 0) == 1) ? 1000000000000 : 0) - ((v25 < v13) ? -v26 : v26);
+        for (AVFrameRateRange *v32 in videoSupportedFrameRateRanges) {
+            Float64 minFrameRate = [v32 minFrameRate];
+            if (minFrameRate + -0.01 > v11) {
+                v34 = 0;
+            } else {
+                Float64 maxFrameRate = [v32 maxFrameRate];
+                v34 = (0.01 + maxFrameRate >= v11) ? 100000000000 : 0;
+            }
+            Float64 maxFrameRate2 = [v32 maxFrameRate];
+            long v37 = v30 + v34 + (long)(maxFrameRate2 * 1000.0);
+            if (v37 > v14) {
+                v14 = v37;
+                v8 = v19;
+                v9 = v32;
+            }
+        }
+    }
+    if (v8 && v9) {
+        [a1 setActiveFormat:v8];
+        Float64 minFrameRate2 = [v9 minFrameRate];
+        double v39 = (minFrameRate2 > v11) ? minFrameRate2 : v11;
+        Float64 maxFrameRate3 = [v9 maxFrameRate];
+        double v41 = (v39 < maxFrameRate3) ? v39 : maxFrameRate3;
+        CMTime v42 = CMTimeMake(1000, (long)round(v41 * 1000.0));
+        [a1 setActiveVideoMinFrameDuration:v42];
+        [a1 setActiveVideoMaxFrameDuration:v42];
+        CMVideoDimensions v44 = CMVideoFormatDescriptionGetDimensions([v8 formatDescription]);
+        Float64 minFrameRate3 = [v9 minFrameRate];
+        Float64 maxFrameRate4 = [v9 maxFrameRate];
+        JWRLog(@"camera format requested=%dx%d@%.0f actual=%dx%d@%.2f supportedRange=%.2f-%.2f", requestedVideoDimensions.width, v10, v11, v44.width, v44.height, v41, minFrameRate3, maxFrameRate4);
         return;
     }
-    AVFrameRateRange *v10 = nil;
-    AVCaptureDeviceFormat *v9 = nil;
-    int32_t v11 = requestedVideoDimensions.height;
-    double v12 = (double)(unsigned long)v4;
-    long v13 = *(v5.mutationsPtr);
-    long v14 = requestedVideoDimensions.width * requestedVideoDimensions.height;
-    long v15 = -9223372036854775808;
-    do {
-        long v19 = 0;
-        do {
-            if (*(v5.mutationsPtr) != v13) {
-                objc_enumerationMutation(obj);
-            }
-            AVCaptureDeviceFormat *v20 = v5.itemsPtr[v19];
-            CMVideoDimensions v21 = CMVideoFormatDescriptionGetDimensions([v20 formatDescription]);
-            NSArray<AVFrameRateRange *> *videoSupportedFrameRateRanges = [v20 videoSupportedFrameRateRanges];
-            long v26 = v21.width * v21.height;
-            long v27 = v26 - v14;
-            long v28 = (v26 < v14) ? -v27 : v27;
-            long v30 = (((v21.height == v11) ? v21.width == requestedVideoDimensions.width && v21.height == requestedVideoDimensions.height : 0) == 1) ? 1000000000000 : 0;
-            long v31 = v30 - v28;
-            for (AVFrameRateRange *v33 in videoSupportedFrameRateRanges) {
-                Float64 minFrameRate = [v33 minFrameRate];
-                if (minFrameRate + -0.01 > v12) {
-                    v35 = 0;
-                } else {
-                    Float64 maxFrameRate = [v33 maxFrameRate];
-                    v35 = (0.01 + maxFrameRate >= v12) ? 100000000000 : 0;
-                }
-                Float64 maxFrameRate2 = [v33 maxFrameRate];
-                long v38 = v31 + v35 + (long)(maxFrameRate2 * 1000.0);
-                if (v38 > v15) {
-                    v15 = v38;
-                    v9 = v20;
-                    v10 = v33;
-                }
-            }
-            v19++;
-        } while (v19 != v7);
-        v7 = [obj countByEnumeratingWithState:&v5 objects:&v8 count:16];
-    } while (v7 != 0);
-    if (!v9 || !v10) {
-        JWRLog(@"no camera format available");
-        return;
-    }
-    [a1 setActiveFormat:v9];
-    Float64 minFrameRate2 = [v10 minFrameRate];
-    double v40 = (minFrameRate2 > v12) ? minFrameRate2 : v12;
-    Float64 maxFrameRate3 = [v10 maxFrameRate];
-    double v42 = (v40 < maxFrameRate3) ? v40 : maxFrameRate3;
-    CMTime v43 = CMTimeMake(1000, (long)round(v42 * 1000.0));
-    [a1 setActiveVideoMinFrameDuration:v43];
-    [a1 setActiveVideoMaxFrameDuration:v43];
-    CMVideoDimensions v45 = CMVideoFormatDescriptionGetDimensions([v9 formatDescription]);
-    Float64 minFrameRate3 = [v10 minFrameRate];
-    Float64 maxFrameRate4 = [v10 maxFrameRate];
-    JWRLog(@"camera format requested=%dx%d@%.0f actual=%dx%d@%.2f supportedRange=%.2f-%.2f", requestedVideoDimensions.width, v11, v12, v45.width, v45.height, v42, minFrameRate3, maxFrameRate4);
+    JWRLog(@"no camera format available");
 }
 
 
 bool -[JWRRecorderManager prepareSession:](bool a1)
 {
-    uint32_t v56;
-    AVCaptureMovieFileOutput *v26;
-    CMTime v27;
-    AVCaptureMovieFileOutput *v28;
-    AVCaptureMovieFileOutput *v29;
-    BOOL v30;
-    AVCaptureMovieFileOutput *v31;
-    AVCapturePhotoOutput *v32;
-    AVCapturePhotoOutput *v33;
-    BOOL v34;
-    AVCapturePhotoOutput *v35;
-    __weak JWRRecorderManager *v6;
-    NSNotificationCenter *v36;
-    id<NSObject> v40;
-    NSNotificationCenter *v41;
-    id<NSObject> v42;
-    NSNotificationCenter *v43;
-    id<NSObject> v46;
-    BOOL v47;
-    BOOL v48;
-    BOOL v49;
-    BOOL v50;
-    BOOL v51;
-    int v8;
-    AVCaptureSession *session = [self session];
-    if (session != nil) {
-        JWRLog(@"reusing capture session");
-        return true;
-    }
-    [self recoverStagedVideosIfNeeded];
-    JWRLog(@"preparing capture session withAudio=%d", a1);
-    if (a1) {
-        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-        NSString *processName = [processInfo processName];
-        if (![processName isEqualToString:@"SpringBoard"]) {
-            goto blk_6f30;
-        }
-        NSProcessInfo *processInfo2 = [NSProcessInfo processInfo];
-        if (!processInfo2) {
-            goto blk_6f30;
-        }
-        NSOperatingSystemVersion operatingSystemVersion = [processInfo2 operatingSystemVersion];
-        if (operatingSystemVersion.majorVersion >= 18) {
-            int token = 0;
-            if (!notify_register_check("com.jimwas.recorder.camera-trace/arm-once", &v8) && !notify_register_check("com.jimwas.recorder.camera-trace/armed", &token)) {
-                int check = 0;
-                notify_check(token, &check);
-                pid_t v53 = getpid();
-                notify_set_state(v8, v53);
-                notify_post("com.jimwas.recorder.camera-trace/arm-once");
-                int v54 = 0;
-                if (notify_check(token, &v54) != 0 || !v54) {
-                    int v55 = 50;
-                    do {
-                        usleep(10000);
-                        v55--;
-                        if (!v55) {
-                            goto blk_75b4;
-                        }
-                        v54 = 0;
-                        v56 = notify_check(token, &v54);
-                    } while (v56 != 0 || !v54);
-blk_75b0:
-                    v55 = 1;
-blk_75b4:
-                    notify_cancel(v8);
-                    notify_cancel(token);
-                    JWRLog(@"camera service arm acknowledged=%d pid=%d", v55, getpid());
-                    goto blk_6f30;
-                }
-                goto blk_75b0;
-            }
-            if (v8 != 0) {
-                notify_cancel(v8);
-            }
-            if (token != 0) {
-                notify_cancel(token);
-            }
-            JWRLog(@"camera service arm notification registration failed");
-        }
-    }
-blk_6f30:
-    AVCaptureSession *obj = [AVCaptureSession new];
-    [obj setSessionPreset:AVCaptureSessionPresetInputPriority];
-    AVCaptureDevice *camera = [self camera];
-    NSError *v11 = nil;
-    AVCaptureDeviceInput *v12 = [AVCaptureDeviceInput deviceInputWithDevice:camera error:&v11];
-    id v13 = v11;
-    if (!v12) {
-        JWRLog(@"camera input failed error=%@", v13);
-        return false;
-    } else if (![obj canAddInput:v12]) {
-        JWRLog(@"camera input failed error=%@", v13);
-        return false;
-    }
-    [obj addInput:v12];
-    NSError *v14 = v13;
-    BOOL v15 = [camera lockForConfiguration:&v14];
-    if (v15) {
-        NSError *v17 = v14;
-        [self configureFormatForCamera:camera error:&v17];
-        AVCaptureDeviceType deviceType = [camera deviceType];
-        if (deviceType == AVCaptureDeviceTypeBuiltInWideAngleCamera) {
-            AVCaptureDeviceFormat *activeFormat = [camera activeFormat];
-            CGFloat videoMaxZoomFactor = [activeFormat videoMaxZoomFactor];
-            JWRPreferences *shared = [JWRPreferences shared];
-            double zoom = [shared zoom];
-            double v23 = (videoMaxZoomFactor < zoom) ? videoMaxZoomFactor : zoom;
-            [camera setVideoZoomFactor:fmax(v23, 1.0)];
-        }
-        [camera unlockForConfiguration];
+    int v11;
+    uint32_t v12;
+    int v18;
+    int v7;
+    if (![self session]) {
+        [self recoverStagedVideosIfNeeded];
+        JWRLog(@"preparing capture session withAudio=%d", a1);
         if (a1) {
-            goto blk_70d8;
-        }
-        v26 = [AVCaptureMovieFileOutput new];
-        [self setMovieOutput:v26];
-        v27 = CMTimeMakeWithSeconds(2.0, 600);
-        v28 = [self movieOutput];
-        CMTime v58 = v27;
-        [v28 setMovieFragmentInterval:v58];
-        v29 = [self movieOutput];
-        v30 = [obj canAddOutput:v29];
-        if (v30) {
-            v31 = [self movieOutput];
-            [obj addOutput:v31];
-        }
-        v32 = [AVCapturePhotoOutput new];
-        [self setPhotoOutput:v32];
-        v33 = [self photoOutput];
-        v34 = [obj canAddOutput:v33];
-        if (v34) {
-            v35 = [self photoOutput];
-            [obj addOutput:v35];
-        }
-        [self setSession:obj];
-        v6 = self;
-        v36 = [NSNotificationCenter defaultCenter];
-        v40 = [v36 addObserverForName:AVCaptureSessionRuntimeErrorNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-            NSDictionary *userInfo = [arg1 userInfo];
-            id v62 = [userInfo objectForKeyedSubscript:AVCaptureSessionErrorKey];
-            JWRLog(@"capture runtime error=%@", v62);
-            NSObject *queue = [v6 queue];
-            void (^block)(void) = ^void(void) {
-                bool desiredVideoRecording = [v6 desiredVideoRecording];
-                if (!desiredVideoRecording) {
-                    [v6 teardownCaptureSession];
-                } else {
-                    NSString *v68 = [NSString stringWithFormat:@"runtime error %@", v62];
-                    [v6 requestVideoRecovery:v68];
-                }
-            };
-            dispatch_async(queue, block);
-        }];
-        [self setSessionErrorObserver:v40];
-        v41 = [NSNotificationCenter defaultCenter];
-        v42 = [v41 addObserverForName:AVCaptureSessionWasInterruptedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-            NSDictionary *userInfo = [arg1 userInfo];
-            id v70 = [userInfo objectForKeyedSubscript:AVCaptureSessionInterruptionReasonKey];
-            NSDictionary *userInfo2 = [arg1 userInfo];
-            JWRLog(@"capture interrupted reason=%@ userInfo=%@", v70, userInfo2);
-        }];
-        [self setSessionInterruptedObserver:v42];
-        v43 = [NSNotificationCenter defaultCenter];
-        v46 = [v43 addObserverForName:AVCaptureSessionInterruptionEndedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-            JWRLog(@"capture interruption ended");
-            NSObject *queue = [v6 queue];
-            void (^block)(void) = ^void(void) {
-                if ([v6 desiredVideoRecording]) {
-                    id session = [v6 session];
-                    if ([session isRunning]) {
-                        AVCaptureMovieFileOutput *movieOutput = [v6 movieOutput];
-                        BOOL isRecording = [movieOutput isRecording];
-                        if (isRecording) {
-                            return;
+            NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+            NSString *processName = [processInfo processName];
+            if ([processName isEqualToString:@"SpringBoard"]) {
+                NSProcessInfo *processInfo2 = [NSProcessInfo processInfo];
+                if (processInfo2) {
+                    NSOperatingSystemVersion operatingSystemVersion = [processInfo2 operatingSystemVersion];
+                    if (operatingSystemVersion.majorVersion >= 18) {
+                        int token = 0;
+                        if (notify_register_check("com.jimwas.recorder.camera-trace/arm-once", &v7) != 0 || notify_register_check("com.jimwas.recorder.camera-trace/armed", &token) != 0) {
+                            if (v7 != 0) {
+                                notify_cancel(v7);
+                            }
+                            if (token != 0) {
+                                notify_cancel(token);
+                            }
+                            JWRLog(@"camera service arm notification registration failed");
+                        } else {
+                            int check = 0;
+                            notify_check(token, &check);
+                            pid_t v9 = getpid();
+                            notify_set_state(v7, v9);
+                            notify_post("com.jimwas.recorder.camera-trace/arm-once");
+                            int v10 = 0;
+                            long v3 = 0;
+                            if (!notify_check(token, &v10) && v10 != 0) {
+                                v3 = 1;
+                            }
+                            if (!v3) {
+                                v11 = 50;
+                                do {
+                                    usleep(10000);
+                                    v11--;
+                                    if (!v11) {
+                                        v3 = 2;
+                                        break;
+                                    }
+                                    v10 = 0;
+                                    v12 = notify_check(token, &v10);
+                                } while (v12 != 0 || !v10);
+                            }
+                            if (v3 != 2) {
+                                v11 = 1;
+                            }
+                            notify_cancel(v7);
+                            notify_cancel(token);
+                            JWRLog(@"camera service arm acknowledged=%d pid=%d", v11, getpid());
                         }
                     }
-                    [v6 requestVideoRecovery:@"capture interruption ended without active recording"];
                 }
-            };
-            dispatch_async(queue, block);
-        }];
-        [self setSessionInterruptionEndedObserver:v46];
-        if (sub_d300(2, 16, 0, 0) != 0) {
-            v47 = [obj isMultitaskingCameraAccessSupported];
-            v48 = [obj isMultitaskingCameraAccessEnabled];
-            JWRLog(@"multitasking camera supported=%d enabled=%d", v47, v48);
-            if ([obj isMultitaskingCameraAccessSupported]) {
-                [obj setMultitaskingCameraAccessEnabled:YES];
-                v49 = [obj isMultitaskingCameraAccessEnabled];
-                JWRLog(@"multitasking camera enabled now=%d", v49);
             }
         }
-        [obj startRunning];
-        v50 = [obj isRunning];
-        v51 = [obj isInterrupted];
-        JWRLog(@"capture startRunning returned running=%d interrupted=%d", v50, v51);
-        return true;
-    }
-    JWRLog(@"camera configuration lock failed error=%@", v14);
-    if (!a1) {
-        v26 = [AVCaptureMovieFileOutput new];
-        [self setMovieOutput:v26];
-        v27 = CMTimeMakeWithSeconds(2.0, 600);
-        v28 = [self movieOutput];
-        CMTime v59 = v27;
-        [v28 setMovieFragmentInterval:v59];
-        v29 = [self movieOutput];
-        v30 = [obj canAddOutput:v29];
-        if (v30) {
-            v31 = [self movieOutput];
-            [obj addOutput:v31];
-        }
-        v32 = [AVCapturePhotoOutput new];
-        [self setPhotoOutput:v32];
-        v33 = [self photoOutput];
-        v34 = [obj canAddOutput:v33];
-        if (v34) {
-            v35 = [self photoOutput];
-            [obj addOutput:v35];
-        }
-        [self setSession:obj];
-        v6 = self;
-        v36 = [NSNotificationCenter defaultCenter];
-        v40 = [v36 addObserverForName:AVCaptureSessionRuntimeErrorNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-            NSDictionary *userInfo = [arg1 userInfo];
-            id v81 = [userInfo objectForKeyedSubscript:AVCaptureSessionErrorKey];
-            JWRLog(@"capture runtime error=%@", v81);
-            NSObject *queue = [v6 queue];
-            void (^block)(void) = ^void(void) {
-                bool desiredVideoRecording = [v6 desiredVideoRecording];
-                if (!desiredVideoRecording) {
-                    [v6 teardownCaptureSession];
-                } else {
-                    NSString *v87 = [NSString stringWithFormat:@"runtime error %@", v81];
-                    [v6 requestVideoRecovery:v87];
-                }
-            };
-            dispatch_async(queue, block);
-        }];
-        [self setSessionErrorObserver:v40];
-        v41 = [NSNotificationCenter defaultCenter];
-        v42 = [v41 addObserverForName:AVCaptureSessionWasInterruptedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-            NSDictionary *userInfo = [arg1 userInfo];
-            id v89 = [userInfo objectForKeyedSubscript:AVCaptureSessionInterruptionReasonKey];
-            NSDictionary *userInfo2 = [arg1 userInfo];
-            JWRLog(@"capture interrupted reason=%@ userInfo=%@", v89, userInfo2);
-        }];
-        [self setSessionInterruptedObserver:v42];
-        v43 = [NSNotificationCenter defaultCenter];
-        v46 = [v43 addObserverForName:AVCaptureSessionInterruptionEndedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-            JWRLog(@"capture interruption ended");
-            NSObject *queue = [v6 queue];
-            void (^block)(void) = ^void(void) {
-                if ([v6 desiredVideoRecording]) {
-                    id session = [v6 session];
-                    if ([session isRunning]) {
-                        AVCaptureMovieFileOutput *movieOutput = [v6 movieOutput];
-                        BOOL isRecording = [movieOutput isRecording];
-                        if (isRecording) {
-                            return;
-                        }
-                    }
-                    [v6 requestVideoRecovery:@"capture interruption ended without active recording"];
-                }
-            };
-            dispatch_async(queue, block);
-        }];
-        [self setSessionInterruptionEndedObserver:v46];
-        if (sub_d300(2, 16, 0, 0) != 0) {
-            v47 = [obj isMultitaskingCameraAccessSupported];
-            v48 = [obj isMultitaskingCameraAccessEnabled];
-            JWRLog(@"multitasking camera supported=%d enabled=%d", v47, v48);
-            if ([obj isMultitaskingCameraAccessSupported]) {
-                [obj setMultitaskingCameraAccessEnabled:YES];
-                v49 = [obj isMultitaskingCameraAccessEnabled];
-                JWRLog(@"multitasking camera enabled now=%d", v49);
-            }
-        }
-        [obj startRunning];
-        v50 = [obj isRunning];
-        v51 = [obj isInterrupted];
-        JWRLog(@"capture startRunning returned running=%d interrupted=%d", v50, v51);
-        return true;
-    }
-blk_70d8:
-    AVCaptureDevice *v24 = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput *v25 = [AVCaptureDeviceInput deviceInputWithDevice:v24 error:nil];
-    if (!v25) {
-        JWRLog(@"microphone input unavailable");
-    } else if (![obj canAddInput:v25]) {
-        JWRLog(@"microphone input unavailable");
-    } else {
-        [obj addInput:v25];
-    }
-    v26 = [AVCaptureMovieFileOutput new];
-    [self setMovieOutput:v26];
-    v27 = CMTimeMakeWithSeconds(2.0, 600);
-    v28 = [self movieOutput];
-    CMTime v60 = v27;
-    [v28 setMovieFragmentInterval:v60];
-    v29 = [self movieOutput];
-    v30 = [obj canAddOutput:v29];
-    if (v30) {
-        v31 = [self movieOutput];
-        [obj addOutput:v31];
-    }
-    v32 = [AVCapturePhotoOutput new];
-    [self setPhotoOutput:v32];
-    v33 = [self photoOutput];
-    v34 = [obj canAddOutput:v33];
-    if (v34) {
-        v35 = [self photoOutput];
-        [obj addOutput:v35];
-    }
-    [self setSession:obj];
-    v6 = self;
-    v36 = [NSNotificationCenter defaultCenter];
-    v40 = [v36 addObserverForName:AVCaptureSessionRuntimeErrorNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-        NSDictionary *userInfo = [arg1 userInfo];
-        id v100 = [userInfo objectForKeyedSubscript:AVCaptureSessionErrorKey];
-        JWRLog(@"capture runtime error=%@", v100);
-        NSObject *queue = [v6 queue];
-        void (^block)(void) = ^void(void) {
-            bool desiredVideoRecording = [v6 desiredVideoRecording];
-            if (!desiredVideoRecording) {
-                [v6 teardownCaptureSession];
+        AVCaptureSession *obj = [AVCaptureSession new];
+        [obj setSessionPreset:AVCaptureSessionPresetInputPriority];
+        AVCaptureDevice *camera = [self camera];
+        NSError *v15 = nil;
+        AVCaptureDeviceInput *v16 = [AVCaptureDeviceInput deviceInputWithDevice:camera error:&v15];
+        if (!v16) {
+            JWRLog(@"camera input failed error=%@", v15);
+            v18 = 0;
+        } else if (![obj canAddInput:v16]) {
+            JWRLog(@"camera input failed error=%@", v15);
+            v18 = 0;
+        } else {
+            [obj addInput:v16];
+            NSError *v19 = v15;
+            if (![camera lockForConfiguration:&v19]) {
+                JWRLog(@"camera configuration lock failed error=%@", v19);
             } else {
-                NSString *v106 = [NSString stringWithFormat:@"runtime error %@", v100];
-                [v6 requestVideoRecovery:v106];
-            }
-        };
-        dispatch_async(queue, block);
-    }];
-    [self setSessionErrorObserver:v40];
-    v41 = [NSNotificationCenter defaultCenter];
-    v42 = [v41 addObserverForName:AVCaptureSessionWasInterruptedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-        NSDictionary *userInfo = [arg1 userInfo];
-        id v108 = [userInfo objectForKeyedSubscript:AVCaptureSessionInterruptionReasonKey];
-        NSDictionary *userInfo2 = [arg1 userInfo];
-        JWRLog(@"capture interrupted reason=%@ userInfo=%@", v108, userInfo2);
-    }];
-    [self setSessionInterruptedObserver:v42];
-    v43 = [NSNotificationCenter defaultCenter];
-    v46 = [v43 addObserverForName:AVCaptureSessionInterruptionEndedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
-        JWRLog(@"capture interruption ended");
-        NSObject *queue = [v6 queue];
-        void (^block)(void) = ^void(void) {
-            if ([v6 desiredVideoRecording]) {
-                id session = [v6 session];
-                if ([session isRunning]) {
-                    AVCaptureMovieFileOutput *movieOutput = [v6 movieOutput];
-                    BOOL isRecording = [movieOutput isRecording];
-                    if (isRecording) {
-                        return;
-                    }
+                NSError *v25 = v19;
+                [self configureFormatForCamera:camera error:&v25];
+                AVCaptureDeviceType deviceType = [camera deviceType];
+                if (deviceType == AVCaptureDeviceTypeBuiltInWideAngleCamera) {
+                    AVCaptureDeviceFormat *activeFormat = [camera activeFormat];
+                    CGFloat videoMaxZoomFactor = [activeFormat videoMaxZoomFactor];
+                    JWRPreferences *shared = [JWRPreferences shared];
+                    double zoom = [shared zoom];
+                    [camera setVideoZoomFactor:fmax((videoMaxZoomFactor < zoom) ? videoMaxZoomFactor : zoom, 1.0)];
                 }
-                [v6 requestVideoRecovery:@"capture interruption ended without active recording"];
+                [camera unlockForConfiguration];
             }
-        };
-        dispatch_async(queue, block);
-    }];
-    [self setSessionInterruptionEndedObserver:v46];
-    if (sub_d300(2, 16, 0, 0) != 0) {
-        v47 = [obj isMultitaskingCameraAccessSupported];
-        v48 = [obj isMultitaskingCameraAccessEnabled];
-        JWRLog(@"multitasking camera supported=%d enabled=%d", v47, v48);
-        if ([obj isMultitaskingCameraAccessSupported]) {
-            [obj setMultitaskingCameraAccessEnabled:YES];
-            v49 = [obj isMultitaskingCameraAccessEnabled];
-            JWRLog(@"multitasking camera enabled now=%d", v49);
+            if (a1) {
+                AVCaptureDevice *v22 = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+                AVCaptureDeviceInput *v24 = [AVCaptureDeviceInput deviceInputWithDevice:v22 error:nil];
+                if (!v24) {
+                    JWRLog(@"microphone input unavailable");
+                } else if (![obj canAddInput:v24]) {
+                    JWRLog(@"microphone input unavailable");
+                } else {
+                    [obj addInput:v24];
+                }
+            }
+            AVCaptureMovieFileOutput *v32 = [AVCaptureMovieFileOutput new];
+            [self setMovieOutput:v32];
+            CMTime v33 = CMTimeMakeWithSeconds(2.0, 600);
+            AVCaptureMovieFileOutput *movieOutput = [self movieOutput];
+            [movieOutput setMovieFragmentInterval:v33];
+            AVCaptureMovieFileOutput *movieOutput2 = [self movieOutput];
+            if ([obj canAddOutput:movieOutput2]) {
+                AVCaptureMovieFileOutput *movieOutput3 = [self movieOutput];
+                [obj addOutput:movieOutput3];
+            }
+            AVCapturePhotoOutput *v38 = [AVCapturePhotoOutput new];
+            [self setPhotoOutput:v38];
+            AVCapturePhotoOutput *photoOutput = [self photoOutput];
+            if ([obj canAddOutput:photoOutput]) {
+                AVCapturePhotoOutput *photoOutput2 = [self photoOutput];
+                [obj addOutput:photoOutput2];
+            }
+            [self setSession:obj];
+            __weak JWRRecorderManager *v5 = self;
+            NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+            id<NSObject> v46 = [defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
+                NSDictionary *userInfo = [arg1 userInfo];
+                id v60 = [userInfo objectForKeyedSubscript:AVCaptureSessionErrorKey];
+                JWRLog(@"capture runtime error=%@", v60);
+                NSObject<OS_dispatch_queue> *queue = [v5 queue];
+                void (^block)(void) = ^void(void) {
+                    bool desiredVideoRecording = [v5 desiredVideoRecording];
+                    if (!desiredVideoRecording) {
+                        [v5 teardownCaptureSession];
+                    } else {
+                        NSString *v67 = [NSString stringWithFormat:@"runtime error %@", v60];
+                        [v5 requestVideoRecovery:v67];
+                    }
+                };
+                dispatch_async(queue, block);
+            }];
+            [self setSessionErrorObserver:v46];
+            NSNotificationCenter *defaultCenter2 = [NSNotificationCenter defaultCenter];
+            id<NSObject> v48 = [defaultCenter2 addObserverForName:AVCaptureSessionWasInterruptedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
+                NSDictionary *userInfo = [arg1 userInfo];
+                id v69 = [userInfo objectForKeyedSubscript:AVCaptureSessionInterruptionReasonKey];
+                NSDictionary *userInfo2 = [arg1 userInfo];
+                JWRLog(@"capture interrupted reason=%@ userInfo=%@", v69, userInfo2);
+            }];
+            [self setSessionInterruptedObserver:v48];
+            NSNotificationCenter *defaultCenter3 = [NSNotificationCenter defaultCenter];
+            id<NSObject> v52 = [defaultCenter3 addObserverForName:AVCaptureSessionInterruptionEndedNotification object:obj queue:nil usingBlock:^void(NSNotification *arg1) {
+                JWRLog(@"capture interruption ended");
+                NSObject<OS_dispatch_queue> *queue = [v5 queue];
+                void (^block)(void) = ^void(void) {
+                    if ([v5 desiredVideoRecording]) {
+                        AVCaptureSession *session = [v5 session];
+                        if ([session isRunning]) {
+                            AVCaptureMovieFileOutput *movieOutput = [v5 movieOutput];
+                            BOOL isRecording = [movieOutput isRecording];
+                            if (isRecording) {
+                                return;
+                            }
+                        }
+                        [v5 requestVideoRecovery:@"capture interruption ended without active recording"];
+                    }
+                };
+                dispatch_async(queue, block);
+            }];
+            [self setSessionInterruptionEndedObserver:v52];
+            if (sub_d300(2, 16, 0, 0) != 0) {
+                BOOL isMultitaskingCameraAccessSupported = [obj isMultitaskingCameraAccessSupported];
+                BOOL isMultitaskingCameraAccessEnabled = [obj isMultitaskingCameraAccessEnabled];
+                JWRLog(@"multitasking camera supported=%d enabled=%d", isMultitaskingCameraAccessSupported, isMultitaskingCameraAccessEnabled);
+                if ([obj isMultitaskingCameraAccessSupported]) {
+                    [obj setMultitaskingCameraAccessEnabled:YES];
+                    BOOL isMultitaskingCameraAccessEnabled2 = [obj isMultitaskingCameraAccessEnabled];
+                    JWRLog(@"multitasking camera enabled now=%d", isMultitaskingCameraAccessEnabled2);
+                }
+            }
+            [obj startRunning];
+            BOOL isRunning = [obj isRunning];
+            BOOL isInterrupted = [obj isInterrupted];
+            JWRLog(@"capture startRunning returned running=%d interrupted=%d", isRunning, isInterrupted);
+            v18 = 1;
         }
+    } else {
+        JWRLog(@"reusing capture session");
+        v18 = 1;
     }
-    [obj startRunning];
-    v50 = [obj isRunning];
-    v51 = [obj isInterrupted];
-    JWRLog(@"capture startRunning returned running=%d interrupted=%d", v50, v51);
-    return true;
+    return v18;
 }
 
 
@@ -1048,7 +838,7 @@ void -[JWRRecorderManager scheduleSegmentTimerIfNeeded](void)
     [self cancelSegmentTimer];
     JWRPreferences *shared = [JWRPreferences shared];
     long videoSegmentDurationSeconds = [shared videoSegmentDurationSeconds];
-    if (videoSegmentDurationSeconds <= 0 || ![self videoRecording]) {
+    if (videoSegmentDurationSeconds < 1 || ![self videoRecording]) {
         return;
     }
     NSObject<OS_dispatch_queue> *queue = [self queue];
@@ -1142,64 +932,50 @@ void -[JWRRecorderManager scheduleHealthyRecordingConfirmationForOutput:](AVCapt
         CMTime recordedDuration;
         Float64 v20;
         CMTime recordedDuration2;
-        AVCaptureSession *v9;
-        BOOL v11;
-        BOOL v12;
-        long v13;
         if (v2 != nil) {
             unsigned long recordingGeneration = [v2 recordingGeneration];
-            if (v1 != recordingGeneration || ![v2 desiredVideoRecording]) {
-                return;
-            }
-            AVCaptureMovieFileOutput *movieOutput = [v2 movieOutput];
-            if (a1 != movieOutput) {
-                return;
-            }
-            if (!a1) {
-                recordedDuration = (CMTime){0};
-                v20 = 0.0;
-            } else {
-                recordedDuration = [a1 recordedDuration];
-                v20 = 0.0;
-                if ((recordedDuration.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid) {
+            if (v1 == recordingGeneration && [v2 desiredVideoRecording]) {
+                AVCaptureMovieFileOutput *movieOutput = [v2 movieOutput];
+                if (a1 == movieOutput) {
                     if (!a1) {
-                        recordedDuration2 = (CMTime){0};
+                        recordedDuration = (CMTime){0};
+                        v20 = 0.0;
                     } else {
-                        recordedDuration2 = [a1 recordedDuration];
+                        recordedDuration = [a1 recordedDuration];
+                        v20 = 0.0;
+                        if ((recordedDuration.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid) {
+                            if (!a1) {
+                                recordedDuration2 = (CMTime){0};
+                            } else {
+                                recordedDuration2 = [a1 recordedDuration];
+                            }
+                            v20 = CMTimeGetSeconds(recordedDuration2);
+                        }
                     }
-                    v20 = CMTimeGetSeconds(recordedDuration2);
+                    AVCaptureSession *session = [v2 session];
+                    if (![session isRunning]) {
+blk_9134:
+blk_913c:
+                        AVCaptureSession *session2 = [v2 session];
+                        BOOL isRunning = [session2 isRunning];
+                        BOOL isRecording = [a1 isRecording];
+                        long recoveryAttempts = [v2 recoveryAttempts];
+                        JWRLog(@"video health confirmation pending session=%d output=%d duration=%.3f failures=%ld", isRunning, isRecording, v20, recoveryAttempts);
+                    } else {
+                        BOOL isRecording2 = [a1 isRecording];
+                        bool v15 = isfinite(v20);
+                        if (!isRecording2 || !v15) {
+                            goto blk_9134;
+                        }
+                        if (v20 < 1.0) {
+                            goto blk_913c;
+                        }
+                        long recoveryAttempts2 = [v2 recoveryAttempts];
+                        [v2 setRecoveryAttempts:0];
+                        JWRLog(@"video recording confirmed healthy duration=%.3f previousRecoveryFailures=%ld", v20, recoveryAttempts2);
+                    }
                 }
             }
-            AVCaptureSession *session = [v2 session];
-            if (![session isRunning]) {
-                v9 = [v2 session];
-                v11 = [v9 isRunning];
-                v12 = [a1 isRecording];
-                v13 = [v2 recoveryAttempts];
-                JWRLog(@"video health confirmation pending session=%d output=%d duration=%.3f failures=%ld", v11, v12, v20, v13);
-                return;
-            }
-            BOOL isRecording = [a1 isRecording];
-            bool v15 = isfinite(v20);
-            if (!isRecording || !v15) {
-                v9 = [v2 session];
-                v11 = [v9 isRunning];
-                v12 = [a1 isRecording];
-                v13 = [v2 recoveryAttempts];
-                JWRLog(@"video health confirmation pending session=%d output=%d duration=%.3f failures=%ld", v11, v12, v20, v13);
-                return;
-            }
-            if (v20 < 1.0) {
-                v9 = [v2 session];
-                v11 = [v9 isRunning];
-                v12 = [a1 isRecording];
-                v13 = [v2 recoveryAttempts];
-                JWRLog(@"video health confirmation pending session=%d output=%d duration=%.3f failures=%ld", v11, v12, v20, v13);
-                return;
-            }
-            long recoveryAttempts = [v2 recoveryAttempts];
-            [v2 setRecoveryAttempts:0];
-            JWRLog(@"video recording confirmed healthy duration=%.3f previousRecoveryFailures=%ld", v20, recoveryAttempts);
         }
     });
 }
@@ -1545,152 +1321,138 @@ void -[JWRRecorderManager finishAudioVideoConversionAtURL:audioURL:success:error
 
 void -[JWRRecorderManager createVideoCopyForAudioURL:](NSURL *a1)
 {
-    NSString *v2;
-    CMTime v69;
-    NSURL *v15;
-    NSString *v27;
-    CMTime v30;
-    NSError *v52;
-    AVAssetTrack *firstObject2;
-    AVAssetTrack *firstObject;
-    CMTime v5 = 0;
+    CMTime v72;
+    AVURLAsset *v24;
+    CMTime v71;
     NSURL *v0 = a1;
-    if (a1 != nil) {
-        AVURLAsset *v1 = [AVURLAsset URLAssetWithURL:v0 options:nil];
-        v2 = AVMediaTypeAudio;
-        NSArray<AVAssetTrack *> *v3 = [v1 tracksWithMediaType:AVMediaTypeAudio];
-        firstObject2 = [v3 firstObject];
-        if (v1 != nil) {
-            v69 = [v1 duration];
-        } else {
-            v69 = (CMTime){0};
-        }
-        if (firstObject2 && (v69.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid && CMTimeGetSeconds(v69) > 0.01) {
-            NSString *inProgressDirectory = [self inProgressDirectory];
-            NSFileManager *defaultManager2 = [NSFileManager defaultManager];
-            NSError *error = nil;
-            [defaultManager2 createDirectoryAtPath:inProgressDirectory withIntermediateDirectories:YES attributes:nil error:&error];
-            if (!error) {
-                NSURL *URLByDeletingPathExtension = [v0 URLByDeletingPathExtension];
-                NSString *lastPathComponent = [URLByDeletingPathExtension lastPathComponent];
-                NSString *str = [lastPathComponent stringByAppendingPathExtension:@"mov"];
-                NSString *v14 = [inProgressDirectory stringByAppendingPathComponent:str];
-                v15 = [NSURL fileURLWithPath:v14];
-                NSFileManager *defaultManager = [NSFileManager defaultManager];
-                NSString *path = [v15 path];
-                if ([defaultManager fileExistsAtPath:path]) {
-                    NSUUID *UUID = [NSUUID UUID];
-                    NSString *UUIDString = [UUID UUIDString];
-                    NSString *str2 = [NSString stringWithFormat:@"%@_%@.mov", lastPathComponent, UUIDString];
-                    NSString *v22 = [inProgressDirectory stringByAppendingPathComponent:str2];
-                    NSURL *v23 = [NSURL fileURLWithPath:v22];
-                    v15 = v23;
-                }
-                NSBundle *mainBundle = [NSBundle mainBundle];
-                NSURL *v25 = [mainBundle URLForResource:@"JWRBlackVideo" withExtension:@"mov"];
-                AVURLAsset *v26 = (!v25) ? nil : [AVURLAsset URLAssetWithURL:v25 options:nil];
-                v27 = AVMediaTypeVideo;
-                NSArray<AVAssetTrack *> *v28 = [v26 tracksWithMediaType:AVMediaTypeVideo];
-                firstObject = [v28 firstObject];
-                if (v26) {
-                    v30 = [v26 duration];
-                } else {
-                    v30 = (CMTime){0};
-                }
-                if (!firstObject || (v30.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) != kCMTimeFlags_Valid) {
-blk_b110:
-                    NSError *v32 = [self audioVideoError:@"The bundled black-video template is unavailable."];
-                    [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:NO error:v32];
-blk_b150:
-                    v5 = 1;
-                }
-                if (!v5) {
-                    goto blk_ac94;
-                }
-            }
-            if (!v5) {
-                [self finishAudioVideoConversionAtURL:nil audioURL:v0 success:NO error:error];
-                v5 = 1;
-            }
-        }
-        if (!v5) {
-            NSError *v34 = [self audioVideoError:@"The audio recording has no readable audio track."];
-            [self finishAudioVideoConversionAtURL:nil audioURL:v0 success:NO error:v34];
-        }
-    } else {
+    if (!a1) {
         return;
-blk_ac94:
-        if (CMTimeGetSeconds(v30) <= 0.01) {
-            goto blk_b110;
-        }
-        AVMutableComposition *composition = [AVMutableComposition composition];
-        AVMutableCompositionTrack *v36 = [composition addMutableTrackWithMediaType:v2 preferredTrackID:kCMPersistentTrackID_Invalid];
-        AVMutableCompositionTrack *v37 = [composition addMutableTrackWithMediaType:v27 preferredTrackID:kCMPersistentTrackID_Invalid];
-        CMTime v40 = kCMTimeZero;
-        CMTimeRange v6 = CMTimeRangeMake(v40, v69);
-        NSError *v43 = nil;
-        v40 = kCMTimeZero;
-        BOOL v44 = [v36 insertTimeRange:v6 ofTrack:firstObject2 atTime:v40 error:&v43];
-        v40 = kCMTimeZero;
-        v6 = CMTimeRangeMake(v40, v30);
-        NSError *v46 = v43;
-        v40 = kCMTimeZero;
-        BOOL v47 = [v37 insertTimeRange:v6 ofTrack:firstObject atTime:v40 error:&v46];
-        if ((uint32_t)v44 == 0 || !v47 || v46 != nil) {
-            if (!v46) {
-                NSError *v49 = [self audioVideoError:@"Could not assemble the audio-video composition."];
-                [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:NO error:v49];
-            } else {
-                [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:NO error:v46];
-            }
-            goto blk_b150;
+    }
+    AVURLAsset *v1 = [AVURLAsset URLAssetWithURL:v0 options:nil];
+    NSString *v2 = AVMediaTypeAudio;
+    NSArray<AVAssetTrack *> *v3 = [v1 tracksWithMediaType:AVMediaTypeAudio];
+    AVAssetTrack *firstObject2 = [v3 firstObject];
+    if (v1 != nil) {
+        v72 = [v1 duration];
+    } else {
+        v72 = (CMTime){0};
+    }
+    if (!firstObject2 || (v72.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) != kCMTimeFlags_Valid || CMTimeGetSeconds(v72) <= 0.01) {
+        NSError *v6 = [self audioVideoError:@"The audio recording has no readable audio track."];
+        [self finishAudioVideoConversionAtURL:nil audioURL:v0 success:NO error:v6];
+    } else {
+        NSString *inProgressDirectory = [self inProgressDirectory];
+        NSFileManager *defaultManager = [NSFileManager defaultManager];
+        NSError *error = nil;
+        [defaultManager createDirectoryAtPath:inProgressDirectory withIntermediateDirectories:YES attributes:nil error:&error];
+        if (error != nil) {
+            [self finishAudioVideoConversionAtURL:nil audioURL:v0 success:NO error:error];
         } else {
-            v40 = kCMTimeZero;
-            v6 = CMTimeRangeMake(v40, v30);
-            v40 = v69;
-            [v37 scaleTimeRange:v6 toDuration:v40];
-            CGAffineTransform preferredTransform = [firstObject preferredTransform];
-            [v37 setPreferredTransform:preferredTransform];
-            AVAssetExportSession *v51 = [[AVAssetExportSession alloc] initWithAsset:composition presetName:AVAssetExportPresetPassthrough];
-            if (!v51) {
-                v52 = [self audioVideoError:@"QuickTime passthrough export is unavailable."];
-                [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:NO error:v52];
+            NSURL *URLByDeletingPathExtension = [v0 URLByDeletingPathExtension];
+            NSString *lastPathComponent = [URLByDeletingPathExtension lastPathComponent];
+            NSString *str = [lastPathComponent stringByAppendingPathExtension:@"mov"];
+            NSString *v17 = [inProgressDirectory stringByAppendingPathComponent:str];
+            NSURL *v18 = [NSURL fileURLWithPath:v17];
+            NSFileManager *defaultManager2 = [NSFileManager defaultManager];
+            NSString *path = [v18 path];
+            if ([defaultManager2 fileExistsAtPath:path]) {
+                NSUUID *UUID = [NSUUID UUID];
+                NSString *UUIDString = [UUID UUIDString];
+                NSString *str2 = [NSString stringWithFormat:@"%@_%@.mov", lastPathComponent, UUIDString];
+                NSString *v69 = [inProgressDirectory stringByAppendingPathComponent:str2];
+                NSURL *v70 = [NSURL fileURLWithPath:v69];
+                v18 = v70;
+            }
+            NSBundle *mainBundle = [NSBundle mainBundle];
+            NSURL *v23 = [mainBundle URLForResource:@"JWRBlackVideo" withExtension:@"mov"];
+            if (v23 != nil) {
+                v24 = [AVURLAsset URLAssetWithURL:v23 options:nil];
             } else {
-                NSArray<AVFileType> *supportedFileTypes = [v51 supportedFileTypes];
-                NSString *v55 = AVFileTypeQuickTimeMovie;
-                if (![supportedFileTypes containsObject:AVFileTypeQuickTimeMovie]) {
-                    v52 = [self audioVideoError:@"QuickTime passthrough export is unavailable."];
-                    [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:NO error:v52];
-                } else {
-                    [v51 setOutputURL:v15];
-                    [v51 setOutputFileType:v55];
-                    [v51 setShouldOptimizeForNetworkUse:YES];
-                    NSISO8601DateFormatter *v57 = [NSISO8601DateFormatter new];
+                v24 = nil;
+            }
+            NSString *v25 = AVMediaTypeVideo;
+            NSArray<AVAssetTrack *> *v26 = [v24 tracksWithMediaType:AVMediaTypeVideo];
+            AVAssetTrack *firstObject = [v26 firstObject];
+            if (v24 != nil) {
+                v71 = [v24 duration];
+            } else {
+                v71 = (CMTime){0};
+            }
+            if (firstObject != nil && (v71.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid) {
+                Float64 v32 = CMTimeGetSeconds(v71);
+                if (v32 > 0.01) {
+                    AVMutableComposition *composition = [AVMutableComposition composition];
+                    AVMutableCompositionTrack *v33 = [composition addMutableTrackWithMediaType:v2 preferredTrackID:kCMPersistentTrackID_Invalid];
+                    AVMutableCompositionTrack *v34 = [composition addMutableTrackWithMediaType:v25 preferredTrackID:kCMPersistentTrackID_Invalid];
+                    CMTime v37 = kCMTimeZero;
+                    CMTimeRange v8 = CMTimeRangeMake(v37, v72);
+                    NSError *v40 = nil;
+                    v37 = kCMTimeZero;
+                    BOOL v41 = [v33 insertTimeRange:v8 ofTrack:firstObject2 atTime:v37 error:&v40];
+                    v37 = kCMTimeZero;
+                    v8 = CMTimeRangeMake(v37, v71);
+                    NSError *v43 = v40;
+                    v37 = kCMTimeZero;
+                    BOOL v44 = [v34 insertTimeRange:v8 ofTrack:firstObject atTime:v37 error:&v43];
+                    if ((uint32_t)v41 == 0 || !v44 || v43 != nil) {
+                        if (!v43) {
+                            NSError *v46 = [self audioVideoError:@"Could not assemble the audio-video composition."];
+                            [self finishAudioVideoConversionAtURL:v18 audioURL:v0 success:NO error:v46];
+                            goto blk_b150;
+                        }
+                        [self finishAudioVideoConversionAtURL:v18 audioURL:v0 success:NO error:v43];
+                        goto blk_b150;
+                    }
+                    v37 = kCMTimeZero;
+                    v8 = CMTimeRangeMake(v37, v71);
+                    v37 = v72;
+                    [v34 scaleTimeRange:v8 toDuration:v37];
+                    CGAffineTransform preferredTransform = [firstObject preferredTransform];
+                    [v34 setPreferredTransform:preferredTransform];
+                    AVAssetExportSession *v48 = [[AVAssetExportSession alloc] initWithAsset:composition presetName:AVAssetExportPresetPassthrough];
+                    if (!v48) {
+blk_b1b4:
+                        NSError *v49 = [self audioVideoError:@"QuickTime passthrough export is unavailable."];
+                        [self finishAudioVideoConversionAtURL:v18 audioURL:v0 success:NO error:v49];
+                        goto blk_b150;
+                    }
+                    NSArray<AVFileType> *supportedFileTypes = [v48 supportedFileTypes];
+                    NSString *v52 = AVFileTypeQuickTimeMovie;
+                    if (![supportedFileTypes containsObject:AVFileTypeQuickTimeMovie]) {
+                        goto blk_b1b4;
+                    }
+                    [v48 setOutputURL:v18];
+                    [v48 setOutputFileType:v52];
+                    [v48 setShouldOptimizeForNetworkUse:YES];
+                    NSISO8601DateFormatter *v54 = [NSISO8601DateFormatter new];
                     NSDate *date = [NSDate date];
-                    NSString *v59 = [v57 stringFromDate:date];
-                    AVMutableMetadataItem *v60 = [self metadataItem:AVMetadataIdentifierQuickTimeMetadataCreationDate value:v59];
-                    AVMutableMetadataItem *v62 = [self metadataItem:AVMetadataIdentifierQuickTimeMetadataSoftware value:@"JimWas Recorder 1.9.3"];
-                    AVMutableMetadataItem *v63 = [self metadataItem:AVMetadataIdentifierQuickTimeMetadataModel value:@"Audio-only black video"];
-                    NSArray<AVMutableMetadataItem *> *v64 = @[v60, v62, v63];
-                    [v51 setMetadata:v64];
+                    NSString *v56 = [v54 stringFromDate:date];
+                    AVMutableMetadataItem *v57 = [self metadataItem:AVMetadataIdentifierQuickTimeMetadataCreationDate value:v56];
+                    AVMutableMetadataItem *v59 = [self metadataItem:AVMetadataIdentifierQuickTimeMetadataSoftware value:@"JimWas Recorder 1.9.3"];
+                    AVMutableMetadataItem *v60 = [self metadataItem:AVMetadataIdentifierQuickTimeMetadataModel value:@"Audio-only black video"];
+                    NSArray<AVMutableMetadataItem *> *v61 = @[v57, v59, v60];
+                    [v48 setMetadata:v61];
                     NSString *path2 = [v0 path];
-                    NSString *path3 = [v15 path];
-                    JWRLog(@"audio video passthrough export started audio=%@ staged=%@ duration=%.3f", path2, path3, CMTimeGetSeconds(v69));
-                    void (^v67)(void) = ^void(void) {
-                        AVAssetExportSessionStatus status = [v51 status];
-                        NSError *error = [v51 error];
+                    NSString *path3 = [v18 path];
+                    JWRLog(@"audio video passthrough export started audio=%@ staged=%@ duration=%.3f", path2, path3, CMTimeGetSeconds(v72));
+                    void (^v64)(void) = ^void(void) {
+                        AVAssetExportSessionStatus status = [v48 status];
+                        NSError *error = [v48 error];
                         if (status == AVAssetExportSessionStatusCompleted) {
-                            [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:YES error:error];
+                            [self finishAudioVideoConversionAtURL:v18 audioURL:v0 success:YES error:error];
                             return;
                         }
-                        [self finishAudioVideoConversionAtURL:v15 audioURL:v0 success:NO error:error];
+                        [self finishAudioVideoConversionAtURL:v18 audioURL:v0 success:NO error:error];
                     };
-                    [v51 exportAsynchronouslyWithCompletionHandler:v67];
+                    [v48 exportAsynchronouslyWithCompletionHandler:v64];
+                    goto blk_b150;
                 }
             }
-            goto blk_b150;
+            NSError *v30 = [self audioVideoError:@"The bundled black-video template is unavailable."];
+            [self finishAudioVideoConversionAtURL:v18 audioURL:v0 success:NO error:v30];
         }
     }
+blk_b150:
 }
 
 
@@ -1723,10 +1485,11 @@ void -[JWRRecorderManager toggleAudio](void)
             if (v9 != nil) {
                 JWRLog(@"audio activation error=%@", v9);
             }
+            NSDictionary<id, NSNumber *> *v13 = @{AVFormatIDKey: @1633772320U, AVSampleRateKey: @44100, AVNumberOfChannelsKey: @1, AVEncoderAudioQualityKey: @96LL};
             AVAudioRecorder *v14 = [AVAudioRecorder alloc];
             NSURL *v15 = [self outputURLWithExtension:@"m4a"];
             NSError *v16 = nil;
-            [self setAudioRecorder:[v14 initWithURL:v15 settings:@{AVFormatIDKey: @1633772320U, AVSampleRateKey: @44100, AVNumberOfChannelsKey: @1, AVEncoderAudioQualityKey: @96LL} error:&v16]];
+            [self setAudioRecorder:[v14 initWithURL:v15 settings:v13 error:&v16]];
             if (v16 != nil) {
                 JWRLog(@"audio recorder init error=%@", v16);
             }

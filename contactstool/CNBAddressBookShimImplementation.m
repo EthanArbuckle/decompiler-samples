@@ -11,8 +11,6 @@ NSString *+[CNBAddressBookShimImplementation name](void)
 NSMutableArray *+[CNBAddressBookShimImplementation ABPropertiesForCNBProperties:](unsigned long a1)
 {
     id v6;
-    int v9;
-    NSNumber *v10;
     NSMutableArray *array = [NSMutableArray array];
     if ((a1 & 4) == 0) {
         v6 = array;
@@ -32,29 +30,18 @@ NSMutableArray *+[CNBAddressBookShimImplementation ABPropertiesForCNBProperties:
         [array addObject:v14];
         v6 = v14;
         if ((a1 & 2) == 0) {
-            if ((a1 & 8) != 0) {
-                goto blk_100005dd8;
-            }
-            if ((a1 & 16) != 0) {
-                v9 = qword_10001a600(v6);
-                v10 = [NSNumber numberWithInt:v9];
-                [array addObject:v10];
-            }
-            return array;
+            goto blk_100005bd8;
         } else {
             goto blk_100005d84;
         }
     }
     if ((a1 & 2) == 0) {
+blk_100005bd8:
         if ((a1 & 8) != 0) {
             goto blk_100005dd8;
+        } else {
+            goto blk_100005bdc;
         }
-        if ((a1 & 16) != 0) {
-            v9 = qword_10001a600(v6);
-            v10 = [NSNumber numberWithInt:v9];
-            [array addObject:v10];
-        }
-        return array;
     }
 blk_100005d84:
     int v7 = qword_10001a5f0(v6);
@@ -68,9 +55,10 @@ blk_100005dd8:
         [array addObject:v12];
         v6 = v12;
     }
+blk_100005bdc:
     if ((a1 & 16) != 0) {
-        v9 = qword_10001a600(v6);
-        v10 = [NSNumber numberWithInt:v9];
+        int v9 = qword_10001a600(v6);
+        NSNumber *v10 = [NSNumber numberWithInt:v9];
         [array addObject:v10];
     }
     return array;

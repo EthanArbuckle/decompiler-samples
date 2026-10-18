@@ -27,15 +27,15 @@ CRCarPlayWindow *-[CRCarPlayWindow initWithBundleIdentifier:](id a1)
     UIView *v46;
     id v54;
     id v57;
-    id v59;
-    id v69;
-    id v71;
-    id v73;
+    id v58;
+    id v68;
+    id v70;
+    id v72;
+    id v79;
     id v81;
-    id v83;
-    id v88;
-    long v91;
-    id v93;
+    id v85;
+    long v88;
+    id v90;
     id v9;
     CRCarPlayWindow *v2 = [super init];
     if (v2 != nil) {
@@ -63,15 +63,11 @@ CRCarPlayWindow *-[CRCarPlayWindow initWithBundleIdentifier:](id a1)
         }
         if (!v2->_drawOnMainScreen) {
             id v10 = getCarplayCADisplay();
-            if (!v10) {
-                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CADisplay", v10];
-            } else if (![v10 isKindOfClass:NSClassFromString(@"CADisplay")]) {
+            if (!v10 || ![v10 isKindOfClass:NSClassFromString(@"CADisplay")]) {
                 [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CADisplay", v10];
             }
             FBSDisplayConfiguration *v12 = [[objc_getClass("FBSDisplayConfiguration") alloc] initWithCADisplay:v10 isMainDisplay:0];
-            if (!v12) {
-                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSDisplayConfiguration", v12];
-            } else if (![v12 isKindOfClass:NSClassFromString(@"FBSDisplayConfiguration")]) {
+            if (!v12 || ![v12 isKindOfClass:NSClassFromString(@"FBSDisplayConfiguration")]) {
                 [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSDisplayConfiguration", v12];
             }
             [v2 setRootWindow:[[objc_getClass("UIRootSceneWindow") alloc] initWithDisplayConfiguration:v12]];
@@ -160,92 +156,89 @@ CRCarPlayWindow *-[CRCarPlayWindow initWithBundleIdentifier:](id a1)
         } else {
             v57 = [objc_getClass("SBMainDisplaySceneLayoutViewController") mainDisplaySceneLayoutViewController];
         }
-        SEL v58 = NSSelectorFromString(@"appViewControllers");
-        if (![v57 respondsToSelector:v58]) {
-            v59 = nil;
+        if (![v57 respondsToSelector:NSSelectorFromString(@"appViewControllers")]) {
+            v58 = nil;
             LogSelectorError(v57, NSSelectorFromString(@"appViewControllers"));
         } else {
-            v59 = [v57 appViewControllers];
+            v58 = [v57 appViewControllers];
         }
-        for (id v68 in v59) {
-            if ([v68 respondsToSelector:NSSelectorFromString(@"_applicationSceneViewController")]) {
-                v69 = [v68 _applicationSceneViewController];
+        for (id v67 in v58) {
+            if ([v67 respondsToSelector:NSSelectorFromString(@"_applicationSceneViewController")]) {
+                v68 = [v67 _applicationSceneViewController];
             } else {
-                v69 = nil;
-                LogSelectorError(v68, NSSelectorFromString(@"_applicationSceneViewController"));
+                v68 = nil;
+                LogSelectorError(v67, NSSelectorFromString(@"_applicationSceneViewController"));
             }
-            if ([v69 respondsToSelector:NSSelectorFromString(@"_sceneView")]) {
-                v71 = [v69 _sceneView];
+            if ([v68 respondsToSelector:NSSelectorFromString(@"_sceneView")]) {
+                v70 = [v68 _sceneView];
             } else {
-                v71 = nil;
-                LogSelectorError(v69, NSSelectorFromString(@"_sceneView"));
+                v70 = nil;
+                LogSelectorError(v68, NSSelectorFromString(@"_sceneView"));
             }
-            if ([v71 respondsToSelector:NSSelectorFromString(@"sceneHandle")]) {
-                v73 = [v71 sceneHandle];
+            if ([v70 respondsToSelector:NSSelectorFromString(@"sceneHandle")]) {
+                v72 = [v70 sceneHandle];
             } else {
-                v73 = nil;
-                LogSelectorError(v71, NSSelectorFromString(@"sceneHandle"));
+                v72 = nil;
+                LogSelectorError(v70, NSSelectorFromString(@"sceneHandle"));
             }
-            if ([v73 isEqual:v54]) {
-                if ([v71 respondsToSelector:NSSelectorFromString(@"drawCarplayPlaceholder")]) {
-                    [v71 drawCarplayPlaceholder];
+            if ([v72 isEqual:v54]) {
+                if ([v70 respondsToSelector:NSSelectorFromString(@"drawCarplayPlaceholder")]) {
+                    [v70 drawCarplayPlaceholder];
                 } else {
-                    LogSelectorError(v71, NSSelectorFromString(@"drawCarplayPlaceholder"));
+                    LogSelectorError(v70, NSSelectorFromString(@"drawCarplayPlaceholder"));
                 }
             }
         }
-        Class v76 = objc_getClass("NSDistributedNotificationCenter");
-        NSDistributedNotificationCenter *defaultCenter = [v76 defaultCenter];
+        NSDistributedNotificationCenter *defaultCenter = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
         NSOperationQueue *mainQueue = [NSOperationQueue mainQueue];
-        id<NSObject> v80 = [defaultCenter addObserverForName:@"com.carplay.preferences.changed" object:@"dockAlignment" queue:mainQueue usingBlock:^void(NSNotification *arg1) {
+        id<NSObject> v78 = [defaultCenter addObserverForName:@"com.carplay.preferences.changed" object:@"dockAlignment" queue:mainQueue usingBlock:^void(NSNotification *arg1) {
             CRPreferences *sharedInstance = [CRPreferences sharedInstance];
             [sharedInstance reloadPreferences];
             [v2 setupDock];
             [v2 resizeAppViewForOrientation:v2->_orientation fullscreen:v2->_isFullscreen forceUpdate:YES];
         }];
-        [v2->_observers addObject:v80];
+        [v2->_observers addObject:v78];
         v2->_screenTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:v2 action:@selector(handleScreenTapped)];
         if (![objc_getClass("_UISystemGestureManager") respondsToSelector:NSSelectorFromString(@"sharedInstance")]) {
-            v81 = nil;
+            v79 = nil;
             LogSelectorError(objc_getClass("_UISystemGestureManager"), NSSelectorFromString(@"sharedInstance"));
         } else {
-            v81 = [objc_getClass("_UISystemGestureManager") sharedInstance];
+            v79 = [objc_getClass("_UISystemGestureManager") sharedInstance];
         }
         UIWindow *rootWindow8 = [v2 rootWindow];
         if (![rootWindow8 respondsToSelector:NSSelectorFromString(@"displayConfiguration")]) {
-            v83 = nil;
+            v81 = nil;
             UIWindow *rootWindow9 = [v2 rootWindow];
             LogSelectorError(rootWindow9, NSSelectorFromString(@"displayConfiguration"));
         } else {
             UIWindow *rootWindow10 = [v2 rootWindow];
-            v83 = [rootWindow10 displayConfiguration];
+            v81 = [rootWindow10 displayConfiguration];
         }
-        SEL v86 = NSSelectorFromString(@"identity");
-        if (![v83 respondsToSelector:v86]) {
+        if (![v81 respondsToSelector:NSSelectorFromString(@"identity")]) {
             UIWindow *rootWindow11 = [v2 rootWindow];
             if (![rootWindow11 respondsToSelector:NSSelectorFromString(@"displayConfiguration")]) {
-                v88 = nil;
+                v85 = nil;
                 UIWindow *rootWindow12 = [v2 rootWindow];
                 LogSelectorError(rootWindow12, NSSelectorFromString(@"displayConfiguration"));
             } else {
                 UIWindow *rootWindow13 = [v2 rootWindow];
-                v88 = [rootWindow13 displayConfiguration];
+                v85 = [rootWindow13 displayConfiguration];
             }
-            v91 = 0;
-            LogSelectorError(v88, NSSelectorFromString(@"identity"));
+            v88 = 0;
+            LogSelectorError(v85, NSSelectorFromString(@"identity"));
         } else {
             UIWindow *rootWindow14 = [v2 rootWindow];
             if (![rootWindow14 respondsToSelector:NSSelectorFromString(@"displayConfiguration")]) {
-                v93 = nil;
+                v90 = nil;
                 UIWindow *rootWindow15 = [v2 rootWindow];
                 LogSelectorError(rootWindow15, NSSelectorFromString(@"displayConfiguration"));
             } else {
                 UIWindow *rootWindow16 = [v2 rootWindow];
-                v93 = [rootWindow16 displayConfiguration];
+                v90 = [rootWindow16 displayConfiguration];
             }
-            v91 = [v93 identity];
+            v88 = [v90 identity];
         }
-        [v81 addGestureRecognizer:v2->_screenTapRecognizer toDisplayWithIdentity:v91];
+        [v79 addGestureRecognizer:v2->_screenTapRecognizer toDisplayWithIdentity:v88];
     }
     return v2;
 }
@@ -263,9 +256,7 @@ void -[CRCarPlayWindow setupWallpaperBackground](void)
     } else {
         v3 = [objc_getClass("CRSUIWallpaperPreferences") defaultWallpaper];
     }
-    if (!v3) {
-        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CRSUIWallpaper", v3];
-    } else if (![v3 isKindOfClass:NSClassFromString(@"CRSUIWallpaper")]) {
+    if (!v3 || ![v3 isKindOfClass:NSClassFromString(@"CRSUIWallpaper")]) {
         [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"CRSUIWallpaper", v3];
     }
     [v2 setImage:[v3 wallpaperImageCompatibleWithTraitCollection:0]];
@@ -450,60 +441,21 @@ void -[CRCarPlayWindow setupLiveAppView](void)
     id v7;
     id v10;
     id v13;
-    bool v19;
-    Class v20;
-    id v21;
-    id v22;
-    bool v23;
-    id v24;
-    bool v25;
-    SBDeviceApplicationSceneEntity *v26;
-    bool v27;
-    id v30;
-    id v32;
-    id v33;
-    id v34;
-    id v35;
-    id v36;
-    id v37;
-    id v38;
-    id v39;
-    id v40;
     UIView *v41;
-    id v42;
-    id v43;
-    SEL v44;
     id v45;
-    id v46;
-    id v47;
-    bool v48;
-    id v50;
-    id v53;
-    id v54;
-    id v55;
     id v56;
-    bool v57;
-    id v58;
-    id v59;
     id v60;
-    id v61;
-    id v62;
-    UIView *v63;
-    UIColor *v64;
-    long v65;
-    SEL v66;
-    id v68;
     id v31;
     NSString *v0 = [NSString stringWithFormat:@"%s", "-[CRCarPlayWindow setupLiveAppView]"];
     NSLog(@"carplayenable LOG_LIFECYCLE_EVENT %@", v0);
     id application = [self application];
     if (![application respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
         v2 = nil;
-        id application4 = [self application];
-        LogSelectorError(application4, NSSelectorFromString(@"bundleIdentifier"));
-    } else {
         id application5 = [self application];
-        v2 = [application5 bundleIdentifier];
+        LogSelectorError(application5, NSSelectorFromString(@"bundleIdentifier"));
+    } else {
+        id application6 = [self application];
+        v2 = [application6 bundleIdentifier];
     }
     UIApplication *sharedApplication = [UIApplication sharedApplication];
     id v6 = objc_getAssociatedObject(sharedApplication, NSSelectorFromString(@"lockAssertions"));
@@ -514,684 +466,220 @@ void -[CRCarPlayWindow setupLiveAppView](void)
     } else {
         v7 = [objc_getClass("SBSceneManagerCoordinator") mainDisplaySceneManager];
     }
-    if (!v7) {
+    if (!v7 || ![v7 isKindOfClass:NSClassFromString(@"SBMainDisplaySceneManager")]) {
         [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBMainDisplaySceneManager", v7];
-    } else if ([v7 isKindOfClass:NSClassFromString(@"SBMainDisplaySceneManager")]) {
-        SEL v9 = NSSelectorFromString(@"_layoutStateManager");
-        if (![v7 respondsToSelector:v9]) {
-            v10 = nil;
-            LogSelectorError(v7, NSSelectorFromString(@"_layoutStateManager"));
-        } else {
-            v10 = [v7 _layoutStateManager];
-        }
-        if (!v10) {
-            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBMainDisplayLayoutStateManager", v10];
-        } else if ([v10 isKindOfClass:NSClassFromString(@"SBMainDisplayLayoutStateManager")]) {
-            SEL v12 = NSSelectorFromString(@"displayIdentity");
-            if (![v7 respondsToSelector:v12]) {
-                v13 = nil;
-                LogSelectorError(v7, NSSelectorFromString(@"displayIdentity"));
-            } else {
-                v13 = [v7 displayIdentity];
-            }
-            if (!v13) {
-                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSDisplayIdentity", v13];
-            } else if ([v13 isKindOfClass:NSClassFromString(@"FBSDisplayIdentity")]) {
-                id v15 = nil;
-                SEL v16 = NSSelectorFromString(@"_sceneIdentityForApplication:createPrimaryIfRequired:");
-                if ([v7 respondsToSelector:v16]) {
-                    id application2 = [self application];
-                    v15 = [v7 _sceneIdentityForApplication:application2 createPrimaryIfRequired:1];
-                    v19 = !v15;
-                    if (v19) {
-                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
-                    } else if ([v15 isKindOfClass:NSClassFromString(@"FBSSceneIdentity")]) {
-                        v20 = objc_getClass("SBApplicationSceneHandleRequest");
-                        v21 = [self application];
-                        v22 = [v20 defaultRequestForApplication:v21 sceneIdentity:v15 displayIdentity:v13];
-                        v23 = !v22;
-                        if (v23) {
-                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
-                        } else if ([v22 isKindOfClass:NSClassFromString(@"SBApplicationSceneHandleRequest")]) {
-                            v24 = [v7 fetchOrCreateApplicationSceneHandleForRequest:v22];
-                            v25 = !v24;
-                            if (v25) {
-                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
-                            } else if ([v24 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneHandle")]) {
-                                v26 = [[objc_getClass("SBDeviceApplicationSceneEntity") alloc] initWithApplicationSceneHandle:v24];
-                                v27 = !v26;
-                                if (v27) {
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
-                                } else if ([v26 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneEntity")]) {
-                                    [self setAppViewController:[[objc_getClass("SBAppViewController") alloc] initWithIdentifier:v2 andApplicationSceneEntity:v26]];
-                                    if (![self appViewController] || ![(v31 = [self appViewController]) isKindOfClass:NSClassFromString(@"SBAppViewController")]) {
-                                        v30 = [self appViewController];
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBAppViewController", v30];
-                                    }
-                                    v32 = [self appViewController];
-                                    [v32 setIgnoresOcclusions:0];
-                                    v33 = [self appViewController];
-                                    [v33 setValue:@2 forKey:@"_currentMode"];
-                                    v34 = [self appViewController];
-                                    v35 = [v34 valueForKey:@"_activationSettings"];
-                                    if (![v35 respondsToSelector:NSSelectorFromString(@"clearActivationSettings")]) {
-                                        v36 = [self appViewController];
-                                        v37 = [v36 valueForKey:@"_activationSettings"];
-                                        LogSelectorError(v37, NSSelectorFromString(@"clearActivationSettings"));
-                                    } else {
-                                        v38 = [self appViewController];
-                                        v39 = [v38 valueForKey:@"_activationSettings"];
-                                        [v39 clearActivationSettings];
-                                    }
-                                    v40 = [self appViewController];
-                                    if (![v40 respondsToSelector:NSSelectorFromString(@"view")]) {
-                                        v41 = nil;
-                                        v42 = [self appViewController];
-                                        LogSelectorError(v42, NSSelectorFromString(@"view"));
-                                    } else {
-                                        v43 = [self appViewController];
-                                        v41 = [v43 view];
-                                    }
-                                    v44 = NSSelectorFromString(@"recursiveDescription");
-                                    if (![v41 respondsToSelector:v44]) {
-                                        v45 = nil;
-                                        LogSelectorError(v41, NSSelectorFromString(@"recursiveDescription"));
-                                    } else {
-                                        v45 = [v41 recursiveDescription];
-                                    }
-                                    NSLog(@"carplayenable appviewcontroller view recursive description: %@", v45);
-                                    v46 = [self appViewController];
-                                    v47 = [v46 _createSceneUpdateTransactionForApplicationSceneEntity:v26 deliveringActions:1];
-                                    v48 = !v47;
-                                    if (v48) {
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
-                                    } else if ([v47 isKindOfClass:NSClassFromString(@"SBApplicationSceneUpdateTransaction")]) {
-                                        v50 = [self appViewController];
-                                        __block id v49 = [v50 valueForKey:@"_activeTransitions"];
-                                        [v47 setCompletionBlock:^void(int arg1) {
-                                            id v70;
-                                            [v49 removeObject:v47];
-                                            id v69 = [v47 valueForKey:@"_processLaunchTransaction"];
-                                            if (!v69) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v69];
-                                            } else if (![v69 isKindOfClass:NSClassFromString(@"FBApplicationProcessLaunchTransaction")]) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v69];
-                                            }
-                                            if (![v69 respondsToSelector:NSSelectorFromString(@"process")]) {
-                                                v70 = nil;
-                                                LogSelectorError(v69, NSSelectorFromString(@"process"));
-                                            } else {
-                                                v70 = [v69 process];
-                                            }
-                                            if (!v70) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v70];
-                                            } else if (![v70 isKindOfClass:NSClassFromString(@"FBProcess")]) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v70];
-                                            }
-                                            [v70 _executeBlockAfterLaunchCompletes:^void(void) {
-                                                dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-                                                dispatch_after(when, dispatch_get_main_queue(), ^void(void) {
-                                                    id v77;
-                                                    id v80;
-                                                    id v14;
-                                                    id v78;
-                                                    UIImageView *launchImageView = [self launchImageView];
-                                                    [launchImageView removeFromSuperview];
-                                                    if ([self shouldGenerateSnapshot]) {
-                                                        if (![v24 respondsToSelector:NSSelectorFromString(@"sceneIfExists")]) {
-                                                            v77 = nil;
-                                                            LogSelectorError(v24, NSSelectorFromString(@"sceneIfExists"));
-                                                        } else {
-                                                            v77 = [v24 sceneIfExists];
-                                                        }
-                                                        if (v77 != nil) {
-                                                            if (![v77 respondsToSelector:NSSelectorFromString(@"settings")]) {
-                                                                v80 = nil;
-                                                                LogSelectorError(v77, NSSelectorFromString(@"settings"));
-                                                            } else {
-                                                                v80 = [v77 settings];
-                                                            }
-                                                            if (![v80 respondsToSelector:NSSelectorFromString(@"mutableCopy")]) {
-                                                                v14 = nil;
-                                                                LogSelectorError(v80, NSSelectorFromString(@"mutableCopy"));
-                                                            } else {
-                                                                v14 = [v80 mutableCopy];
-                                                            }
-                                                            if (!v14) {
-                                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
-                                                            } else if (![v14 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
-                                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
-                                                            }
-                                                            int orientation = [self orientation];
-                                                            [v14 setInterfaceOrientation:orientation];
-                                                            Class v8 = objc_getClass("FBSSceneSnapshotContext");
-                                                            if (![v77 respondsToSelector:NSSelectorFromString(@"identifier")]) {
-                                                                v78 = nil;
-                                                                LogSelectorError(v77, NSSelectorFromString(@"identifier"));
-                                                            } else {
-                                                                v78 = [v77 identifier];
-                                                            }
-                                                            id v79 = [v8 contextWithSceneID:v78 settings:v14];
-                                                            [v79 setName:@"CarPlayLaunchImage"];
-                                                            [v79 setScale:2];
-                                                            [v79 setExpirationInterval:99999];
-                                                            id application = [self application];
-                                                            [application saveSnapshotForSceneHandle:v24 context:v79 completion:0];
-                                                        }
-                                                        return;
-                                                    }
-                                                });
-                                                Class v72 = objc_getClass("NSDistributedNotificationCenter");
-                                                NSDistributedNotificationCenter *defaultCenter = [v72 defaultCenter];
-                                                int orientation = [self orientation];
-                                                NSNumber *v75 = [NSNumber numberWithInt:orientation];
-                                                [defaultCenter postNotificationName:@"com.carplayenable.orientation" object:v2 userInfo:@{@"orientation": v75}];
-                                            }];
-                                        }];
-                                        [v49 addObject:v47];
-                                        if (![v47 respondsToSelector:NSSelectorFromString(@"begin")]) {
-                                            LogSelectorError(v47, NSSelectorFromString(@"begin"));
-                                        } else {
-                                            [v47 begin];
-                                        }
-                                        v53 = [self appViewController];
-                                        if (![v53 respondsToSelector:NSSelectorFromString(@"_createSceneViewController")]) {
-                                            v54 = [self appViewController];
-                                            LogSelectorError(v54, NSSelectorFromString(@"_createSceneViewController"));
-                                        } else {
-                                            v55 = [self appViewController];
-                                            [v55 _createSceneViewController];
-                                        }
-                                        if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
-                                            LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
-                                            v56 = nil;
-                                        } else {
-                                            v56 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
-                                        }
-                                        v57 = !v56;
-                                        if (v57) {
-                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
-                                        } else if ([v56 isKindOfClass:NSClassFromString(@"BSUIAnimationFactory")]) {
-                                            v58 = [self appViewController];
-                                            if (![v58 respondsToSelector:NSSelectorFromString(@"appView")]) {
-                                                v59 = [self appViewController];
-                                                LogSelectorError(v59, NSSelectorFromString(@"appView"));
-                                                v60 = nil;
-                                            } else {
-                                                v61 = [self appViewController];
-                                                v60 = [v61 appView];
-                                            }
-                                            [v60 setDisplayMode:4 animationFactory:v56 completion:0];
-                                            v62 = [self appViewController];
-                                            v63 = [v62 view];
-                                            v64 = [UIColor clearColor];
-                                            [v63 setBackgroundColor:v64];
-                                            v65 = 0;
-                                            v66 = NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:");
-                                            if (![v10 respondsToSelector:v66]) {
-                                                if (![v10 respondsToSelector:NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:")]) {
-                                                    [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
-                                                    v68 = [self sceneMonitor];
-                                                    [v68 setDelegate:self];
-                                                    return;
-                                                }
-                                                v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2 sceneSessionRole:@"UIWindowSceneSessionRoleApplication"];
-                                            } else {
-                                                v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2];
-                                            }
-                                            [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
-                                            v68 = [self sceneMonitor];
-                                            [v68 setDelegate:self];
-                                            return;
-                                        }
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
-                                    }
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
-                                }
-                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
-                            }
-                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
-                        }
-                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
-                    }
-                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
-                }
-                if (![v7 respondsToSelector:NSSelectorFromString(@"_sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:")]) {
-                    v19 = !v15;
-                    if (v19) {
-                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
-                    } else if ([v15 isKindOfClass:NSClassFromString(@"FBSSceneIdentity")]) {
-                        v20 = objc_getClass("SBApplicationSceneHandleRequest");
-                        v21 = [self application];
-                        v22 = [v20 defaultRequestForApplication:v21 sceneIdentity:v15 displayIdentity:v13];
-                        v23 = !v22;
-                        if (v23) {
-                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
-                        } else if ([v22 isKindOfClass:NSClassFromString(@"SBApplicationSceneHandleRequest")]) {
-                            v24 = [v7 fetchOrCreateApplicationSceneHandleForRequest:v22];
-                            v25 = !v24;
-                            if (v25) {
-                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
-                            } else if ([v24 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneHandle")]) {
-                                v26 = [[objc_getClass("SBDeviceApplicationSceneEntity") alloc] initWithApplicationSceneHandle:v24];
-                                v27 = !v26;
-                                if (v27) {
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
-                                } else if ([v26 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneEntity")]) {
-                                    [self setAppViewController:[[objc_getClass("SBAppViewController") alloc] initWithIdentifier:v2 andApplicationSceneEntity:v26]];
-                                    if (![self appViewController] || ![(v31 = [self appViewController]) isKindOfClass:NSClassFromString(@"SBAppViewController")]) {
-                                        v30 = [self appViewController];
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBAppViewController", v30];
-                                    }
-                                    v32 = [self appViewController];
-                                    [v32 setIgnoresOcclusions:0];
-                                    v33 = [self appViewController];
-                                    [v33 setValue:@2 forKey:@"_currentMode"];
-                                    v34 = [self appViewController];
-                                    v35 = [v34 valueForKey:@"_activationSettings"];
-                                    if (![v35 respondsToSelector:NSSelectorFromString(@"clearActivationSettings")]) {
-                                        v36 = [self appViewController];
-                                        v37 = [v36 valueForKey:@"_activationSettings"];
-                                        LogSelectorError(v37, NSSelectorFromString(@"clearActivationSettings"));
-                                    } else {
-                                        v38 = [self appViewController];
-                                        v39 = [v38 valueForKey:@"_activationSettings"];
-                                        [v39 clearActivationSettings];
-                                    }
-                                    v40 = [self appViewController];
-                                    if (![v40 respondsToSelector:NSSelectorFromString(@"view")]) {
-                                        v41 = nil;
-                                        v42 = [self appViewController];
-                                        LogSelectorError(v42, NSSelectorFromString(@"view"));
-                                    } else {
-                                        v43 = [self appViewController];
-                                        v41 = [v43 view];
-                                    }
-                                    v44 = NSSelectorFromString(@"recursiveDescription");
-                                    if (![v41 respondsToSelector:v44]) {
-                                        v45 = nil;
-                                        LogSelectorError(v41, NSSelectorFromString(@"recursiveDescription"));
-                                    } else {
-                                        v45 = [v41 recursiveDescription];
-                                    }
-                                    NSLog(@"carplayenable appviewcontroller view recursive description: %@", v45);
-                                    v46 = [self appViewController];
-                                    v47 = [v46 _createSceneUpdateTransactionForApplicationSceneEntity:v26 deliveringActions:1];
-                                    v48 = !v47;
-                                    if (v48) {
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
-                                    } else if ([v47 isKindOfClass:NSClassFromString(@"SBApplicationSceneUpdateTransaction")]) {
-                                        v50 = [self appViewController];
-                                        __block id byref1 = [v50 valueForKey:@"_activeTransitions"];
-                                        [v47 setCompletionBlock:^void(int arg1) {
-                                            id v83;
-                                            [byref1 removeObject:v47];
-                                            id v82 = [v47 valueForKey:@"_processLaunchTransaction"];
-                                            if (!v82) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v82];
-                                            } else if (![v82 isKindOfClass:NSClassFromString(@"FBApplicationProcessLaunchTransaction")]) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v82];
-                                            }
-                                            if (![v82 respondsToSelector:NSSelectorFromString(@"process")]) {
-                                                v83 = nil;
-                                                LogSelectorError(v82, NSSelectorFromString(@"process"));
-                                            } else {
-                                                v83 = [v82 process];
-                                            }
-                                            if (!v83) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v83];
-                                            } else if (![v83 isKindOfClass:NSClassFromString(@"FBProcess")]) {
-                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v83];
-                                            }
-                                            [v83 _executeBlockAfterLaunchCompletes:^void(void) {
-                                                dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-                                                dispatch_after(when, dispatch_get_main_queue(), ^void(void) {
-                                                    id v90;
-                                                    id v93;
-                                                    id v14;
-                                                    id v91;
-                                                    UIImageView *launchImageView = [self launchImageView];
-                                                    [launchImageView removeFromSuperview];
-                                                    if ([self shouldGenerateSnapshot]) {
-                                                        if (![v24 respondsToSelector:NSSelectorFromString(@"sceneIfExists")]) {
-                                                            v90 = nil;
-                                                            LogSelectorError(v24, NSSelectorFromString(@"sceneIfExists"));
-                                                        } else {
-                                                            v90 = [v24 sceneIfExists];
-                                                        }
-                                                        if (v90 != nil) {
-                                                            if (![v90 respondsToSelector:NSSelectorFromString(@"settings")]) {
-                                                                v93 = nil;
-                                                                LogSelectorError(v90, NSSelectorFromString(@"settings"));
-                                                            } else {
-                                                                v93 = [v90 settings];
-                                                            }
-                                                            if (![v93 respondsToSelector:NSSelectorFromString(@"mutableCopy")]) {
-                                                                v14 = nil;
-                                                                LogSelectorError(v93, NSSelectorFromString(@"mutableCopy"));
-                                                            } else {
-                                                                v14 = [v93 mutableCopy];
-                                                            }
-                                                            if (!v14) {
-                                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
-                                                            } else if (![v14 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
-                                                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
-                                                            }
-                                                            int orientation = [self orientation];
-                                                            [v14 setInterfaceOrientation:orientation];
-                                                            Class v8 = objc_getClass("FBSSceneSnapshotContext");
-                                                            if (![v90 respondsToSelector:NSSelectorFromString(@"identifier")]) {
-                                                                v91 = nil;
-                                                                LogSelectorError(v90, NSSelectorFromString(@"identifier"));
-                                                            } else {
-                                                                v91 = [v90 identifier];
-                                                            }
-                                                            id v92 = [v8 contextWithSceneID:v91 settings:v14];
-                                                            [v92 setName:@"CarPlayLaunchImage"];
-                                                            [v92 setScale:2];
-                                                            [v92 setExpirationInterval:99999];
-                                                            id application = [self application];
-                                                            [application saveSnapshotForSceneHandle:v24 context:v92 completion:0];
-                                                        }
-                                                        return;
-                                                    }
-                                                });
-                                                Class v85 = objc_getClass("NSDistributedNotificationCenter");
-                                                NSDistributedNotificationCenter *defaultCenter = [v85 defaultCenter];
-                                                int orientation = [self orientation];
-                                                NSNumber *v88 = [NSNumber numberWithInt:orientation];
-                                                [defaultCenter postNotificationName:@"com.carplayenable.orientation" object:v2 userInfo:@{@"orientation": v88}];
-                                            }];
-                                        }];
-                                        [byref1 addObject:v47];
-                                        if (![v47 respondsToSelector:NSSelectorFromString(@"begin")]) {
-                                            LogSelectorError(v47, NSSelectorFromString(@"begin"));
-                                        } else {
-                                            [v47 begin];
-                                        }
-                                        v53 = [self appViewController];
-                                        if (![v53 respondsToSelector:NSSelectorFromString(@"_createSceneViewController")]) {
-                                            v54 = [self appViewController];
-                                            LogSelectorError(v54, NSSelectorFromString(@"_createSceneViewController"));
-                                        } else {
-                                            v55 = [self appViewController];
-                                            [v55 _createSceneViewController];
-                                        }
-                                        if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
-                                            LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
-                                            v56 = nil;
-                                        } else {
-                                            v56 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
-                                        }
-                                        v57 = !v56;
-                                        if (v57) {
-                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
-                                        } else if ([v56 isKindOfClass:NSClassFromString(@"BSUIAnimationFactory")]) {
-                                            v58 = [self appViewController];
-                                            if (![v58 respondsToSelector:NSSelectorFromString(@"appView")]) {
-                                                v59 = [self appViewController];
-                                                LogSelectorError(v59, NSSelectorFromString(@"appView"));
-                                                v60 = nil;
-                                            } else {
-                                                v61 = [self appViewController];
-                                                v60 = [v61 appView];
-                                            }
-                                            [v60 setDisplayMode:4 animationFactory:v56 completion:0];
-                                            v62 = [self appViewController];
-                                            v63 = [v62 view];
-                                            v64 = [UIColor clearColor];
-                                            [v63 setBackgroundColor:v64];
-                                            v65 = 0;
-                                            v66 = NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:");
-                                            if (![v10 respondsToSelector:v66]) {
-                                                if (![v10 respondsToSelector:NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:")]) {
-                                                    [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
-                                                    v68 = [self sceneMonitor];
-                                                    [v68 setDelegate:self];
-                                                    return;
-                                                }
-                                                v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2 sceneSessionRole:@"UIWindowSceneSessionRoleApplication"];
-                                            } else {
-                                                v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2];
-                                            }
-                                            [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
-                                            v68 = [self sceneMonitor];
-                                            [v68 setDelegate:self];
-                                            return;
-                                        }
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
-                                    }
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
-                                }
-                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
-                            }
-                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
-                        }
-                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
-                    }
-                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
-                }
-                id application3 = [self application];
-                v15 = [v7 _sceneIdentityForApplication:application3 createPrimaryIfRequired:1 sceneSessionRole:@"UIWindowSceneSessionRoleApplication"];
-                v19 = !v15;
-                if (v19) {
-                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
-                } else if ([v15 isKindOfClass:NSClassFromString(@"FBSSceneIdentity")]) {
-                    v20 = objc_getClass("SBApplicationSceneHandleRequest");
-                    v21 = [self application];
-                    v22 = [v20 defaultRequestForApplication:v21 sceneIdentity:v15 displayIdentity:v13];
-                    v23 = !v22;
-                    if (v23) {
-                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
-                    } else if ([v22 isKindOfClass:NSClassFromString(@"SBApplicationSceneHandleRequest")]) {
-                        v24 = [v7 fetchOrCreateApplicationSceneHandleForRequest:v22];
-                        v25 = !v24;
-                        if (v25) {
-                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
-                        } else if ([v24 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneHandle")]) {
-                            v26 = [[objc_getClass("SBDeviceApplicationSceneEntity") alloc] initWithApplicationSceneHandle:v24];
-                            v27 = !v26;
-                            if (v27) {
-                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
-                            } else if ([v26 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneEntity")]) {
-                                [self setAppViewController:[[objc_getClass("SBAppViewController") alloc] initWithIdentifier:v2 andApplicationSceneEntity:v26]];
-                                if (![self appViewController] || ![(v31 = [self appViewController]) isKindOfClass:NSClassFromString(@"SBAppViewController")]) {
-                                    v30 = [self appViewController];
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBAppViewController", v30];
-                                }
-                                v32 = [self appViewController];
-                                [v32 setIgnoresOcclusions:0];
-                                v33 = [self appViewController];
-                                [v33 setValue:@2 forKey:@"_currentMode"];
-                                v34 = [self appViewController];
-                                v35 = [v34 valueForKey:@"_activationSettings"];
-                                if (![v35 respondsToSelector:NSSelectorFromString(@"clearActivationSettings")]) {
-                                    v36 = [self appViewController];
-                                    v37 = [v36 valueForKey:@"_activationSettings"];
-                                    LogSelectorError(v37, NSSelectorFromString(@"clearActivationSettings"));
-                                } else {
-                                    v38 = [self appViewController];
-                                    v39 = [v38 valueForKey:@"_activationSettings"];
-                                    [v39 clearActivationSettings];
-                                }
-                                v40 = [self appViewController];
-                                if (![v40 respondsToSelector:NSSelectorFromString(@"view")]) {
-                                    v41 = nil;
-                                    v42 = [self appViewController];
-                                    LogSelectorError(v42, NSSelectorFromString(@"view"));
-                                } else {
-                                    v43 = [self appViewController];
-                                    v41 = [v43 view];
-                                }
-                                v44 = NSSelectorFromString(@"recursiveDescription");
-                                if (![v41 respondsToSelector:v44]) {
-                                    v45 = nil;
-                                    LogSelectorError(v41, NSSelectorFromString(@"recursiveDescription"));
-                                } else {
-                                    v45 = [v41 recursiveDescription];
-                                }
-                                NSLog(@"carplayenable appviewcontroller view recursive description: %@", v45);
-                                v46 = [self appViewController];
-                                v47 = [v46 _createSceneUpdateTransactionForApplicationSceneEntity:v26 deliveringActions:1];
-                                v48 = !v47;
-                                if (v48) {
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
-                                } else if ([v47 isKindOfClass:NSClassFromString(@"SBApplicationSceneUpdateTransaction")]) {
-                                    v50 = [self appViewController];
-                                    __block id byref2 = [v50 valueForKey:@"_activeTransitions"];
-                                    [v47 setCompletionBlock:^void(int arg1) {
-                                        id v96;
-                                        [byref2 removeObject:v47];
-                                        id v95 = [v47 valueForKey:@"_processLaunchTransaction"];
-                                        if (!v95) {
-                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v95];
-                                        } else if (![v95 isKindOfClass:NSClassFromString(@"FBApplicationProcessLaunchTransaction")]) {
-                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v95];
-                                        }
-                                        if (![v95 respondsToSelector:NSSelectorFromString(@"process")]) {
-                                            v96 = nil;
-                                            LogSelectorError(v95, NSSelectorFromString(@"process"));
-                                        } else {
-                                            v96 = [v95 process];
-                                        }
-                                        if (!v96) {
-                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v96];
-                                        } else if (![v96 isKindOfClass:NSClassFromString(@"FBProcess")]) {
-                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v96];
-                                        }
-                                        [v96 _executeBlockAfterLaunchCompletes:^void(void) {
-                                            dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-                                            dispatch_after(when, dispatch_get_main_queue(), ^void(void) {
-                                                id v103;
-                                                id v106;
-                                                id v14;
-                                                id v104;
-                                                UIImageView *launchImageView = [self launchImageView];
-                                                [launchImageView removeFromSuperview];
-                                                if ([self shouldGenerateSnapshot]) {
-                                                    if (![v24 respondsToSelector:NSSelectorFromString(@"sceneIfExists")]) {
-                                                        v103 = nil;
-                                                        LogSelectorError(v24, NSSelectorFromString(@"sceneIfExists"));
-                                                    } else {
-                                                        v103 = [v24 sceneIfExists];
-                                                    }
-                                                    if (v103 != nil) {
-                                                        if (![v103 respondsToSelector:NSSelectorFromString(@"settings")]) {
-                                                            v106 = nil;
-                                                            LogSelectorError(v103, NSSelectorFromString(@"settings"));
-                                                        } else {
-                                                            v106 = [v103 settings];
-                                                        }
-                                                        if (![v106 respondsToSelector:NSSelectorFromString(@"mutableCopy")]) {
-                                                            v14 = nil;
-                                                            LogSelectorError(v106, NSSelectorFromString(@"mutableCopy"));
-                                                        } else {
-                                                            v14 = [v106 mutableCopy];
-                                                        }
-                                                        if (!v14) {
-                                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
-                                                        } else if (![v14 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
-                                                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
-                                                        }
-                                                        int orientation = [self orientation];
-                                                        [v14 setInterfaceOrientation:orientation];
-                                                        Class v8 = objc_getClass("FBSSceneSnapshotContext");
-                                                        if (![v103 respondsToSelector:NSSelectorFromString(@"identifier")]) {
-                                                            v104 = nil;
-                                                            LogSelectorError(v103, NSSelectorFromString(@"identifier"));
-                                                        } else {
-                                                            v104 = [v103 identifier];
-                                                        }
-                                                        id v105 = [v8 contextWithSceneID:v104 settings:v14];
-                                                        [v105 setName:@"CarPlayLaunchImage"];
-                                                        [v105 setScale:2];
-                                                        [v105 setExpirationInterval:99999];
-                                                        id application = [self application];
-                                                        [application saveSnapshotForSceneHandle:v24 context:v105 completion:0];
-                                                    }
-                                                    return;
-                                                }
-                                            });
-                                            Class v98 = objc_getClass("NSDistributedNotificationCenter");
-                                            NSDistributedNotificationCenter *defaultCenter = [v98 defaultCenter];
-                                            int orientation = [self orientation];
-                                            NSNumber *v101 = [NSNumber numberWithInt:orientation];
-                                            [defaultCenter postNotificationName:@"com.carplayenable.orientation" object:v2 userInfo:@{@"orientation": v101}];
-                                        }];
-                                    }];
-                                    [byref2 addObject:v47];
-                                    if (![v47 respondsToSelector:NSSelectorFromString(@"begin")]) {
-                                        LogSelectorError(v47, NSSelectorFromString(@"begin"));
-                                    } else {
-                                        [v47 begin];
-                                    }
-                                    v53 = [self appViewController];
-                                    if (![v53 respondsToSelector:NSSelectorFromString(@"_createSceneViewController")]) {
-                                        v54 = [self appViewController];
-                                        LogSelectorError(v54, NSSelectorFromString(@"_createSceneViewController"));
-                                    } else {
-                                        v55 = [self appViewController];
-                                        [v55 _createSceneViewController];
-                                    }
-                                    if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
-                                        LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
-                                        v56 = nil;
-                                    } else {
-                                        v56 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
-                                    }
-                                    v57 = !v56;
-                                    if (v57) {
-                                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
-                                    } else if ([v56 isKindOfClass:NSClassFromString(@"BSUIAnimationFactory")]) {
-                                        v58 = [self appViewController];
-                                        if (![v58 respondsToSelector:NSSelectorFromString(@"appView")]) {
-                                            v59 = [self appViewController];
-                                            LogSelectorError(v59, NSSelectorFromString(@"appView"));
-                                            v60 = nil;
-                                        } else {
-                                            v61 = [self appViewController];
-                                            v60 = [v61 appView];
-                                        }
-                                        [v60 setDisplayMode:4 animationFactory:v56 completion:0];
-                                        v62 = [self appViewController];
-                                        v63 = [v62 view];
-                                        v64 = [UIColor clearColor];
-                                        [v63 setBackgroundColor:v64];
-                                        v65 = 0;
-                                        v66 = NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:");
-                                        if (![v10 respondsToSelector:v66]) {
-                                            if (![v10 respondsToSelector:NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:")]) {
-                                                [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
-                                                v68 = [self sceneMonitor];
-                                                [v68 setDelegate:self];
-                                                return;
-                                            }
-                                            v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2 sceneSessionRole:@"UIWindowSceneSessionRoleApplication"];
-                                        } else {
-                                            v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2];
-                                        }
-                                        [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
-                                        v68 = [self sceneMonitor];
-                                        [v68 setDelegate:self];
-                                        return;
-                                    }
-                                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
-                                }
-                                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
-                            }
-                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
-                        }
-                        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
-                    }
-                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
-                }
-                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
-            }
-            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSDisplayIdentity", v13];
-        }
+    }
+    SEL v9 = NSSelectorFromString(@"_layoutStateManager");
+    if (![v7 respondsToSelector:v9]) {
+        v10 = nil;
+        LogSelectorError(v7, NSSelectorFromString(@"_layoutStateManager"));
+    } else {
+        v10 = [v7 _layoutStateManager];
+    }
+    if (!v10 || ![v10 isKindOfClass:NSClassFromString(@"SBMainDisplayLayoutStateManager")]) {
         [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBMainDisplayLayoutStateManager", v10];
     }
-    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBMainDisplaySceneManager", v7];
+    SEL v12 = NSSelectorFromString(@"displayIdentity");
+    if (![v7 respondsToSelector:v12]) {
+        v13 = nil;
+        LogSelectorError(v7, NSSelectorFromString(@"displayIdentity"));
+    } else {
+        v13 = [v7 displayIdentity];
+    }
+    if (!v13 || ![v13 isKindOfClass:NSClassFromString(@"FBSDisplayIdentity")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSDisplayIdentity", v13];
+    }
+    id v15 = nil;
+    SEL v16 = NSSelectorFromString(@"_sceneIdentityForApplication:createPrimaryIfRequired:");
+    if ([v7 respondsToSelector:v16]) {
+        id application3 = [self application];
+        v15 = [v7 _sceneIdentityForApplication:application3 createPrimaryIfRequired:1];
+    } else if ([v7 respondsToSelector:NSSelectorFromString(@"_sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:")]) {
+        id application2 = [self application];
+        v15 = [v7 _sceneIdentityForApplication:application2 createPrimaryIfRequired:1 sceneSessionRole:@"UIWindowSceneSessionRoleApplication"];
+    }
+    if (!v15 || ![v15 isKindOfClass:NSClassFromString(@"FBSSceneIdentity")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBSSceneIdentity", v15];
+    }
+    Class v20 = objc_getClass("SBApplicationSceneHandleRequest");
+    id application4 = [self application];
+    id v22 = [v20 defaultRequestForApplication:application4 sceneIdentity:v15 displayIdentity:v13];
+    if (!v22 || ![v22 isKindOfClass:NSClassFromString(@"SBApplicationSceneHandleRequest")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneHandleRequest", v22];
+    }
+    id v24 = [v7 fetchOrCreateApplicationSceneHandleForRequest:v22];
+    if (!v24 || ![v24 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneHandle")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneHandle", v24];
+    }
+    SBDeviceApplicationSceneEntity *v26 = [[objc_getClass("SBDeviceApplicationSceneEntity") alloc] initWithApplicationSceneHandle:v24];
+    if (!v26 || ![v26 isKindOfClass:NSClassFromString(@"SBDeviceApplicationSceneEntity")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBDeviceApplicationSceneEntity", v26];
+    }
+    [self setAppViewController:[[objc_getClass("SBAppViewController") alloc] initWithIdentifier:v2 andApplicationSceneEntity:v26]];
+    if (![self appViewController] || ![(v31 = [self appViewController]) isKindOfClass:NSClassFromString(@"SBAppViewController")]) {
+        id appViewController = [self appViewController];
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBAppViewController", appViewController];
+    }
+    id appViewController2 = [self appViewController];
+    [appViewController2 setIgnoresOcclusions:0];
+    id appViewController3 = [self appViewController];
+    [appViewController3 setValue:@2 forKey:@"_currentMode"];
+    id appViewController4 = [self appViewController];
+    id v35 = [appViewController4 valueForKey:@"_activationSettings"];
+    if (![v35 respondsToSelector:NSSelectorFromString(@"clearActivationSettings")]) {
+        id appViewController5 = [self appViewController];
+        id v37 = [appViewController5 valueForKey:@"_activationSettings"];
+        LogSelectorError(v37, NSSelectorFromString(@"clearActivationSettings"));
+    } else {
+        id appViewController6 = [self appViewController];
+        id v39 = [appViewController6 valueForKey:@"_activationSettings"];
+        [v39 clearActivationSettings];
+    }
+    id appViewController7 = [self appViewController];
+    if (![appViewController7 respondsToSelector:NSSelectorFromString(@"view")]) {
+        v41 = nil;
+        id appViewController8 = [self appViewController];
+        LogSelectorError(appViewController8, NSSelectorFromString(@"view"));
+    } else {
+        id appViewController9 = [self appViewController];
+        v41 = [appViewController9 view];
+    }
+    SEL v44 = NSSelectorFromString(@"recursiveDescription");
+    if (![v41 respondsToSelector:v44]) {
+        v45 = nil;
+        LogSelectorError(v41, NSSelectorFromString(@"recursiveDescription"));
+    } else {
+        v45 = [v41 recursiveDescription];
+    }
+    NSLog(@"carplayenable appviewcontroller view recursive description: %@", v45);
+    id appViewController10 = [self appViewController];
+    id v47 = [appViewController10 _createSceneUpdateTransactionForApplicationSceneEntity:v26 deliveringActions:1];
+    if (!v47 || ![v47 isKindOfClass:NSClassFromString(@"SBApplicationSceneUpdateTransaction")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"SBApplicationSceneUpdateTransaction", v47];
+    }
+    id appViewController11 = [self appViewController];
+    __block id v49 = [appViewController11 valueForKey:@"_activeTransitions"];
+    [v47 setCompletionBlock:^void(int arg1) {
+        id v70;
+        [v49 removeObject:v47];
+        id v69 = [v47 valueForKey:@"_processLaunchTransaction"];
+        if (!v69 || ![v69 isKindOfClass:NSClassFromString(@"FBApplicationProcessLaunchTransaction")]) {
+            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBApplicationProcessLaunchTransaction", v69];
+        }
+        if (![v69 respondsToSelector:NSSelectorFromString(@"process")]) {
+            v70 = nil;
+            LogSelectorError(v69, NSSelectorFromString(@"process"));
+        } else {
+            v70 = [v69 process];
+        }
+        if (!v70 || ![v70 isKindOfClass:NSClassFromString(@"FBProcess")]) {
+            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"FBProcess", v70];
+        }
+        [v70 _executeBlockAfterLaunchCompletes:^void(void) {
+            dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+            dispatch_after(when, dispatch_get_main_queue(), ^void(void) {
+                id v77;
+                id v80;
+                id v14;
+                id v78;
+                UIImageView *launchImageView = [self launchImageView];
+                [launchImageView removeFromSuperview];
+                if ([self shouldGenerateSnapshot]) {
+                    if (![v24 respondsToSelector:NSSelectorFromString(@"sceneIfExists")]) {
+                        v77 = nil;
+                        LogSelectorError(v24, NSSelectorFromString(@"sceneIfExists"));
+                    } else {
+                        v77 = [v24 sceneIfExists];
+                    }
+                    if (v77 != nil) {
+                        if (![v77 respondsToSelector:NSSelectorFromString(@"settings")]) {
+                            v80 = nil;
+                            LogSelectorError(v77, NSSelectorFromString(@"settings"));
+                        } else {
+                            v80 = [v77 settings];
+                        }
+                        if (![v80 respondsToSelector:NSSelectorFromString(@"mutableCopy")]) {
+                            v14 = nil;
+                            LogSelectorError(v80, NSSelectorFromString(@"mutableCopy"));
+                        } else {
+                            v14 = [v80 mutableCopy];
+                        }
+                        if (!v14 || ![v14 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
+                            [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v14];
+                        }
+                        int orientation = [self orientation];
+                        [v14 setInterfaceOrientation:orientation];
+                        Class v8 = objc_getClass("FBSSceneSnapshotContext");
+                        if (![v77 respondsToSelector:NSSelectorFromString(@"identifier")]) {
+                            v78 = nil;
+                            LogSelectorError(v77, NSSelectorFromString(@"identifier"));
+                        } else {
+                            v78 = [v77 identifier];
+                        }
+                        id v79 = [v8 contextWithSceneID:v78 settings:v14];
+                        [v79 setName:@"CarPlayLaunchImage"];
+                        [v79 setScale:2];
+                        [v79 setExpirationInterval:99999];
+                        id application = [self application];
+                        [application saveSnapshotForSceneHandle:v24 context:v79 completion:0];
+                    }
+                    return;
+                }
+            });
+            Class v72 = objc_getClass("NSDistributedNotificationCenter");
+            NSDistributedNotificationCenter *defaultCenter = [v72 defaultCenter];
+            int orientation = [self orientation];
+            NSNumber *v75 = [NSNumber numberWithInt:orientation];
+            [defaultCenter postNotificationName:@"com.carplayenable.orientation" object:v2 userInfo:@{@"orientation": v75}];
+        }];
+    }];
+    [v49 addObject:v47];
+    if (![v47 respondsToSelector:NSSelectorFromString(@"begin")]) {
+        LogSelectorError(v47, NSSelectorFromString(@"begin"));
+    } else {
+        [v47 begin];
+    }
+    id appViewController12 = [self appViewController];
+    if (![appViewController12 respondsToSelector:NSSelectorFromString(@"_createSceneViewController")]) {
+        id appViewController13 = [self appViewController];
+        LogSelectorError(appViewController13, NSSelectorFromString(@"_createSceneViewController"));
+    } else {
+        id appViewController14 = [self appViewController];
+        [appViewController14 _createSceneViewController];
+    }
+    if (![objc_getClass("SBApplicationSceneView") respondsToSelector:NSSelectorFromString(@"defaultDisplayModeAnimationFactory")]) {
+        LogSelectorError(objc_getClass("SBApplicationSceneView"), NSSelectorFromString(@"defaultDisplayModeAnimationFactory"));
+        v56 = nil;
+    } else {
+        v56 = [objc_getClass("SBApplicationSceneView") defaultDisplayModeAnimationFactory];
+    }
+    if (!v56 || ![v56 isKindOfClass:NSClassFromString(@"BSUIAnimationFactory")]) {
+        [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"BSUIAnimationFactory", v56];
+    }
+    id appViewController15 = [self appViewController];
+    if (![appViewController15 respondsToSelector:NSSelectorFromString(@"appView")]) {
+        id appViewController16 = [self appViewController];
+        LogSelectorError(appViewController16, NSSelectorFromString(@"appView"));
+        v60 = nil;
+    } else {
+        id appViewController17 = [self appViewController];
+        v60 = [appViewController17 appView];
+    }
+    [v60 setDisplayMode:4 animationFactory:v56 completion:0];
+    id appViewController18 = [self appViewController];
+    UIView *view = [appViewController18 view];
+    UIColor *clearColor = [UIColor clearColor];
+    [view setBackgroundColor:clearColor];
+    long v65 = 0;
+    SEL v66 = NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:");
+    if ([v10 respondsToSelector:v66]) {
+        v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2];
+    } else if ([v10 respondsToSelector:NSSelectorFromString(@"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:")]) {
+        v65 = [v10 primarySceneIdentifierForBundleIdentifier:v2 sceneSessionRole:@"UIWindowSceneSessionRoleApplication"];
+    }
+    [self setSceneMonitor:[[objc_getClass("FBSceneMonitor") alloc] initWithSceneID:v65]];
+    id sceneMonitor = [self sceneMonitor];
+    [sceneMonitor setDelegate:self];
 }
 
 
@@ -1301,44 +789,41 @@ void -[CRCarPlayWindow dismiss](void)
     }
     [v17 removeGestureRecognizer:self->_screenTapRecognizer fromDisplayWithIdentity:v28];
     void (^v18)(void) = ^void(void) {
-        uint8_t v83[48];
+        uint8_t v75[48];
         id v13;
         id v16;
-        id v86;
-        id v87;
-        id v88;
-        id v90;
+        id v78;
+        id v79;
+        id v80;
+        id v82;
         id v37;
         id v42;
         id v45;
         id v47;
+        id v51;
         id v52;
+        id v53;
         id v54;
         id v55;
         id v56;
+        id v57;
         id v58;
-        id v59;
+        NSString *v59;
         id v60;
         id v61;
-        NSString *v62;
+        id v62;
         id v63;
         id v64;
-        id v65;
-        id v66;
-        id v67;
-        SEL v72;
-        id v73;
-        SEL v74;
-        id v75;
-        bool v76;
-        NSString *v71;
-        BOOL v78;
-        *(uint32_t *)&v83[44] = -1;
+        NSString *v67;
+        id v68;
+        id v69;
+        BOOL v71;
+        *(uint32_t *)&v75[44] = -1;
         id appViewController14 = [self appViewController];
         NSString *anObject = [appViewController14 valueForKey:@"_identifier"];
         Class v5 = objc_getClass("NSDistributedNotificationCenter");
         NSDistributedNotificationCenter *defaultCenter = [v5 defaultCenter];
-        NSDictionary<NSString *, NSNumber *> *aUserInfo = @{@"orientation": [NSNumber numberWithInt:*(uint32_t *)&v83[44]]};
+        NSDictionary<NSString *, NSNumber *> *aUserInfo = @{@"orientation": [NSNumber numberWithInt:*(uint32_t *)&v75[44]]};
         [defaultCenter postNotificationName:@"com.carplayenable.orientation" object:anObject userInfo:aUserInfo];
         UIWindow *rootWindow = [self rootWindow];
         [rootWindow setHidden:YES];
@@ -1359,34 +844,34 @@ void -[CRCarPlayWindow dismiss](void)
         } else {
             v16 = [objc_getClass("SBMainDisplaySceneLayoutViewController") mainDisplaySceneLayoutViewController];
         }
-        SEL v85 = NSSelectorFromString(@"appViewControllers");
-        if (![v16 respondsToSelector:v85]) {
-            v86 = nil;
+        SEL v77 = NSSelectorFromString(@"appViewControllers");
+        if (![v16 respondsToSelector:v77]) {
+            v78 = nil;
             LogSelectorError(v16, NSSelectorFromString(@"appViewControllers"));
         } else {
-            v86 = [v16 appViewControllers];
+            v78 = [v16 appViewControllers];
         }
-        for (id v83 in v86) {
-            if ([v83 respondsToSelector:NSSelectorFromString(@"_applicationSceneViewController")]) {
-                v87 = [v83 _applicationSceneViewController];
+        for (id v75 in v78) {
+            if ([v75 respondsToSelector:NSSelectorFromString(@"_applicationSceneViewController")]) {
+                v79 = [v75 _applicationSceneViewController];
             } else {
-                v87 = nil;
-                LogSelectorError(v83, NSSelectorFromString(@"_applicationSceneViewController"));
+                v79 = nil;
+                LogSelectorError(v75, NSSelectorFromString(@"_applicationSceneViewController"));
             }
-            if ([v87 respondsToSelector:NSSelectorFromString(@"_sceneView")]) {
-                v88 = [v87 _sceneView];
+            if ([v79 respondsToSelector:NSSelectorFromString(@"_sceneView")]) {
+                v80 = [v79 _sceneView];
             } else {
-                v88 = nil;
-                LogSelectorError(v87, NSSelectorFromString(@"_sceneView"));
+                v80 = nil;
+                LogSelectorError(v79, NSSelectorFromString(@"_sceneView"));
             }
-            if ([v88 respondsToSelector:NSSelectorFromString(@"sceneHandle")]) {
-                v90 = [v88 sceneHandle];
+            if ([v80 respondsToSelector:NSSelectorFromString(@"sceneHandle")]) {
+                v82 = [v80 sceneHandle];
             } else {
-                v90 = nil;
-                LogSelectorError(v88, NSSelectorFromString(@"sceneHandle"));
+                v82 = nil;
+                LogSelectorError(v80, NSSelectorFromString(@"sceneHandle"));
             }
-            if ([v90 isEqual:v13]) {
-                [v88 setDisplayMode:4 animationFactory:0 completion:0];
+            if ([v82 isEqual:v13]) {
+                [v80 setDisplayMode:4 animationFactory:0 completion:0];
             }
         }
         UIApplication *sharedApplication = [UIApplication sharedApplication];
@@ -1426,170 +911,133 @@ void -[CRCarPlayWindow dismiss](void)
             v45 = [v47 sceneIfExists];
         }
         if (v45 != nil) {
-            SEL v51 = NSSelectorFromString(@"client");
-            if (![v45 respondsToSelector:v51]) {
-                v52 = nil;
+            if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
+                v51 = nil;
                 LogSelectorError(v45, NSSelectorFromString(@"client"));
             } else {
-                v52 = [v45 client];
+                v51 = [v45 client];
             }
-            SEL v53 = NSSelectorFromString(@"process");
-            if (![v52 respondsToSelector:v53]) {
+            if (![v51 respondsToSelector:NSSelectorFromString(@"process")]) {
+                if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
+                    v52 = nil;
+                    LogSelectorError(v45, NSSelectorFromString(@"client"));
+                } else {
+                    v52 = [v45 client];
+                }
+                v53 = nil;
+                LogSelectorError(v52, NSSelectorFromString(@"process"));
+            } else {
                 if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
                     v54 = nil;
                     LogSelectorError(v45, NSSelectorFromString(@"client"));
                 } else {
                     v54 = [v45 client];
                 }
-                v55 = nil;
-                LogSelectorError(v54, NSSelectorFromString(@"process"));
-            } else {
-                if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
-                    v56 = nil;
-                    LogSelectorError(v45, NSSelectorFromString(@"client"));
-                } else {
-                    v56 = [v45 client];
-                }
-                v55 = [v56 process];
+                v53 = [v54 process];
             }
-            SEL v57 = NSSelectorFromString(@"bundleIdentifier");
-            if (![v55 respondsToSelector:v57]) {
+            if (![v53 respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
                 if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
-                    v58 = nil;
+                    v55 = nil;
                     LogSelectorError(v45, NSSelectorFromString(@"client"));
                 } else {
-                    v58 = [v45 client];
+                    v55 = [v45 client];
                 }
-                if (![v58 respondsToSelector:NSSelectorFromString(@"process")]) {
+                if (![v55 respondsToSelector:NSSelectorFromString(@"process")]) {
                     if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
-                        v59 = nil;
+                        v56 = nil;
                         LogSelectorError(v45, NSSelectorFromString(@"client"));
                     } else {
-                        v59 = [v45 client];
+                        v56 = [v45 client];
                     }
-                    v60 = nil;
-                    LogSelectorError(v59, NSSelectorFromString(@"process"));
+                    v57 = nil;
+                    LogSelectorError(v56, NSSelectorFromString(@"process"));
                 } else {
+                    if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
+                        v58 = nil;
+                        LogSelectorError(v45, NSSelectorFromString(@"client"));
+                    } else {
+                        v58 = [v45 client];
+                    }
+                    v57 = [v58 process];
+                }
+                v59 = nil;
+                LogSelectorError(v57, NSSelectorFromString(@"bundleIdentifier"));
+            } else {
+                if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
+                    v60 = nil;
+                    LogSelectorError(v45, NSSelectorFromString(@"client"));
+                } else {
+                    v60 = [v45 client];
+                }
+                if (![v60 respondsToSelector:NSSelectorFromString(@"process")]) {
                     if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
                         v61 = nil;
                         LogSelectorError(v45, NSSelectorFromString(@"client"));
                     } else {
                         v61 = [v45 client];
                     }
-                    v60 = [v61 process];
-                }
-                v62 = nil;
-                LogSelectorError(v60, NSSelectorFromString(@"bundleIdentifier"));
-            } else {
-                if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
-                    v63 = nil;
-                    LogSelectorError(v45, NSSelectorFromString(@"client"));
-                } else {
-                    v63 = [v45 client];
-                }
-                if (![v63 respondsToSelector:NSSelectorFromString(@"process")]) {
-                    if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
-                        v64 = nil;
-                        LogSelectorError(v45, NSSelectorFromString(@"client"));
-                    } else {
-                        v64 = [v45 client];
-                    }
-                    v65 = nil;
-                    LogSelectorError(v64, NSSelectorFromString(@"process"));
+                    v62 = nil;
+                    LogSelectorError(v61, NSSelectorFromString(@"process"));
                 } else {
                     if (![v45 respondsToSelector:NSSelectorFromString(@"client")]) {
-                        v66 = nil;
+                        v63 = nil;
                         LogSelectorError(v45, NSSelectorFromString(@"client"));
                     } else {
-                        v66 = [v45 client];
+                        v63 = [v45 client];
                     }
-                    v65 = [v66 process];
+                    v62 = [v63 process];
                 }
-                v62 = [v65 bundleIdentifier];
+                v59 = [v62 bundleIdentifier];
             }
-            [v35 removeObject:v62];
+            [v35 removeObject:v59];
             if (![sharedApplication respondsToSelector:NSSelectorFromString(@"_accessibilityFrontMostApplication")]) {
-                v67 = nil;
+                v64 = nil;
                 LogSelectorError(sharedApplication, NSSelectorFromString(@"_accessibilityFrontMostApplication"));
             } else {
-                v67 = [sharedApplication _accessibilityFrontMostApplication];
+                v64 = [sharedApplication _accessibilityFrontMostApplication];
             }
-            if (!v67) {
-                if (0) {
-                    goto blk_12268;
+            BOOL v66 = NO;
+            if (v64 != nil) {
+                if (![v64 respondsToSelector:NSSelectorFromString(@"bundleIdentifier")]) {
+                    v67 = nil;
+                    LogSelectorError(v64, NSSelectorFromString(@"bundleIdentifier"));
+                } else {
+                    v67 = [v64 bundleIdentifier];
                 }
-                v72 = NSSelectorFromString(@"settings");
-                if (![v45 respondsToSelector:v72]) {
-                    v73 = nil;
+                v66 = [v67 isEqualToString:v59];
+            }
+            if (!v66) {
+                if (![v45 respondsToSelector:NSSelectorFromString(@"settings")]) {
+                    v68 = nil;
                     LogSelectorError(v45, NSSelectorFromString(@"settings"));
                 } else {
-                    v73 = [v45 settings];
+                    v68 = [v45 settings];
                 }
-                v74 = NSSelectorFromString(@"mutableCopy");
-                if (![v73 respondsToSelector:v74]) {
-                    v75 = nil;
-                    LogSelectorError(v73, NSSelectorFromString(@"mutableCopy"));
+                if (![v68 respondsToSelector:NSSelectorFromString(@"mutableCopy")]) {
+                    v69 = nil;
+                    LogSelectorError(v68, NSSelectorFromString(@"mutableCopy"));
                 } else {
-                    v75 = [v73 mutableCopy];
+                    v69 = [v68 mutableCopy];
                 }
-                v76 = !v75;
-                if (v76) {
-                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v75];
-                } else if ([v75 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
-                    goto blk_121bc;
+                if (!v69 || ![v69 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
+                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v69];
                 }
-                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v75];
-            }
-            SEL v70 = NSSelectorFromString(@"bundleIdentifier");
-            if (![v67 respondsToSelector:v70]) {
-                v71 = nil;
-                LogSelectorError(v67, NSSelectorFromString(@"bundleIdentifier"));
-            } else {
-                v71 = [v67 bundleIdentifier];
-            }
-            if (![v71 isEqualToString:v62]) {
-                v72 = NSSelectorFromString(@"settings");
-                if (![v45 respondsToSelector:v72]) {
-                    v73 = nil;
-                    LogSelectorError(v45, NSSelectorFromString(@"settings"));
-                } else {
-                    v73 = [v45 settings];
-                }
-                v74 = NSSelectorFromString(@"mutableCopy");
-                if (![v73 respondsToSelector:v74]) {
-                    v75 = nil;
-                    LogSelectorError(v73, NSSelectorFromString(@"mutableCopy"));
-                } else {
-                    v75 = [v73 mutableCopy];
-                }
-                v76 = !v75;
-                if (v76) {
-                    [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v75];
-                } else if ([v75 isKindOfClass:NSClassFromString(@"UIMutableApplicationSceneSettings")]) {
-                    goto blk_121bc;
-                }
-                [NSException raise:@"UnexpectedObjectException" format:@"Expected %@ but got %@", @"UIMutableApplicationSceneSettings", v75];
-blk_121bc:
-                [v75 setBackgrounded:1];
-                [v75 setForeground:0];
-                NSLog(@"carplay scene is going to background withTransitionContext %@", v75);
+                [v69 setBackgrounded:1];
+                [v69 setForeground:0];
+                NSLog(@"carplay scene is going to background withTransitionContext %@", v69);
                 NSLog(@"carplay withTransitionContext %@", v45);
-                [v45 updateSettings:v75 withTransitionContext:0 completion:^void(void) {
+                [v45 updateSettings:v69 withTransitionContext:0 completion:^void(void) {
                 }];
             }
         }
-blk_12268:
         if (![sharedApplication respondsToSelector:NSSelectorFromString(@"isLocked")]) {
             LogSelectorError(sharedApplication, NSSelectorFromString(@"isLocked"));
-            v78 = NO;
+            v71 = NO;
         } else {
-            v78 = [sharedApplication isLocked];
+            v71 = [sharedApplication isLocked];
         }
-        if (v78 == 1) {
-            float (*v80)(void) = dlsym(-2, "BKSHIDServicesGetBacklightFactor");
-            if ((double)v80() < 0.2) {
-                orig_BKSDisplayServicesSetScreenBlanked(1);
-            }
+        if (v71 == 1 && (double)dlsym(-2, "BKSHIDServicesGetBacklightFactor")() < 0.2) {
+            orig_BKSDisplayServicesSetScreenBlanked(1);
         }
         objc_setAssociatedObject(sharedApplication, NSSelectorFromString(@"liveCarplayWindow"), nil, OBJC_ASSOCIATION_RETAIN);
         UIWindow *rootWindow2 = [self rootWindow];
@@ -1756,6 +1204,7 @@ void -[CRCarPlayWindow resizeAppViewForOrientation:fullscreen:forceUpdate:](UIIn
     UIScreen *v13;
     id v33;
     bool v26;
+    long v6 = 0;
     NSString *v2 = [NSString stringWithFormat:@"%s", "-[CRCarPlayWindow resizeAppViewForOrientation:fullscreen:forceUpdate:]"];
     NSLog(@"carplayenable LOG_LIFECYCLE_EVENT %@", v2);
     if (!a3) {
@@ -1777,17 +1226,21 @@ void -[CRCarPlayWindow resizeAppViewForOrientation:fullscreen:forceUpdate:](UIIn
         for (v13 in screens) {
             if ([v13 respondsToSelector:NSSelectorFromString(@"_isCarScreen")]) {
                 if (([v13 _isCarScreen] & 1) != 0) {
-                    goto blk_13354;
+                    v6 = 1;
                 }
             } else {
                 LogSelectorError(v13, NSSelectorFromString(@"_isCarScreen"));
             }
+            if (v6) {
+                break;
+            }
         }
-        v13 = nil;
+        if (!v6) {
+            v13 = nil;
+        }
     } else {
         v13 = [UIScreen mainScreen];
     }
-blk_13354:
     NSArray<UIView *> *subviews = [v7 subviews];
     for (UIView *v32 in subviews) {
         if ([v32 respondsToSelector:NSSelectorFromString(@"recursiveDescription")]) {
@@ -1866,8 +1319,7 @@ BOOL -[CRCarPlayWindow shouldUseRightHandDock](void)
         id sessionStatus3 = [self sessionStatus];
         v7 = [sessionStatus3 session];
     }
-    BOOL boolValue = [[v7 _endpointValueForKey:@"RightHandDrive"] boolValue];
-    return boolValue;
+    return [[v7 _endpointValueForKey:@"RightHandDrive"] boolValue];
 }
 
 

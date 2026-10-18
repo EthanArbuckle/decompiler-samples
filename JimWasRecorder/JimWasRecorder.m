@@ -118,11 +118,9 @@ int sub_44f0(id a1, SEL a2, id a3)
             UIPressType type = [v9 type];
             if ((unsigned long)(type - 102) < 2) {
                 if ([v9 force] > 0.0) {
-                    bool v11 = type == 102;
-                    sub_49e4(v11);
+                    sub_49e4(type == 102);
                 } else {
-                    char *v12 = (type == 102) ? &qword_1dd70 : &qword_1dd71;
-                    *(v12) = 0;
+                    *((type == 102) ? &qword_1dd70 : &qword_1dd71) = 0;
                 }
             }
         }
@@ -286,22 +284,34 @@ void sub_4bf4(long a1)
     JWRPreferences *shared = [JWRPreferences shared];
     if (![shared enabled]) {
         JWRLog(@"trigger ignored action=%ld", a1);
-        return;
-    }
-    if (![shared triggersWhileLocked]) {
-        Class v1 = NSClassFromString(@"SBLockScreenManager");
-        if ([v1 respondsToSelector:@selector(sharedInstance)]) {
-            id v3 = [v1 performSelector:@selector(sharedInstance)];
-            if (v3 && [v3 respondsToSelector:@selector(isUILocked)] && [v3 isUILocked]) {
-                JWRLog(@"trigger ignored action=%ld", a1);
-                return;
+    } else {
+        long v2 = 0;
+        if ([shared triggersWhileLocked]) {
+            v2 = 1;
+        } else {
+            Class v1 = NSClassFromString(@"SBLockScreenManager");
+            if (![v1 respondsToSelector:@selector(sharedInstance)]) {
+blk_4cc0:
+                v2 = 1;
+            }
+            if (!v2) {
+                id v3 = [v1 performSelector:@selector(sharedInstance)];
+                if (!v3 || ![v3 respondsToSelector:@selector(isUILocked)]) {
+                    goto blk_4cc0;
+                }
+                if (![v3 isUILocked]) {
+                    v2 = 1;
+                } else {
+                    JWRLog(@"trigger ignored action=%ld", a1);
+                }
             }
         }
-    }
-    JWRLog(@"sending trigger action=%ld", a1);
-    if ((unsigned long)(a1 - 1) <= 2) {
-        notify_post([(&qword_183e0)[a1 - 1] UTF8String]);
-        return;
+        if (v2) {
+            JWRLog(@"sending trigger action=%ld", a1);
+            if ((unsigned long)(a1 - 1) <= 2) {
+                notify_post([(&qword_183e0)[a1 - 1] UTF8String]);
+            }
+        }
     }
 }
 
@@ -337,10 +347,7 @@ void sub_51a4(int a1)
 
 void JWRLog(NSString *a1, ...)
 {
-    NSFileHandle *v28;
     va_list v3;
-    NSFastEnumerationState v12;
-    id v14;
     va_start(v3, a1);
     NSString *v2 = [[NSString alloc] initWithFormat:a1 arguments:v3];
     NSDateFormatter *v4 = [NSDateFormatter new];
@@ -353,46 +360,32 @@ void JWRLog(NSString *a1, ...)
     NSString *processName = [processInfo processName];
     NSString *v10 = [NSString stringWithFormat:@"%@ [%@:%d] %@\n", v7, processName, getpid(), v2];
     NSLog(@"[JWR] %@", v2);
-    NSData *data = [v10 dataUsingEncoding:NSUTF8StringEncoding];
-    _memset(v12, 0, 64);
-    NSUInteger v13 = [@[@"/var/mobile/Library/Logs/JimWasRecorder", @"/var/mobile/Documents/JimWasRecorder", @"/tmp/JimWasRecorder"] countByEnumeratingWithState:&v12 objects:&v14 count:16];
-    if (v13 != 0) {
-        long v15 = *(v12.mutationsPtr);
-        NSArray<NSString *> *obj = @[@"/var/mobile/Library/Logs/JimWasRecorder", @"/var/mobile/Documents/JimWasRecorder", @"/tmp/JimWasRecorder"];
-        do {
-            long v17 = 0;
-            do {
-                if (*(v12.mutationsPtr) != v15) {
-                    objc_enumerationMutation(obj);
-                }
-                NSString *path = v12.itemsPtr[v17];
-                NSFileManager *defaultManager = [NSFileManager defaultManager];
-                NSError *error = nil;
-                if ([defaultManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error]) {
-                    NSString *path2 = [path stringByAppendingPathComponent:@"debug.log"];
-                    NSFileManager *defaultManager2 = [NSFileManager defaultManager];
-                    if (![defaultManager2 fileExistsAtPath:path2]) {
-                        NSData *data2 = [NSData data];
-                        if (![data2 writeToFile:path2 options:NSDataWritingAtomic error:nil]) {
-                            goto blk_ce58;
-                        }
+    @try {
+        NSData *data = [v10 dataUsingEncoding:NSUTF8StringEncoding];
+        for (NSString *v18 in @[@"/var/mobile/Library/Logs/JimWasRecorder", @"/var/mobile/Documents/JimWasRecorder", @"/tmp/JimWasRecorder"]) {
+            NSFileManager *defaultManager = [NSFileManager defaultManager];
+            NSError *error = nil;
+            if ([defaultManager createDirectoryAtPath:v18 withIntermediateDirectories:YES attributes:nil error:&error]) {
+                NSString *path = [v18 stringByAppendingPathComponent:@"debug.log"];
+                NSFileManager *defaultManager2 = [NSFileManager defaultManager];
+                if (![defaultManager2 fileExistsAtPath:path]) {
+                    NSData *data2 = [NSData data];
+                    if (![data2 writeToFile:path options:NSDataWritingAtomic error:nil]) {
+                        continue;
                     }
-                    v28 = [NSFileHandle fileHandleForWritingAtPath:path2];
-                    if (v28 != nil) {
-                        goto blk_ce94;
-                    }
-blk_ce58:
                 }
-                v17++;
-            } while (v13 != v17);
-            v13 = [obj countByEnumeratingWithState:&v12 objects:&v14 count:16];
-        } while (v13 != 0);
-        va_end(v3);
-        return;
-blk_ce94:
-        [v28 seekToEndOfFile];
-        [v28 writeData:data];
-        [v28 closeFile];
+                NSFileHandle *v28 = [NSFileHandle fileHandleForWritingAtPath:path];
+                if (v28 != nil) {
+                    [v28 seekToEndOfFile];
+                    [v28 writeData:data];
+                    [v28 closeFile];
+                    va_end(v3);
+                    return;
+                }
+            }
+        }
+    } @catch (id v27) {
+        NSLog(@"[JWR] Logger exception: %@", v27);
     }
     va_end(v3);
 }
@@ -523,85 +516,84 @@ void sub_d488(void *a1)
 }
 
 
-void sub_d490(long *a1)
+void sub_d490(int a1)
 {
     void *v14;
     char v22[32];
-    size_t v15;
+    void *v10;
+    void *v23;
+    void *v6;
+    void *v8;
     int *v1 = qword_1de00;
-    if (qword_1de00 && !a1) {
+    if (qword_1de00 != 0 && !a1) {
         return;
     }
     if (&_availability_version_check != 0) {
         qword_1de00 = &_availability_version_check;
         v1 = &_availability_version_check;
     }
-    if (!v1 || a1 != 0) {
-        a1 = dlsym(-2, "kCFAllocatorNull");
-        if (a1 != 0) {
-            CFAllocatorRef v3 = *(a1);
-            a1 = dlsym(-2, "CFDataCreateWithBytesNoCopy");
-            if (a1 != 0) {
-                void *v4 = dlsym(-2, "CFPropertyListCreateWithData");
-                void *v5 = dlsym(-2, "CFPropertyListCreateFromXMLData");
-                if (v4 || v5) {
-                    void *v6 = dlsym(-2, "CFStringCreateWithCStringNoCopy");
-                    if (v6 != 0) {
-                        void *v7 = dlsym(-2, "CFDictionaryGetValue");
-                        if (v7 != 0) {
-                            void *v8 = dlsym(-2, "CFGetTypeID");
-                            if (v8 != 0) {
-                                void *v9 = dlsym(-2, "CFStringGetTypeID");
-                                if (v9 != 0) {
-                                    void *v10 = dlsym(-2, "CFStringGetCString");
-                                    if (v10 != 0) {
-                                        void *v11 = dlsym(-2, "CFRelease");
-                                        if (v11 != 0) {
-                                            FILE *v12 = fopen("/System/Library/CoreServices/SystemVersion.plist", "r");
-                                            if (v12 != 0) {
-                                                fseek(v12, 0, 2);
-                                                long length = ftell(v12);
-                                                if (length < 0) {
-                                                    v14 = 0;
-                                                } else {
-                                                    rewind(v12);
-                                                    v14 = malloc(length);
-                                                    if (v14 && (v15 = fread(v14, 1, length, v12)) == length) {
-                                                        CFDataRef v16 = CFDataCreateWithBytesNoCopy(NULL, v14, length, v3);
-                                                        if (v16) {
-                                                            CFDictionaryRef v17 = (!v4) ? CFPropertyListCreateFromXMLData(NULL, v16, 0, NULL) : CFPropertyListCreateWithData(NULL, v16, 0, NULL, NULL);
-                                                            if (v17) {
-                                                                CFStringRef v18 = CFStringCreateWithCStringNoCopy(NULL, "ProductVersion", kCFStringEncodingASCII, v3);
-                                                                if (v18) {
-                                                                    const void *v19 = CFDictionaryGetValue(v17, v18);
-                                                                    CFRelease(v18);
-                                                                    if (v19) {
-                                                                        CFTypeID v20 = CFGetTypeID(v19);
-                                                                        CFTypeID v21 = CFStringGetTypeID();
-                                                                        if (v20 == v21 && CFStringGetCString(v19, v22, 32, kCFStringEncodingUTF8)) {
-                                                                            sscanf(v22, "%d.%d.%d", &qword_1dde0, &qword_1dde4, &qword_1dde8);
-                                                                        }
-                                                                    }
-                                                                }
-                                                                CFRelease(v17);
-                                                            }
-                                                            CFRelease(v16);
-                                                        }
-                                                    }
-                                                }
-                                                free(v14);
-                                                fclose(v12);
-                                            }
-                                        }
-                                    }
+    if ((v1 != 0 && !a1) || !(v23 = dlsym(-2, "kCFAllocatorNull"))) {
+        return;
+    }
+    CFAllocatorRef v3 = *(v23);
+    if (!dlsym(-2, "CFDataCreateWithBytesNoCopy")) {
+        return;
+    }
+    void *v4 = dlsym(-2, "CFPropertyListCreateWithData");
+    void *v5 = dlsym(-2, "CFPropertyListCreateFromXMLData");
+    if ((!v4 && !v5) || !(v6 = dlsym(-2, "CFStringCreateWithCStringNoCopy"))) {
+        return;
+    }
+    void *v7 = dlsym(-2, "CFDictionaryGetValue");
+    if (!v7 || !(v8 = dlsym(-2, "CFGetTypeID"))) {
+        return;
+    }
+    void *v9 = dlsym(-2, "CFStringGetTypeID");
+    if (!v9 || !(v10 = dlsym(-2, "CFStringGetCString"))) {
+        return;
+    }
+    if (!dlsym(-2, "CFRelease")) {
+        return;
+    }
+    FILE *v12 = fopen("/System/Library/CoreServices/SystemVersion.plist", "r");
+    if (!v12) {
+        return;
+    }
+    fseek(v12, 0, 2);
+    long length = ftell(v12);
+    if (length < 0) {
+        v14 = 0;
+    } else {
+        rewind(v12);
+        v14 = malloc(length);
+        if (v14 != 0) {
+            size_t v15 = fread(v14, 1, length, v12);
+            if (v15 == length) {
+                CFDataRef v16 = CFDataCreateWithBytesNoCopy(NULL, v14, length, v3);
+                if (v16 != 0) {
+                    CFDictionaryRef v17 = (!v4) ? CFPropertyListCreateFromXMLData(NULL, v16, 0, NULL) : CFPropertyListCreateWithData(NULL, v16, 0, NULL, NULL);
+                    if (v17 != 0) {
+                        CFStringRef v18 = CFStringCreateWithCStringNoCopy(NULL, "ProductVersion", kCFStringEncodingASCII, v3);
+                        if (v18 != 0) {
+                            const void *v19 = CFDictionaryGetValue(v17, v18);
+                            CFRelease(v18);
+                            if (v19 != 0) {
+                                CFTypeID v20 = CFGetTypeID(v19);
+                                CFTypeID v21 = CFStringGetTypeID();
+                                if (v20 == v21 && CFStringGetCString(v19, v22, 32, kCFStringEncodingUTF8)) {
+                                    sscanf(v22, "%d.%d.%d", &qword_1dde0, &qword_1dde4, &qword_1dde8);
                                 }
                             }
                         }
+                        CFRelease(v17);
                     }
+                    CFRelease(v16);
                 }
             }
         }
     }
+    free(v14);
+    fclose(v12);
 }
 
 

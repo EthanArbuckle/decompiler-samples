@@ -88,8 +88,7 @@ id -[CNBContactsNonUnifyingImplementation contactForIdentifier:consideringProper
         return v9;
     }
     NSLog(@"Error fetching contact: %@", v11);
-    id v15 = nil;
-    return v15;
+    return nil;
 }
 
 

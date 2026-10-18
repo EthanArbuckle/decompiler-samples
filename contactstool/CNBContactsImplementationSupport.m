@@ -8,13 +8,11 @@ NSString *(^+[CNBContactsImplementationSupport stringValueTransformForProperty:]
     } copy];
     NSString *(^v5)(CNPostalAddress *) = [^NSString *(CNPostalAddress *arg1) {
         NSDictionary *dictionaryRepresentation = [arg1 dictionaryRepresentation];
-        NSMutableString *v1 = [CNBUtilities stringForDictionary:dictionaryRepresentation];
-        return v1;
+        return [CNBUtilities stringForDictionary:dictionaryRepresentation];
     } copy];
     NSString *(^v6)(CNInstantMessageAddress *) = [^NSString *(CNInstantMessageAddress *arg1) {
         NSDictionary *dictionaryRepresentation = [arg1 dictionaryRepresentation];
-        NSMutableString *v1 = [CNBUtilities stringForDictionary:dictionaryRepresentation];
-        return v1;
+        return [CNBUtilities stringForDictionary:dictionaryRepresentation];
     } copy];
     NSDictionary<id, NSString *(^)(id)> *v7 = @{CNContactEmailAddressesKey: v2, CNContactPhoneNumbersKey: v4, CNContactPostalAddressesKey: v5, CNContactInstantMessageAddressesKey: v6};
     NSString *(^v8)(id) = [v7 objectForKeyedSubscript:a1];
@@ -41,16 +39,13 @@ id +[CNBContactsImplementationSupport stringValuesForProperties:inContact:](unsi
             };
         } else {
             v7 = ^NSArray *(NSArray *arg1) {
-                NSArray *v13 = [arg1 _cn_map:^NSString *(CNLabeledValue *arg1) {
+                return [arg1 _cn_map:^NSString *(CNLabeledValue *arg1) {
                     id<NSCopying, NSSecureCoding> value = [arg1 value];
-                    NSString *v14 = v11(value);
-                    return v14;
+                    return v11(value);
                 }];
-                return v13;
             };
         }
-        NSArray *v9 = v7(v10);
-        return v9;
+        return v7(v10);
     }];
     return [v3 _cn_flatten];
 }
@@ -67,25 +62,18 @@ NSMutableArray *+[CNBContactsImplementationSupport CNPropertiesForCNBProperties:
     if ((a1 & 1) != 0) {
         [array addObject:CNContactEmailAddressesKey];
         if ((a1 & 2) == 0) {
-            if ((a1 & 8) != 0) {
-                goto blk_100003734;
-            }
-            if ((a1 & 16) != 0) {
-                [array addObject:CNContactInstantMessageAddressesKey];
-            }
-            return array;
+            goto blk_100003664;
         } else {
             goto blk_100003714;
         }
     }
     if ((a1 & 2) == 0) {
+blk_100003664:
         if ((a1 & 8) != 0) {
             goto blk_100003734;
+        } else {
+            goto blk_100003668;
         }
-        if ((a1 & 16) != 0) {
-            [array addObject:CNContactInstantMessageAddressesKey];
-        }
-        return array;
     }
 blk_100003714:
     [array addObject:CNContactPhoneNumbersKey];
@@ -93,6 +81,7 @@ blk_100003714:
 blk_100003734:
         [array addObject:CNContactPostalAddressesKey];
     }
+blk_100003668:
     if ((a1 & 16) != 0) {
         [array addObject:CNContactInstantMessageAddressesKey];
     }
@@ -110,6 +99,5 @@ NSMutableArray *+[CNBContactsImplementationSupport contactsForFetchRequest:inSto
         return array;
     }
     NSLog(@"Error fetching contacts: %@", v2);
-    NSMutableArray *v6 = nil;
-    return v6;
+    return nil;
 }

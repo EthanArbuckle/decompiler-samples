@@ -37,8 +37,6 @@ int -[DisplayModule moduleMain](void)
 {
     id v10;
     os_log_t v24;
-    NSString *v17;
-    NSString *v18;
     os_log_t v19;
     id v78;
     BOOL v79;
@@ -80,8 +78,7 @@ int -[DisplayModule moduleMain](void)
         FTOptions *options3 = [self options];
         id v46 = [options3 objectForKeyedSubscript:@"setPower"];
         BOOL boolValue2 = [v46 boolValue];
-        NSString *v49 = (boolValue2) ? @"ON" : @"OFF";
-        NSString *v50 = [NSString stringWithFormat:@"Successfully set the display power %@!", v49];
+        NSString *v50 = [NSString stringWithFormat:@"Successfully set the display power %@!", (boolValue2) ? @"ON" : @"OFF"];
         fprintf(v41, "%s\n", [v50 UTF8String]);
         os_log_t oslog4 = osd_shared_log_handle(options3);
         if (os_log_type_enabled(oslog4, OS_LOG_TYPE_DEFAULT)) {
@@ -139,30 +136,10 @@ int -[DisplayModule moduleMain](void)
         }
     }
     if ([dictionary objectForKeyedSubscript:@"watchdogSuspend"]) {
-        if (!isatty(0)) {
-            v17 = [NSString stringWithFormat:@"[ERROR] This must be launched from a tty (shell) with no redirections! Not suspending the display watchdog!"];
-            v18 = v17;
+        if (!isatty(0) || !isatty(1) || !isatty(2)) {
+            NSString *v17 = [NSString stringWithFormat:@"[ERROR] This must be launched from a tty (shell) with no redirections! Not suspending the display watchdog!"];
             fprintf(stderr, "%s\n", [v17 UTF8String]);
-            v19 = osd_shared_log_handle(v18);
-            if (os_log_type_enabled(v19, OS_LOG_TYPE_ERROR)) {
-                sub_10000c080(v19);
-            }
-            return 1;
-        } else if (!isatty(1)) {
-            v17 = [NSString stringWithFormat:@"[ERROR] This must be launched from a tty (shell) with no redirections! Not suspending the display watchdog!"];
-            v18 = v17;
-            fprintf(stderr, "%s\n", [v17 UTF8String]);
-            v19 = osd_shared_log_handle(v18);
-            if (os_log_type_enabled(v19, OS_LOG_TYPE_ERROR)) {
-                sub_10000c080(v19);
-            }
-            return 1;
-        }
-        if (!isatty(2)) {
-            v17 = [NSString stringWithFormat:@"[ERROR] This must be launched from a tty (shell) with no redirections! Not suspending the display watchdog!"];
-            v18 = v17;
-            fprintf(stderr, "%s\n", [v17 UTF8String]);
-            v19 = osd_shared_log_handle(v18);
+            v19 = osd_shared_log_handle(v17);
             if (os_log_type_enabled(v19, OS_LOG_TYPE_ERROR)) {
                 sub_10000c080(v19);
             }

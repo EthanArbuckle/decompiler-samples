@@ -52,51 +52,46 @@ id _logos_method$_ungrouped$CCSModuleRepository$_queue_loadAllModuleMetadata(id 
     id v1 = [a1 safeValueForKey:@"_directoryURLs"];
     id v4 = [v1 bs_mapNoNulls:^id(NSURL *arg1) {
         NSFileManager *defaultManager = [NSFileManager defaultManager];
-        NSArray<NSURL *> *v20 = [defaultManager contentsOfDirectoryAtURL:arg1 includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsSubdirectoryDescendants error:nil];
-        return v20;
+        return [defaultManager contentsOfDirectoryAtURL:arg1 includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsSubdirectoryDescendants error:nil];
     }];
     id bs_flatten = [v4 bs_flatten];
     id v10 = [bs_flatten bs_filter:^bool(NSURL *arg1) {
         NSString *pathExtension = [arg1 pathExtension];
-        NSComparisonResult v23 = [pathExtension caseInsensitiveCompare:@"bundle"];
-        if (v23 == NSOrderedSame) {
+        NSComparisonResult v21 = [pathExtension caseInsensitiveCompare:@"bundle"];
+        if (v21 == NSOrderedSame) {
             return true;
         }
         return false;
     }];
     return [v10 bs_mapNoNulls:^id(NSURL *arg1) {
-        id v32;
-        int v27;
-        Class v29 = NSClassFromString(@"CCSModuleMetadata");
-        id v30 = [v29 metadataForBundleAtURL:arg1];
+        id v5;
+        int v25;
+        Class v2 = NSClassFromString(@"CCSModuleMetadata");
+        id v26 = [v2 metadataForBundleAtURL:arg1];
         NSString *path = [arg1 path];
-        if ([path containsString:@"Focus"] || [path containsString:@"Mirror"]) {
-            v32 = nil;
-            return v32;
-        }
-        if (![path containsString:@"Hearing"]) {
-            id v33 = [a1 safeValueForKey:@"_allowedModuleIdentifiers"];
-            id moduleIdentifier = [v30 moduleIdentifier];
-            BOOL v35 = [v33 containsObject:moduleIdentifier];
-            bool v28 = !v35;
-            if (!v28) {
-                id supportedDeviceFamilies = [v30 supportedDeviceFamilies];
-                id _deviceFamily = [NSClassFromString(@"CCSModuleRepository") _deviceFamily];
-                BOOL v26 = [supportedDeviceFamilies containsObject:_deviceFamily];
-                if (!v26) {
-                    v27 = 0;
-                } else {
-                    v32 = v30;
-                    v27 = 1;
-                }
-                v28 = !v27;
-            }
-            if (v28) {
-                v32 = v30;
-            }
+        if ([path containsString:@"Focus"] || [path containsString:@"Mirror"] || [path containsString:@"Hearing"]) {
+            v5 = nil;
         } else {
-            v32 = nil;
+            id v28 = [a1 safeValueForKey:@"_allowedModuleIdentifiers"];
+            id moduleIdentifier = [v26 moduleIdentifier];
+            BOOL v8 = [v28 containsObject:moduleIdentifier];
+            if (!v8) {
+                v5 = v26;
+            } else {
+                id supportedDeviceFamilies = [v26 supportedDeviceFamilies];
+                id _deviceFamily = [NSClassFromString(@"CCSModuleRepository") _deviceFamily];
+                BOOL v24 = [supportedDeviceFamilies containsObject:_deviceFamily];
+                if (!v24) {
+                    v25 = 0;
+                } else {
+                    v5 = v26;
+                    v25 = 1;
+                }
+                if (!v25) {
+                    v5 = v26;
+                }
+            }
         }
-        return v32;
+        return v5;
     }];
 }

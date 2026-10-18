@@ -79,8 +79,7 @@ CNContact *-[CNBContactsNativeImplementation contactForIdentifier:consideringPro
         return v4;
     }
     NSLog(@"Error fetching contact: %@", v3);
-    CNContact *v6 = nil;
-    return v6;
+    return nil;
 }
 
 
