@@ -37,8 +37,7 @@ long -[FBWorkspaceConnectionsState serializeToWriter:](id a1)
             v1 += v5;
             [self->_pidSet enumerateIndexesUsingBlock:^void(unsigned long arg1, bool *arg2) {
                 unsigned long v14 = arg1;
-                void *v15 = v0;
-                long v16 = v15->field_16(v15, &v14, 4);
+                long v16 = v0->field_16(v0, &v14, 4);
                 if (v16 < 0) {
                     int *v17 = __error();
                     strerror_r(*(v17), &count, 0x100);
@@ -139,7 +138,7 @@ int +[FBWorkspaceConnectionsState minimumSerializedDataLength](void)
 }
 
 
-FBWorkspaceConnectionsState *+[FBWorkspaceConnectionsState deserializeLength:fromReader:](long *a1, id a2)
+FBWorkspaceConnectionsState *+[FBWorkspaceConnectionsState deserializeLength:fromReader:](long *a1, long (^a2)(void *, unsigned long))
 {
     os_log_t v6;
     FBWorkspaceConnectionsState *v7;
@@ -147,7 +146,7 @@ FBWorkspaceConnectionsState *+[FBWorkspaceConnectionsState deserializeLength:fro
     char v5[256];
     FBWorkspaceConnectionsState *v1 = [FBWorkspaceConnectionsState new];
     int v2 = 0;
-    long v3 = a2->field_16(a2, &v2, 4);
+    long v3 = a2(&v2, 4);
     if (v3 < 0) {
         int *v4 = __error();
         strerror_r(*(v4), v5, 0x100);
@@ -164,7 +163,7 @@ FBWorkspaceConnectionsState *+[FBWorkspaceConnectionsState deserializeLength:fro
             int v8 = 0;
             while (v3 >= -4) {
                 NSUInteger v10 = -1;
-                long v11 = a2->field_16(a2, &v10, 4);
+                long v11 = a2(&v10, 4);
                 if (v11 < 0) {
                     int *v13 = __error();
                     strerror_r(*(v13), v5, 0x100);

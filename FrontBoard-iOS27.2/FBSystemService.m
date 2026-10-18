@@ -27,11 +27,10 @@ id +[FBSystemService sharedInstanceIfExists](void)
 
 id +[FBSystemService _sharedInstanceCreatingIfNecessary:](int a1)
 {
-    Class v0 = objc_opt_self(self);
     os_unfair_lock_lock(&_sharedInstanceCreatingIfNecessary:.__lock);
     id v1 = _sharedInstanceCreatingIfNecessary:.__sharedInstance;
     if (a1 != 0 && !_sharedInstanceCreatingIfNecessary:.__sharedInstance) {
-        id v4 = [[v0 alloc] initWithQueue:[BSServiceDispatchQueue mainQueue]];
+        id v4 = [[self alloc] initWithQueue:[BSServiceDispatchQueue mainQueue]];
         _sharedInstanceCreatingIfNecessary:.__sharedInstance = v4;
         v1 = v4;
     }
@@ -68,172 +67,177 @@ id<FBSApplicationInfoProvider> -[FBSystemService _applicationInfoProvider](void)
 
 void -[FBSystemService _activateBundleID:requestID:isTrusted:options:serviceInstance:source:originalSourceToken:withResult:](id a1, id a2, int a3, FBSOpenApplicationOptions *a4, id a5, id a6, id a7, void (^a8)(NSError *))
 {
-    double v26;
-    int v28;
+    double v24;
+    int v26;
+    long v6 = 0;
     id v0 = a1;
     id v1 = a2;
     FBSOpenApplicationOptions *v2 = a4;
-    id v3 = a5;
-    id v4 = a6;
-    id v5 = a7;
-    void (^v6)(NSError *) = a8;
+    id v3 = a6;
+    id v4 = a7;
+    void (^v5)(NSError *) = a8;
     [self->_queue assertBarrierOnQueue];
     if (!v0) {
-        NSString *v45 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"bundleID != ((void *)0)"];
+        NSString *v35 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"bundleID != ((void *)0)"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v46 = NSStringFromSelector(_cmd);
-            NSString *v47 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v46, v47, self, @"FBSystemService.m", 527, v45);
+            NSString *v36 = NSStringFromSelector(_cmd);
+            NSString *v37 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v36, v37, self, @"FBSystemService.m", 527, v35);
         }
-        _bs_set_crash_log_message([v45 UTF8String]);
+        _bs_set_crash_log_message([v35 UTF8String]);
         __break(0);
     }
     if (!v1) {
-        NSString *v49 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"requestID != ((void *)0)"];
+        NSString *v39 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"requestID != ((void *)0)"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v50 = NSStringFromSelector(_cmd);
-            NSString *v51 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v50, v51, self, @"FBSystemService.m", 528, v49);
+            NSString *v40 = NSStringFromSelector(_cmd);
+            NSString *v41 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v40, v41, self, @"FBSystemService.m", 528, v39);
         }
-        _bs_set_crash_log_message([v49 UTF8String]);
+        _bs_set_crash_log_message([v39 UTF8String]);
+        __break(0);
+    }
+    if (!v3) {
+        NSString *v43 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"sourceToken != ((void *)0)"];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v44 = NSStringFromSelector(_cmd);
+            NSString *v45 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v44, v45, self, @"FBSystemService.m", 529, v43);
+        }
+        _bs_set_crash_log_message([v43 UTF8String]);
         __break(0);
     }
     if (!v4) {
-        NSString *v53 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"sourceToken != ((void *)0)"];
+        NSString *v47 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"originalSourceToken != ((void *)0)"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v54 = NSStringFromSelector(_cmd);
-            NSString *v55 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v54, v55, self, @"FBSystemService.m", 529, v53);
+            NSString *v48 = NSStringFromSelector(_cmd);
+            NSString *v49 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v48, v49, self, @"FBSystemService.m", 530, v47);
         }
-        _bs_set_crash_log_message([v53 UTF8String]);
+        _bs_set_crash_log_message([v47 UTF8String]);
         __break(0);
     }
     if (!v5) {
-        NSString *v57 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"originalSourceToken != ((void *)0)"];
+        NSString *v51 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"resultBlock != ((void *)0)"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v58 = NSStringFromSelector(_cmd);
-            NSString *v59 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v58, v59, self, @"FBSystemService.m", 530, v57);
+            NSString *v52 = NSStringFromSelector(_cmd);
+            NSString *v53 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v52, v53, self, @"FBSystemService.m", 531, v51);
         }
-        _bs_set_crash_log_message([v57 UTF8String]);
+        _bs_set_crash_log_message([v51 UTF8String]);
         __break(0);
     }
-    if (v6 != nil) {
-        NSString *v11 = FBSystemAppBundleID();
-        if ([v0 isEqualToString:v11]) {
-            os_log_t oslog = FBLogCommon();
-            if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
-                os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Open request is targeting the system app itself; swizzling bundleID to nil.", v1);
-            }
-            v0 = nil;
+    NSString *v10 = FBSystemAppBundleID();
+    if ([v0 isEqualToString:v10]) {
+        os_log_t oslog = FBLogCommon();
+        if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
+            os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Open request is targeting the system app itself; swizzling bundleID to nil.", v1);
         }
-        id dictionary = [v2 dictionary];
-        id v15 = [dictionary objectForKey:FBSOpenApplicationOptionKeyServiceAvailabilityTimeout];
-        double doubleValue = [v15 doubleValue];
-        CFTimeInterval v17 = CACurrentMediaTime();
-        bool v18 = ((doubleValue > 0.0) ? !v15 : 1) == 1;
-        double v19 = fmin(doubleValue, 30.0);
-        double v21 = (((doubleValue > 0.0) ? !v15 : 1) == 1) ? v17 : v17 + v19;
-        double v22 = (((doubleValue > 0.0) ? !v15 : 1) == 1) ? doubleValue : v19;
-        id v23 = [dictionary objectForKey:FBSOpenApplicationOptionKeyLSSequenceNumber];
-        NSString *v24 = [dictionary objectForKey:FBSOpenApplicationOptionKeyLSCacheGUID];
-        NSUUID *v25 = v24;
-        if (v24 != nil) {
-            v25 = [[NSUUID alloc] initWithUUIDString:v24];
-            if (((!v23) ? 0 : v18) == 1 && v25 != nil) {
-                v22 = fmin(fmax(v22, 0.0), 2.0);
-                v21 = v22 + v21;
-                v26 = 0.5;
-                goto blk_1c4ef7704;
-            }
+        v0 = nil;
+    }
+    id dictionary = [v2 dictionary];
+    id v14 = [dictionary objectForKey:FBSOpenApplicationOptionKeyServiceAvailabilityTimeout];
+    double v15 = [v14 doubleValue];
+    CFTimeInterval v16 = CACurrentMediaTime();
+    bool v17 = ((v15 > 0.0) ? !v14 : 1) == 1;
+    double v18 = fmin(v15, 30.0);
+    double v20 = (((v15 > 0.0) ? !v14 : 1) == 1) ? v16 : v16 + v18;
+    if (((v15 > 0.0) ? !v14 : 1) != 1) {
+        v15 = v18;
+    }
+    id v21 = [dictionary objectForKey:FBSOpenApplicationOptionKeyLSSequenceNumber];
+    NSString *v22 = [dictionary objectForKey:FBSOpenApplicationOptionKeyLSCacheGUID];
+    NSUUID *v23 = v22;
+    if (v22 != nil) {
+        v23 = [[NSUUID alloc] initWithUUIDString:v22];
+        if (((!v21) ? 0 : v17) == 1 && v23 != nil) {
+            v6 = 1;
         }
-        v26 = 2.0;
-        if (!v18) {
-blk_1c4ef7704:
-            os_log_t oslog2 = FBLogCommon();
-            if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
-                os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Activation request for %{public}@ will wait %.2fs for app availability, with retry every %.2fs.", v1, v0, v22, v26);
-            }
-            v28 = 1;
+    }
+    if (!v6) {
+        v24 = 2.0;
+        if (v17) {
+            v26 = 0;
+        }
+    }
+    if (v6 || !v17) {
+        if (v6) {
+            v15 = fmin(fmax(v15, 0.0), 2.0);
+            v20 += v15;
+            v24 = 0.5;
+        }
+        os_log_t oslog2 = FBLogCommon();
+        if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
+            os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Activation request for %{public}@ will wait %.2fs for app availability, with retry every %.2fs.", v1, v0, v15, v24);
+        }
+        v26 = 1;
+    }
+    __block bool v28 = false;
+    __block void (^byref1)(void) = nil;
+    void (^v31)(void) = [^void(void) {
+        id v62;
+        id<FBSApplicationInfoProvider> _applicationInfoProvider = [self _applicationInfoProvider];
+        id v56 = [_applicationInfoProvider applicationInfoForBundleIdentifier:v0];
+        long sequenceNumber = [v56 sequenceNumber];
+        id cacheGUID = [v56 cacheGUID];
+        if (v28 == 1) {
+            id v63 = [LSApplicationProxy applicationProxyForIdentifier:v0];
+            sequenceNumber = [v63 sequenceNumber];
+            v62 = [v63 cacheGUID];
         } else {
-            v28 = 0;
+            v62 = cacheGUID;
         }
-        __block bool v30 = false;
-        __block void (^byref1)(void) = nil;
-        void (^v41)(void) = [^void(void) {
-            id v72;
-            id<FBSApplicationInfoProvider> _applicationInfoProvider = [self _applicationInfoProvider];
-            id v66 = [_applicationInfoProvider applicationInfoForBundleIdentifier:v0];
-            long sequenceNumber = [v66 sequenceNumber];
-            id cacheGUID = [v66 cacheGUID];
-            if (v30 == 1) {
-                id v73 = [LSApplicationProxy applicationProxyForIdentifier:v0];
-                sequenceNumber = [v73 sequenceNumber];
-                v72 = [v73 cacheGUID];
-            } else {
-                v72 = cacheGUID;
+        BSAction *v57 = [[BSAction alloc] initWithInfo:0 responder:[BSActionResponder responderWithHandler:^void(BSActionResponse *arg1) {
+            NSError *error = [arg1 error];
+            NSInteger code = [error code];
+            if (code != 1) {
+                return;
             }
-            BSAction *v67 = [[BSAction alloc] initWithInfo:0 responder:[BSActionResponder responderWithHandler:^void(BSActionResponse *arg1) {
-                NSError *error = [arg1 error];
-                NSInteger code = [error code];
-                if (code != 1) {
+            byref1 = nil;
+        }]];
+        NSUInteger unsignedIntegerValue = [v21 unsignedIntegerValue];
+        void (^v59)(NSError *) = ^void(NSError *arg1) {
+            [v57 invalidate];
+            NSErrorDomain domain = [arg1 domain];
+            BOOL v75 = [domain isEqualToString:FBSOpenApplicationErrorDomain];
+            if (v75) {
+                NSInteger code = [arg1 code];
+                if ((unsigned long)code <= 9 && ((1 << code) & 592) != 0 && v26 == 1) {
+                    os_log_t oslog3 = FBLogCommon();
+                    if (os_log_type_enabled(oslog3, OS_LOG_TYPE_DEFAULT)) {
+                        id v79 = FBSOpenApplicationErrorCodeToString(code);
+                        os_log_with_type(oslog3, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Retry attempt failed for %{public}@ with reason \"%{public}@\"", v1, v0, v79);
+                    }
+                    CFTimeInterval v71 = CACurrentMediaTime();
+                    if (v16 >= v71 || v71 >= v20) {
+                        if (code != 9 || (code == 9 && v28)) {
+                            os_log_t oslog = FBLogCommon();
+                            if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
+                                id v73 = FBSProcessPrettyDescription(v3);
+                                os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Exhausted retry attempts for opening application: %{public}@ from source: %{public}@", v1, v0, v73);
+                            }
+                            goto blk_1c4efac80;
+                        }
+                        os_log_t oslog2 = FBLogCommon();
+                        if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
+                            id v25 = FBSProcessPrettyDescription(v3);
+                            os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Attempting final launch request of: %{public}@ from source: %{public}@", v1, v0, v25);
+                        }
+                        v28 = true;
+                    }
+                    [self->_queue performAfter:v24 withBlock:byref1];
                     return;
                 }
-                byref1 = nil;
-            }]];
-            NSUInteger unsignedIntegerValue = [v23 unsignedIntegerValue];
-            void (^v69)(NSError *) = ^void(NSError *arg1) {
-                [v67 invalidate];
-                NSErrorDomain domain = [arg1 domain];
-                BOOL v87 = [domain isEqualToString:FBSOpenApplicationErrorDomain];
-                if (v87) {
-                    NSInteger code = [arg1 code];
-                    if ((unsigned long)code <= 9 && ((1 << code) & 592) != 0 && v28 == 1) {
-                        os_log_t oslog3 = FBLogCommon();
-                        if (os_log_type_enabled(oslog3, OS_LOG_TYPE_DEFAULT)) {
-                            id v91 = FBSOpenApplicationErrorCodeToString(code);
-                            os_log_with_type(oslog3, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Retry attempt failed for %{public}@ with reason \"%{public}@\"", v1, v0, v91);
-                        }
-                        CFTimeInterval v82 = CACurrentMediaTime();
-                        if (v17 >= v82 || v82 >= v21) {
-                            if (code != 9 || (code == 9 && v30)) {
-                                os_log_t oslog = FBLogCommon();
-                                if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
-                                    id v84 = FBSProcessPrettyDescription(v4);
-                                    os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Exhausted retry attempts for opening application: %{public}@ from source: %{public}@", v1, v0, v84);
-                                }
-                                goto blk_1c4efac80;
-                            }
-                            os_log_t oslog2 = FBLogCommon();
-                            if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
-                                id v86 = FBSProcessPrettyDescription(v4);
-                                os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Attempting final launch request of: %{public}@ from source: %{public}@", v1, v0, v86);
-                            }
-                            v30 = true;
-                        }
-                        [self->_queue performAfter:v26 withBlock:byref1];
-                        return;
-                    }
-                }
+            }
 blk_1c4efac80:
-                v6(arg1);
-                byref1 = nil;
-            };
-            [self _reallyActivateApplication:v0 requestID:v1 options:v2 serviceInstance:v3 source:v4 originalSourceToken:v5 isTrusted:a3 sequenceNumber:unsignedIntegerValue cacheGUID:v25 ourSequenceNumber:sequenceNumber ourCacheGUID:v72 withResult:v69];
-        } copy];
-        byref1 = v41;
-        void (^v44)(void) = byref1;
-        v44();
-        return;
-    }
-    NSString *v61 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"resultBlock != ((void *)0)"];
-    if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-        NSString *v62 = NSStringFromSelector(_cmd);
-        NSString *v63 = NSStringFromClass([self class]);
-        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v62, v63, self, @"FBSystemService.m", 531, v61);
-    }
-    _bs_set_crash_log_message([v61 UTF8String]);
-    __break(0);
+            v5(arg1);
+            byref1 = nil;
+        };
+        [self _reallyActivateApplication:v0 requestID:v1 options:v2 serviceInstance:a5 source:v3 originalSourceToken:v4 isTrusted:a3 sequenceNumber:unsignedIntegerValue cacheGUID:v23 ourSequenceNumber:sequenceNumber ourCacheGUID:v62 withResult:v59];
+    } copy];
+    byref1 = v31;
+    void (^v34)(void) = byref1;
+    v34();
 }
 
 
@@ -366,10 +370,8 @@ void -[FBSystemService _reallyActivateApplication:requestID:options:serviceInsta
 }
 
 
-void -[FBSystemService openApplication:withOptions:originator:requestID:completion:](id a1, id a2, id a3, id a4, id a5)
+void -[FBSystemService openApplication:withOptions:originator:requestID:completion:](id a1, id a2, id a3, id a4, void (^a5)(BSProcessHandle *, id))
 {
-    long v20;
-    NSError *v21;
     os_log_t v31;
     id v76;
     id v77;
@@ -423,11 +425,11 @@ void -[FBSystemService openApplication:withOptions:originator:requestID:completi
                 [arg1 setUnderlyingError:v112];
                 [arg1 setUserInfoValue:@147937300 forKey:@"FBSErrorContext"];
             }];
-            v107 = 0;
+            v107 = nil;
             v108 = v5;
         }
         if (a5 != nil) {
-            a5->field_16(a5, v107, v108);
+            a5(v107, v108);
         }
     };
     BSAtomicSignal *v16 = [[BSAtomicSignal alloc] init];
@@ -555,14 +557,9 @@ blk_1c4f1ac48:
             }
         }
     };
-    if (!v1) {
-        v20 = FBSProcessPrettyDescription(v1);
-        v21 = FBSOpenApplicationErrorCreate(3, @"Identity of originator process (%@) could not be verified", v20, 0);
-        v19(4, v21);
-        return;
-    } else if (![v1 isValid]) {
-        v20 = FBSProcessPrettyDescription(v1);
-        v21 = FBSOpenApplicationErrorCreate(3, @"Identity of originator process (%@) could not be verified", v20, 0);
+    if (!v1 || ![v1 isValid]) {
+        id v20 = FBSProcessPrettyDescription(v1);
+        NSError *v21 = FBSOpenApplicationErrorCreate(3, @"Identity of originator process (%@) could not be verified", v20, 0);
         v19(4, v21);
         return;
     }
@@ -718,10 +715,10 @@ blk_1c4f1ac48:
                                 goto blk_1c4f1af5c;
                             }
                         }
-                        os_log_t v177 = FBLogCommon();
-                        if (os_log_type_enabled(v177, OS_LOG_TYPE_DEFAULT)) {
+                        os_log_t v175 = FBLogCommon();
+                        if (os_log_type_enabled(v175, OS_LOG_TYPE_DEFAULT)) {
                             NSString *v170 = NSStringFromClass([v101 class]);
-                            os_log_with_type(v177, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Application info provider (%@) returned nil for \"%{public}@\"", v13, v170, v0);
+                            os_log_with_type(v175, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Application info provider (%@) returned nil for \"%{public}@\"", v13, v170, v0);
                         }
                         v166 = 0;
                         v172 = 1;
@@ -734,7 +731,6 @@ blk_1c4f1af5c:
                     [v10 setFlag:v174];
                     if (!v173) {
                         if (!v172 || v79 != nil) {
-                            id v176 = self;
                             [self->_queue performAsync:^void(void) {
                                 long flag = [v10 getFlag];
                                 BSAuditToken *v180 = [v1 auditToken];
@@ -747,7 +743,7 @@ blk_1c4f1af5c:
                                         return;
                                     }
                                 };
-                                [v176 _activateBundleID:v0 requestID:v13 isTrusted:flag options:v18 serviceInstance:v93 source:remoteProcess originalSourceToken:v180 withResult:v179];
+                                [self _activateBundleID:v0 requestID:v13 isTrusted:flag options:v18 serviceInstance:v93 source:remoteProcess originalSourceToken:v180 withResult:v179];
                             }];
                         } else {
                             NSString *v168 = NSStringFromClass([v101 class]);
@@ -833,10 +829,10 @@ blk_1c4ef91b8:
                     goto blk_1c4f1af5c;
                 }
             }
-            os_log_t v196 = FBLogCommon();
-            if (os_log_type_enabled(v196, OS_LOG_TYPE_DEFAULT)) {
+            os_log_t v194 = FBLogCommon();
+            if (os_log_type_enabled(v194, OS_LOG_TYPE_DEFAULT)) {
                 NSString *v189 = NSStringFromClass([v101 class]);
-                os_log_with_type(v196, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Application info provider (%@) returned nil for \"%{public}@\"", v13, v189, v0);
+                os_log_with_type(v194, OS_LOG_TYPE_DEFAULT, "[FBSystemService][%{public}@] Application info provider (%@) returned nil for \"%{public}@\"", v13, v189, v0);
             }
             v185 = 0;
             v191 = 1;
@@ -849,7 +845,6 @@ blk_1c4f1af5c:
         [v10 setFlag:v193];
         if (!v192) {
             if (!v191 || v79 != nil) {
-                id v195 = self;
                 [self->_queue performAsync:^void(void) {
                     long flag = [v10 getFlag];
                     BSAuditToken *v199 = [v1 auditToken];
@@ -862,7 +857,7 @@ blk_1c4f1af5c:
                             return;
                         }
                     };
-                    [v195 _activateBundleID:v0 requestID:v13 isTrusted:flag options:v18 serviceInstance:v93 source:remoteProcess originalSourceToken:v199 withResult:v198];
+                    [self _activateBundleID:v0 requestID:v13 isTrusted:flag options:v18 serviceInstance:v93 source:remoteProcess originalSourceToken:v199 withResult:v198];
                 }];
             } else {
                 NSString *v187 = NSStringFromClass([v101 class]);
@@ -1394,7 +1389,6 @@ bool -[FBSystemService exitAndRelaunch:withOptions:](int a1, int a2)
 
 void -[FBSystemService _terminateProcesses:forReason:andReport:withDescription:completion:](NSArray *a1, long a2, long a3, id a4, void (^a5)(long))
 {
-    long v4;
     void (^v2)(long) = a5;
     if (![a1 count]) {
         os_log_t oslog = FBLogCommon();
@@ -1405,8 +1399,7 @@ void -[FBSystemService _terminateProcesses:forReason:andReport:withDescription:c
             v2(0);
         }
     } else {
-        void *v5 = &v4;
-        __block long v16 = 0;
+        __block long v5 = 0;
         NSUInteger count = [a1 count];
         id v10 = [BSBlockSentinel sentinelWithSignalCount:count signalHandler:^void(id<BSBlockSentinelSignalContext> arg1) {
             if (![arg1 isComplete]) {
@@ -1414,20 +1407,19 @@ void -[FBSystemService _terminateProcesses:forReason:andReport:withDescription:c
             }
             os_log_t oslog = FBLogCommon();
             if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
-                long v1 = v5->field_8->field_24;
-                os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[FBSystemService] Completed termination of %lu process(es)", v1);
+                os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[FBSystemService] Completed termination of %lu process(es)", v5);
             }
             if (!v2) {
                 return;
             }
-            v2(v5->field_8->field_24 != 0);
+            v2(v5 != 0);
         }];
         for (FBProcess *v8 in a1) {
             if ([v8 isCurrentProcess]) {
                 [v10 signal];
             } else {
                 [v8 _killForReason:a2 andReport:a3 withDescription:a4 completion:^void(bool arg1) {
-                    v16++;
+                    v5++;
                     [v10 signal];
                 }];
             }
@@ -1500,7 +1492,7 @@ void -[FBSystemService isPasscodeLockedOrBlockedWithResult:](void (^a1)(long))
 }
 
 
-void -[FBSystemService handleActions:source:withResult:](id a1, id a2, id a3)
+void -[FBSystemService handleActions:source:withResult:](id a1, id a2, void (^a3)(long))
 {
     int v9;
     [self->_queue assertBarrierOnQueue];
@@ -1513,7 +1505,7 @@ void -[FBSystemService handleActions:source:withResult:](id a1, id a2, id a3)
             }
         }
         if (a3 != nil) {
-            a3->field_16(a3, arg1);
+            a3(arg1);
         }
     };
     id<FBSystemServiceDelegate> delegate = [self delegate];
@@ -1549,14 +1541,15 @@ void -[FBSystemService canOpenApplication:completion:](id a1, void (^a2)(long))
 {
     long v4;
     long v8;
+    id v0 = a1;
     void (^v1)(long) = a2;
     if (a2 != nil) {
         id currentContext = [BSServiceConnection currentContext];
-        long remoteProcess = [currentContext remoteProcess];
+        id remoteProcess = [currentContext remoteProcess];
         if (([self _isTrustedRequest:@"(CanOpen)" forCaller:remoteProcess fromClient:remoteProcess forBundleInfo:0 withOptions:0 fatalError:0] & 1) == 0) {
             v4 = FBSOpenApplicationErrorCreate(3, @"Request is not trusted.");
             v1(v4);
-        } else if (!a1) {
+        } else if (!v0) {
             v4 = FBSOpenApplicationErrorCreate(2, @"no bundleID provided");
             v1(v4);
         } else {
@@ -1572,17 +1565,16 @@ void -[FBSystemService canOpenApplication:completion:](id a1, void (^a2)(long))
                 id instance = [currentContext2 instance];
                 BSServiceDispatchQueue *queue = [self queue];
                 [queue performAsync:^void(void) {
-                    v13 = ^void(void) {
-                        [delegate systemService:self canActivateApplication:v13 withResult:^void(long arg1) {
+                    FBOpenAppSystemServiceExecuteCallOut(instance, ^void(void) {
+                        [delegate systemService:self canActivateApplication:v0 withResult:^void(long arg1) {
                             if (!arg1) {
                                 v1(arg1);
                                 return;
                             }
-                            id v15 = FBSOpenApplicationErrorCreate(arg1, 0);
-                            v1(v15);
+                            id v13 = FBSOpenApplicationErrorCreate(arg1, 0);
+                            v1(v13);
                         }];
-                    };
-                    FBOpenAppSystemServiceExecuteCallOut(instance, v13);
+                    });
                 }];
             }
         }
@@ -1633,8 +1625,7 @@ BOOL -[FBSystemService _isAllowListedLaunchSuspendedApp:](id a1)
     if (a1 == nil) {
         return NO;
     }
-    BOOL v1 = [_isAllowListedLaunchSuspendedApp:.__allowListedLaunchSuspendedApps containsObject:a1];
-    return v1;
+    return [_isAllowListedLaunchSuspendedApp:.__allowListedLaunchSuspendedApps containsObject:a1];
 }
 
 

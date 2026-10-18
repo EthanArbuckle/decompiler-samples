@@ -159,7 +159,8 @@ id -[FBWorkspaceEventDispatcherSource consumeRemnantsPassingTest:](id a1)
             if (continuationRoute1 == 1) {
                 [v12 addObject:v11];
                 continue;
-            } else if (continuationRoute1 == 2) {
+            }
+            if (continuationRoute1 == 2) {
                 v7 = [NSMutableSet setWithObject:v11];
             }
         }

@@ -161,9 +161,11 @@ FBUpdateSceneTransaction *-[FBUpdateSceneTransaction initWithSceneToUpdate:newSe
 
 void -[FBUpdateSceneTransaction dealloc](void)
 {
+    NSString *v0 = self->_sceneID;
+    FBSceneManager *v1 = self->_sceneManager;
     BSDispatchMain(^void(void) {
-        id v0 = [self->_sceneManager sceneWithIdentifier:self->_sceneID];
-        [v0 removeObserver:self];
+        id v3 = [v1 sceneWithIdentifier:v0];
+        [v3 removeObserver:self];
     });
     [super dealloc];
 }
@@ -331,9 +333,8 @@ void -[FBUpdateSceneTransaction _createScene](void)
         [self _commitSceneUpdate:^void(void) {
             FBSSceneSettings *settings = [self->_parameters settings];
             FBSSceneClientSettings *clientSettings = [self->_parameters clientSettings];
-            id v14 = self;
             void (^v15)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
-                [v14 _noteDidCommit:arg1];
+                [self _noteDidCommit:arg1];
             };
             [self->_sceneManager _createSceneWithDefinition:self->_definition settings:settings initialClientSettings:clientSettings transitionContext:self->_transitionContext fromRemnant:0 usingClientProvider:v3 completion:v15];
             [self _noteDidCreate];
@@ -368,9 +369,8 @@ void -[FBUpdateSceneTransaction _updateScene](void)
             [self _noteWillUpdate];
             FBScene *scene = [self scene];
             FBSSceneSettings *settings = [self settings];
-            id v12 = self;
             [scene updateSettings:settings withTransitionContext:self->_transitionContext completion:^void(bool arg1) {
-                [v12 _noteDidCommit:arg1];
+                [self _noteDidCommit:arg1];
             }];
             [self _noteWillCommit];
         }];

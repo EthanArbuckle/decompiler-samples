@@ -210,8 +210,7 @@ blk_1c4ed805c:
                                 }
                             }
                         }
-                        self = [NSArray arrayWithObjects:(id *)v6 count:v3 & 255];
-                        return self;
+                        return [NSArray arrayWithObjects:(id *)v6 count:v3 & 255];
                     }
                     if (v5 != 80) {
 blk_1c4ed80c8:

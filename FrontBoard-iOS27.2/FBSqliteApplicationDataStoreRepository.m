@@ -43,9 +43,9 @@ void -[FBSqliteApplicationDataStoreRepository setObject:forKey:forApplication:](
         }
         dispatch_async(self->_dbQueue, ^void(void) {
             [self _dbQueue_performWithSavepoint:@"setObject" handler:^bool(void) {
-                NSString *v10 = ([self _dbQueue_containsKey:v1 forApplication:v2] != 0) ? @"UPDATE kvs SET value = :value WHERE     application_identifier IN (SELECT id FROM application_identifier_tab WHERE application_identifier = :application_identifier)     AND key IN (SELECT id FROM key_tab WHERE key = :key);" : @"INSERT OR IGNORE INTO application_identifier_tab (application_identifier) VALUES (:application_identifier);INSERT OR IGNORE INTO key_tab (key) VALUES (:key);INSERT INTO kvs (application_identifier, key, value)    SELECT application_identifier_tab.id, key_tab.id, :value FROM application_identifier_tab, key_tab WHERE         application_identifier_tab.application_identifier = :application_identifier        AND key_tab.key = :key;";
+                NSString *v13 = ([self _dbQueue_containsKey:v1 forApplication:v2] != 0) ? @"UPDATE kvs SET value = :value WHERE     application_identifier IN (SELECT id FROM application_identifier_tab WHERE application_identifier = :application_identifier)     AND key IN (SELECT id FROM key_tab WHERE key = :key);" : @"INSERT OR IGNORE INTO application_identifier_tab (application_identifier) VALUES (:application_identifier);INSERT OR IGNORE INTO key_tab (key) VALUES (:key);INSERT INTO kvs (application_identifier, key, value)    SELECT application_identifier_tab.id, key_tab.id, :value FROM application_identifier_tab, key_tab WHERE         application_identifier_tab.application_identifier = :application_identifier        AND key_tab.key = :key;";
                 NSDictionary<NSString *, id> *v11 = @{@":application_identifier": v2, @":key": v1, @":value": v3};
-                [self _dbQueue_executeStatement:v10 bindings:v11 resultRowHandler:0];
+                [self _dbQueue_executeStatement:v13 bindings:v11 resultRowHandler:0];
                 NSArray *v12 = @[v1];
                 [self _dbQueue_notifyDelegateOfChangeForKeys:v12 application:v2];
                 return 1;
@@ -58,8 +58,7 @@ void -[FBSqliteApplicationDataStoreRepository setObject:forKey:forApplication:](
 id +[FBSqliteApplicationDataStoreRepository _objectForResultRow:index:](id a1, NSUInteger a2)
 {
     id v0 = [a1 objectAtIndex:a2];
-    id v1 = (![v0 isKindOfClass:[NSData class]]) ? v0 : [NSPropertyListSerialization propertyListWithData:v0 options:0 format:NULL error:nil];
-    return v1;
+    return (![v0 isKindOfClass:[NSData class]]) ? v0 : [NSPropertyListSerialization propertyListWithData:v0 options:0 format:NULL error:nil];
 }
 
 
@@ -79,8 +78,7 @@ long -[FBSqliteApplicationDataStoreRepository _dbQueue_executeStatement:bindings
 
 bool +[FBSqliteApplicationDataStoreRepository _objectRequiresSerialization:](id a1)
 {
-    bool v1 = (![a1 isKindOfClass:[NSNumber class]]) ? ![a1 isKindOfClass:[NSString class]] : false;
-    return v1;
+    return (![a1 isKindOfClass:[NSNumber class]]) ? ![a1 isKindOfClass:[NSString class]] : false;
 }
 
 
@@ -104,8 +102,7 @@ id -[FBSqliteApplicationDataStoreRepository objectForKey:forApplication:](id a1,
 long -[FBSqliteApplicationDataStoreRepository _dbQueue_executeStatement:bindings:resultRowHandler:error:](long a1, id a2, id a3, long a4)
 {
     id v2 = [self->_dbQueue_dbConnection prepareStatement:a1];
-    long v3 = (!v2) ? 0 : [v2 executeWithBindings:a2 resultRowHandler:a3 error:a4];
-    return v3;
+    return (!v2) ? 0 : [v2 executeWithBindings:a2 resultRowHandler:a3 error:a4];
 }
 
 
@@ -229,8 +226,9 @@ FBSqliteApplicationDataStoreRepository *-[FBSqliteApplicationDataStoreRepository
 void -[FBSqliteApplicationDataStoreRepository dealloc](void)
 {
     notify_cancel(self->_dbQueue_firstUnlockToken);
+    BSSqliteDatabaseConnection *v0 = self->_dbQueue_dbConnection;
     dispatch_async(self->_dbQueue, ^void(void) {
-        [self->_dbQueue_dbConnection close];
+        [v0 close];
     });
     [super dealloc];
 }
@@ -277,8 +275,7 @@ NSArray *-[FBSqliteApplicationDataStoreRepository keysForApplication:](id a1)
         id v5 = [self _dbQueue_keysForApplication:v0];
         v2 = v5;
     });
-    NSArray *v1 = v2;
-    return v1;
+    return v2;
 }
 
 
@@ -309,8 +306,7 @@ id -[FBSqliteApplicationDataStoreRepository allObjectsForKeys:](id a1)
         id v5 = [self _dbQueue_objectsForKeys:v0];
         v2 = v5;
     });
-    id v1 = v2;
-    return v1;
+    return v2;
 }
 
 
@@ -384,9 +380,8 @@ void -[FBSqliteApplicationDataStoreRepository endBatchedUpdate](void)
             return;
         }
         self->_dbQueue_batchDepth = self->_dbQueue_batchDepth - 1;
-        id v1 = self;
         if (!self->_dbQueue_batchDepth) {
-            [v1 _dbQueue_executeStatement:@"COMMIT;PRAGMA cache_size=10;" bindings:0 resultRowHandler:0];
+            [self _dbQueue_executeStatement:@"COMMIT;PRAGMA cache_size=10;" bindings:0 resultRowHandler:0];
             return;
         }
     });
@@ -472,32 +467,27 @@ void -[FBSqliteApplicationDataStoreRepository _dbQueue_load](void)
 int -[FBSqliteApplicationDataStoreRepository _dbQueue_databaseIntegrityCheck](void)
 {
     os_log_t v5;
-    int v6;
     dispatch_assert_queue(self->_dbQueue);
     NSMutableArray *v0 = [[NSMutableArray alloc] init];
     id v2 = nil;
     long v3 = [self _dbQueue_executeStatement:@"PRAGMA quick_check;" bindings:0 resultRowHandler:^void(BSSqliteResultRow *arg1) {
-        id v9 = [arg1 stringAtIndex:0];
-        [v0 addObject:v9];
+        id v10 = [arg1 stringAtIndex:0];
+        [v0 addObject:v10];
     } error:&v2];
     if (!v3) {
         v5 = FBLogAppDataStore();
         if (os_log_type_enabled(v5, OS_LOG_TYPE_ERROR)) {
             os_log_with_type(v5, OS_LOG_TYPE_ERROR, "Database failed to perform integrity check with error: %{public}@", v2);
         }
-        v6 = v3 ^ 1;
-    } else {
-        if (![v0 isEqualToArray:@[@"ok"]]) {
-            v5 = FBLogAppDataStore();
-            if (os_log_type_enabled(v5, OS_LOG_TYPE_ERROR)) {
-                os_log_with_type(v5, OS_LOG_TYPE_ERROR, "Database failed integrity check with errors: %{public}@", v0);
-                return v3 ^ 1;
-            }
-            return v3 ^ 1;
+    } else if (![v0 isEqualToArray:@[@"ok"]]) {
+        v5 = FBLogAppDataStore();
+        if (os_log_type_enabled(v5, OS_LOG_TYPE_ERROR)) {
+            os_log_with_type(v5, OS_LOG_TYPE_ERROR, "Database failed integrity check with errors: %{public}@", v0);
         }
-        v6 = 1;
+    } else {
+        return 1;
     }
-    return v6;
+    return v3 ^ 1;
 }
 
 
@@ -589,9 +579,8 @@ long -[FBSqliteApplicationDataStoreRepository _dbQueue_loadDatabase](void)
     self->_dbQueue_dbConnection = [self _dbQueue_openDatabase];
     if (!self->_dbQueue_dbConnection) {
         return 0;
-    }
-    if (([self _inAlternateSystemApp] & 1) == 0 && ([self _dbQueue_databaseIntegrityCheck] & 1) == 0) {
-        ADClientAddValueForScalarKey(@"com.apple.frontboard.appsdatastore.database.corrupted");
+    } else if (([self _inAlternateSystemApp] & 1) == 0 && ([self _dbQueue_databaseIntegrityCheck] & 1) == 0) {
+        ADClientAddValueForScalarKey(@"com.apple.frontboard.appsdatastore.database.corrupted", 1);
         [self->_dbQueue_dbConnection close];
         self->_dbQueue_dbConnection = nil;
         [self _dbQueue_tryPreserveDamagedDatabase];
@@ -614,7 +603,7 @@ long -[FBSqliteApplicationDataStoreRepository _dbQueue_loadDatabase](void)
         if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
             os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "Successfully truncated damaged database");
         }
-        ADClientAddValueForScalarKey(@"com.apple.frontboard.appsdatastore.database.set-aside");
+        ADClientAddValueForScalarKey(@"com.apple.frontboard.appsdatastore.database.set-aside", 1);
     }
     [self _dbQueue_executeStatement:@"PRAGMA busy_timeout=1000000" bindings:0 resultRowHandler:0];
     [self _dbQueue_executeStatement:@"PRAGMA journal_mode=WAL;" bindings:0 resultRowHandler:0];

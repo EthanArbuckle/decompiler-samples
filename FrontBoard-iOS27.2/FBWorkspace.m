@@ -286,13 +286,13 @@ void -[FBWorkspace _assertLocked](void)
 }
 
 
-void -[FBWorkspace host:didUpdateSettings:withDiff:transitionContext:completion:](id a1, id a2, id a3, id a4, id a5)
+void -[FBWorkspace host:didUpdateSettings:withDiff:transitionContext:completion:](id a1, id a2, id a3, id a4, void (^a5)(bool, NSError *))
 {
     void (^v6)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
         if (!a5) {
             return;
         } else {
-            a5->field_16(a5, arg1, arg2);
+            a5(arg1, arg2);
             return;
         }
     };
@@ -466,21 +466,19 @@ void -[FBWorkspace _enableLegacyRequests:](id a1)
 
 FBWorkspaceScene *-[FBWorkspace registerHost:settings:initialClientSettings:fromRemnant:error:](id a1, id a2, id a3, id a4, NSError **a5)
 {
-    id v29;
-    id v34;
-    NSDictionary *v37;
-    id v42;
-    NSError *v41;
-    FBWorkspaceScene *v43;
-    BSSimpleAssertion *v44;
-    id v45;
-    void (^v46)(void);
+    id v43;
+    id v44;
+    NSError *v45;
+    id v54;
+    NSDictionary *v57;
+    int v46;
+    FBWorkspaceScene *v48;
     if (!a1) {
         NSString *v1 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"host"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v71 = NSStringFromSelector(_cmd);
-            NSString *v72 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v71, v72, self, @"FBWorkspace.m", 854, v1);
+            NSString *v68 = NSStringFromSelector(_cmd);
+            NSString *v3 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v68, v3, self, @"FBWorkspace.m", 854, v1);
         }
         _bs_set_crash_log_message([v1 UTF8String]);
         __break(0);
@@ -489,332 +487,303 @@ FBWorkspaceScene *-[FBWorkspace registerHost:settings:initialClientSettings:from
     id<NSCopying> identity = [definition2 identity];
     FBSSceneClientIdentity *clientIdentity = [definition2 clientIdentity];
     long targetsClientEndpoint = [clientIdentity targetsClientEndpoint];
-    FBSSceneSpecification *specification2 = [definition2 specification];
-    Class v10 = NSClassFromString(@"FBSSceneIdentity");
+    FBSSceneSpecification *specification = [definition2 specification];
+    Class v12 = NSClassFromString(@"FBSSceneIdentity");
     if (!identity) {
-        NSString *v74 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
+        NSString *v69 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v75 = NSStringFromSelector(_cmd);
-            NSString *v76 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v75, v76, self, @"FBWorkspace.m", 859, v74);
+            NSString *v70 = NSStringFromSelector(_cmd);
+            NSString *v71 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v70, v71, self, @"FBWorkspace.m", 859, v69);
         }
-        _bs_set_crash_log_message([v74 UTF8String]);
+        _bs_set_crash_log_message([v69 UTF8String]);
         __break(0);
     }
-    if (![identity isKindOfClass:v10]) {
-        NSString *v78 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneIdentityClass]"];
+    if (![identity isKindOfClass:v12]) {
+        NSString *v73 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneIdentityClass]"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v79 = NSStringFromSelector(_cmd);
-            NSString *v80 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v79, v80, self, @"FBWorkspace.m", 859, v78);
+            NSString *v74 = NSStringFromSelector(_cmd);
+            NSString *v75 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v74, v75, self, @"FBWorkspace.m", 859, v73);
         }
-        _bs_set_crash_log_message([v78 UTF8String]);
+        _bs_set_crash_log_message([v73 UTF8String]);
         __break(0);
     }
-    Class v11 = NSClassFromString(@"FBSSceneSpecification");
-    if (!specification2) {
-        NSString *v82 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
+    Class v14 = NSClassFromString(@"FBSSceneSpecification");
+    if (!specification) {
+        NSString *v77 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v83 = NSStringFromSelector(_cmd);
-            NSString *v84 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v83, v84, self, @"FBWorkspace.m", 860, v82);
+            NSString *v78 = NSStringFromSelector(_cmd);
+            NSString *v79 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v78, v79, self, @"FBWorkspace.m", 860, v77);
         }
-        _bs_set_crash_log_message([v82 UTF8String]);
+        _bs_set_crash_log_message([v77 UTF8String]);
         __break(0);
     }
-    if (![specification2 isKindOfClass:v11]) {
-        NSString *v86 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneSpecificationClass]"];
+    if (![specification isKindOfClass:v14]) {
+        NSString *v81 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneSpecificationClass]"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v87 = NSStringFromSelector(_cmd);
-            NSString *v88 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v87, v88, self, @"FBWorkspace.m", 860, v86);
+            NSString *v82 = NSStringFromSelector(_cmd);
+            NSString *v83 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v82, v83, self, @"FBWorkspace.m", 860, v81);
         }
-        _bs_set_crash_log_message([v86 UTF8String]);
+        _bs_set_crash_log_message([v81 UTF8String]);
         __break(0);
     }
-    Class v13 = NSClassFromString(@"FBSSceneSettings");
+    Class v16 = NSClassFromString(@"FBSSceneSettings");
     if (!a2) {
-        NSString *v90 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
+        NSString *v85 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v91 = NSStringFromSelector(_cmd);
-            NSString *v92 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v91, v92, self, @"FBWorkspace.m", 861, v90);
+            NSString *v86 = NSStringFromSelector(_cmd);
+            NSString *v87 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v86, v87, self, @"FBWorkspace.m", 861, v85);
         }
-        _bs_set_crash_log_message([v90 UTF8String]);
+        _bs_set_crash_log_message([v85 UTF8String]);
         __break(0);
     }
-    if (![a2 isKindOfClass:v13]) {
-        NSString *v94 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneSettingsClass]"];
+    if (![a2 isKindOfClass:v16]) {
+        NSString *v89 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneSettingsClass]"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v95 = NSStringFromSelector(_cmd);
-            NSString *v96 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v95, v96, self, @"FBWorkspace.m", 861, v94);
+            NSString *v90 = NSStringFromSelector(_cmd);
+            NSString *v91 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v90, v91, self, @"FBWorkspace.m", 861, v89);
         }
-        _bs_set_crash_log_message([v94 UTF8String]);
+        _bs_set_crash_log_message([v89 UTF8String]);
         __break(0);
     }
-    Class settingsClass = [specification2 settingsClass];
-    if ([a2 isKindOfClass:settingsClass]) {
-        Class v16 = NSClassFromString(@"FBSSceneClientSettings");
-        if (!a3) {
-            NSString *v98 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
+    Class settingsClass = [specification settingsClass];
+    if (![a2 isKindOfClass:settingsClass]) {
+        id settingsClass2 = [specification settingsClass];
+        NSString *v19 = [NSString stringWithFormat:@"settings of an unexpected class: expected %@, got %@", settingsClass2, [a2 class]];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v0 = NSStringFromSelector(_cmd);
+            NSString *v93 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v0, v93, self, @"FBWorkspace.m", 862, v19);
+        }
+        _bs_set_crash_log_message([v19 UTF8String]);
+        __break(0);
+    }
+    Class v21 = NSClassFromString(@"FBSSceneClientSettings");
+    if (!a3) {
+        NSString *v95 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v96 = NSStringFromSelector(_cmd);
+            NSString *v97 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v96, v97, self, @"FBWorkspace.m", 863, v95);
+        }
+        _bs_set_crash_log_message([v95 UTF8String]);
+        __break(0);
+    }
+    if (![a3 isKindOfClass:v21]) {
+        NSString *v99 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneClientSettingsClass]"];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v100 = NSStringFromSelector(_cmd);
+            NSString *v101 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v100, v101, self, @"FBWorkspace.m", 863, v99);
+        }
+        _bs_set_crash_log_message([v99 UTF8String]);
+        __break(0);
+    }
+    Class clientSettingsClass = [specification clientSettingsClass];
+    if (![a3 isKindOfClass:clientSettingsClass]) {
+        id clientSettingsClass2 = [specification clientSettingsClass];
+        NSString *v24 = [NSString stringWithFormat:@"initialClientSettings of an unexpected class: expected %@, got %@", clientSettingsClass2, [a3 class]];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v103 = NSStringFromSelector(_cmd);
+            NSString *v104 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v103, v104, self, @"FBWorkspace.m", 864, v24);
+        }
+        _bs_set_crash_log_message([v24 UTF8String]);
+        __break(0);
+    }
+    long v25 = a2;
+    if (a4 != nil) {
+        if (![a4 isKindOfClass:NSClassFromString(@"FBSceneRemnant")]) {
+            NSString *v106 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSceneRemnantClass]"];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v99 = NSStringFromSelector(_cmd);
-                NSString *v100 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v99, v100, self, @"FBWorkspace.m", 863, v98);
+                NSString *v107 = NSStringFromSelector(_cmd);
+                NSString *v108 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v107, v108, self, @"FBWorkspace.m", 866, v106);
             }
-            _bs_set_crash_log_message([v98 UTF8String]);
+            _bs_set_crash_log_message([v106 UTF8String]);
             __break(0);
         }
-        if (![a3 isKindOfClass:v16]) {
-            NSString *v102 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSSceneClientSettingsClass]"];
+        if ([a4 _hasBeenInvalidated]) {
+            NSString *v110 = [NSString stringWithFormat:@"cannot create a scene from an invalidated remnant"];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v103 = NSStringFromSelector(_cmd);
-                NSString *v104 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v103, v104, self, @"FBWorkspace.m", 863, v102);
+                NSString *v111 = NSStringFromSelector(_cmd);
+                NSString *v112 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v111, v112, self, @"FBWorkspace.m", 867, v110);
             }
-            _bs_set_crash_log_message([v102 UTF8String]);
+            _bs_set_crash_log_message([v110 UTF8String]);
             __break(0);
         }
-        Class clientSettingsClass = [specification2 clientSettingsClass];
-        if (![a3 isKindOfClass:clientSettingsClass]) {
-            id clientSettingsClass2 = [specification2 clientSettingsClass];
-            NSString *v66 = [NSString stringWithFormat:@"initialClientSettings of an unexpected class: expected %@, got %@", clientSettingsClass2, [a3 class]];
+        FBWorkspace *_workspace = [a4 _workspace];
+        if (_workspace != self) {
+            NSString *v114 = [NSString stringWithFormat:@"remnant doesn't match this workspace"];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v0 = NSStringFromSelector(_cmd);
-                NSString *v106 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v0, v106, self, @"FBWorkspace.m", 864, v66);
+                NSString *v115 = NSStringFromSelector(_cmd);
+                NSString *v116 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v115, v116, self, @"FBWorkspace.m", 868, v114);
             }
-            _bs_set_crash_log_message([v66 UTF8String]);
+            _bs_set_crash_log_message([v114 UTF8String]);
             __break(0);
         }
-        long v18 = a2;
+        FBSSceneDefinition *definition = [a4 definition];
+        FBSSceneSpecification *specification2 = [definition specification];
+        Class v30 = [specification2 class];
+        Class v31 = [specification class];
+        v25 = a2;
+        if (v30 != v31) {
+            NSString *v118 = [NSString stringWithFormat:@"specification must match the remnant"];
+            if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+                NSString *v119 = NSStringFromSelector(_cmd);
+                NSString *v120 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v119, v120, self, @"FBWorkspace.m", 869, v118);
+            }
+            _bs_set_crash_log_message([v118 UTF8String]);
+            __break(0);
+        }
+    }
+    os_unfair_lock_lock(&self->_lock);
+    NSMutableDictionary *v32 = self->_lock_identityToSceneMap;
+    if (!self->_lock_identityToSceneMap) {
+        self->_lock_identityToSceneMap = [NSMutableDictionary new];
+        v32 = self->_lock_identityToSceneMap;
+    }
+    id v35 = [v32 objectForKey:identity];
+    if (v35 != nil) {
+        id v36 = [self->_lock_identityToSceneMap objectForKey:identity];
+        NSString *debugDescription = [a1 debugDescription];
+        NSString *v38 = [NSString stringWithFormat:@"cannot register a host that is already registered : existing=%@ : host=%@", v36, debugDescription];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v122 = NSStringFromSelector(_cmd);
+            NSString *v123 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v122, v123, self, @"FBWorkspace.m", 878, v38);
+        }
+        _bs_set_crash_log_message([v38 UTF8String]);
+        __break(0);
+    }
+    if (self->_lock_didReceiveHandshake != 1) {
         if (a4 != nil) {
-            if (![a4 isKindOfClass:NSClassFromString(@"FBSceneRemnant")]) {
-                NSString *v108 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSceneRemnantClass]"];
-                if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                    NSString *v109 = NSStringFromSelector(_cmd);
-                    NSString *v110 = NSStringFromClass([self class]);
-                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v109, v110, self, @"FBWorkspace.m", 866, v108);
-                }
-                _bs_set_crash_log_message([v108 UTF8String]);
-                __break(0);
-            }
-            if ([a4 _hasBeenInvalidated]) {
-                NSString *v112 = [NSString stringWithFormat:@"cannot create a scene from an invalidated remnant"];
-                if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                    NSString *v113 = NSStringFromSelector(_cmd);
-                    NSString *v114 = NSStringFromClass([self class]);
-                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v113, v114, self, @"FBWorkspace.m", 867, v112);
-                }
-                _bs_set_crash_log_message([v112 UTF8String]);
-                __break(0);
-            }
-            FBWorkspace *_workspace = [a4 _workspace];
-            if (_workspace != self) {
-                NSString *v116 = [NSString stringWithFormat:@"remnant doesn't match this workspace"];
-                if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                    NSString *v117 = NSStringFromSelector(_cmd);
-                    NSString *v118 = NSStringFromClass([self class]);
-                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v117, v118, self, @"FBWorkspace.m", 868, v116);
-                }
-                _bs_set_crash_log_message([v116 UTF8String]);
-                __break(0);
-            }
-            FBSSceneDefinition *definition = [a4 definition];
-            FBSSceneSpecification *specification = [definition specification];
-            Class v23 = [specification class];
-            Class v24 = [specification2 class];
-            v18 = a2;
-            if (v23 != v24) {
-                NSString *v120 = [NSString stringWithFormat:@"specification must match the remnant"];
-                if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                    NSString *v121 = NSStringFromSelector(_cmd);
-                    NSString *v122 = NSStringFromClass([self class]);
-                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v121, v122, self, @"FBWorkspace.m", 869, v120);
-                }
-                _bs_set_crash_log_message([v120 UTF8String]);
-                __break(0);
-            }
-        }
-        os_unfair_lock_lock(&self->_lock);
-        NSMutableDictionary *v25 = self->_lock_identityToSceneMap;
-        if (!self->_lock_identityToSceneMap) {
-            self->_lock_identityToSceneMap = [NSMutableDictionary new];
-            v25 = self->_lock_identityToSceneMap;
-        }
-        id v28 = [v25 objectForKey:identity];
-        if (v28 != nil) {
-            id v67 = [self->_lock_identityToSceneMap objectForKey:identity];
-            NSString *debugDescription = [a1 debugDescription];
-            NSString *v69 = [NSString stringWithFormat:@"cannot register a host that is already registered : existing=%@ : host=%@", v67, debugDescription];
+            NSString *v125 = [NSString stringWithFormat:@"how could you call createWithRemnant: if we haven't made any remnants"];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v124 = NSStringFromSelector(_cmd);
-                NSString *v125 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v124, v125, self, @"FBWorkspace.m", 878, v69);
+                NSString *v126 = NSStringFromSelector(_cmd);
+                NSString *v127 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v126, v127, self, @"FBWorkspace.m", 885, v125);
             }
-            _bs_set_crash_log_message([v69 UTF8String]);
+            _bs_set_crash_log_message([v125 UTF8String]);
             __break(0);
         }
-        if (self->_lock_didReceiveHandshake == 1) {
-            v29 = [self->_lock_identityToRemnantsMap objectForKey:identity];
-        } else {
-            if (a4 != nil) {
-                NSString *v127 = [NSString stringWithFormat:@"how could you call createWithRemnant: if we haven't made any remnants"];
-                if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                    NSString *v128 = NSStringFromSelector(_cmd);
-                    NSString *v129 = NSStringFromClass([self class]);
-                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v128, v129, self, @"FBWorkspace.m", 885, v127);
-                }
-                _bs_set_crash_log_message([v127 UTF8String]);
-                __break(0);
-            }
-            NSMutableDictionary *v30 = self->_lock_identityToRemnantsMap;
-            if (!self->_lock_identityToRemnantsMap) {
-                self->_lock_identityToRemnantsMap = [NSMutableDictionary new];
-                v30 = self->_lock_identityToRemnantsMap;
-            }
-            NSNull *null = [NSNull null];
-            [v30 setObject:null forKey:identity];
-            v29 = nil;
+        NSMutableDictionary *v39 = self->_lock_identityToRemnantsMap;
+        if (!self->_lock_identityToRemnantsMap) {
+            self->_lock_identityToRemnantsMap = [NSMutableDictionary new];
+            v39 = self->_lock_identityToRemnantsMap;
         }
-        os_unfair_lock_assert_owner(&self->_lock);
-        if (__atomic_compare_exchange_n(&(self->_invalidated), &(int){1}, 1, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
-            v34 = NSError;
-            v37 = @{NSLocalizedFailureReasonErrorKey: @"Workspace has been invalidated (process has exited)."};
-        } else {
-            if (self->_test_rejectAllSceneClients != 1) {
-                if ((uint32_t)targetsClientEndpoint != 0) {
-                    NSXPCListenerEndpoint *endpoint = [self->_lock_outgoingEndpointPromise endpoint];
-                    if (![endpoint isNullEndpoint]) {
-                        if (!self->_lock_outgoingConnection) {
-                            FBWorkspaceOutgoingConnection *v49 = [[FBWorkspaceOutgoingConnection alloc] initWithWorkspace:self];
-                            self->_lock_outgoingConnection = v49;
-                            v42 = v49;
-                            if (endpoint != nil) {
-                                [self->_lock_outgoingConnection workspaceLock_setEndpoint:endpoint];
-                            }
-                        } else {
-                            v42 = self->_lock_outgoingConnection;
-                        }
-                        v41 = nil;
-                        goto blk_1c4ee6514;
-                    }
-                    NSDictionary *v53 = @{NSLocalizedFailureReasonErrorKey: @"Workspace cannot establish a connection to a null endpoint."};
-                    v41 = [NSError errorWithDomain:@"FBWorkspace" code:1 userInfo:v53];
-                    v42 = nil;
-                    v18 = a2;
+        NSNull *null = [NSNull null];
+        [v39 setObject:null forKey:identity];
+        v43 = nil;
+    } else {
+        v43 = [self->_lock_identityToRemnantsMap objectForKey:identity];
+    }
+    os_unfair_lock_assert_owner(&self->_lock);
+    if (!__atomic_compare_exchange_n(&(self->_invalidated), &(int){1}, 1, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
+        if (self->_test_rejectAllSceneClients != 1) {
+            if ((uint32_t)targetsClientEndpoint == 0) {
+                if (!a4) {
+                    v44 = self->_lock_incomingConnection;
+                    v45 = a4;
                     goto blk_1c4ee6514;
                 }
-                if (a4 != nil) {
-                    if (a4 == v29) {
-                        goto blk_1c4ee64a4;
+                if (a4 != v43) {
+                    os_log_t oslog2 = FBLogProcessWorkspace();
+                    if (os_log_type_enabled(oslog2, OS_LOG_TYPE_ERROR)) {
+                        os_log_with_type(oslog2, OS_LOG_TYPE_ERROR, "invalid remnant specified: remnant=%{public}@ connection=%{public}@", a4, 0);
                     }
-                    os_log_t oslog = FBLogProcessWorkspace();
-                    if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                        os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "invalid remnant specified: remnant=%{public}@ connection=%{public}@", a4, 0);
-                    }
-                    v37 = @{NSLocalizedFailureReasonErrorKey: @"Invalid scene remnant provided."};
-                    v41 = [NSError errorWithDomain:@"FBWorkspace" code:1 userInfo:v37];
-                    v43 = nil;
-                } else {
-                    v42 = self->_lock_incomingConnection;
-                    v41 = a4;
-                    goto blk_1c4ee6514;
-blk_1c4ee64a4:
-                    [self->_lock_identityToRemnantsMap removeObjectForKey:identity];
-                    v42 = self->_lock_incomingConnection;
-                    v41 = nil;
-                    int v57 = 1;
-                    if (!v42) {
-                        v43 = nil;
-                        os_unfair_lock_unlock(&self->_lock);
-                        v44 = [v29 _assertion];
-                        [v44 invalidate];
-                        v45 = [self->_synchronizer _workspaceQueue];
-                        [v45 performAsync:^void(void) {
-                            [self _resolveSceneLifecycleStateAndInterruptionPolicy];
-                        }];
-                        if (a5 != 0) {
-                            *(a5) = v41;
-                        }
-                        return v43;
-blk_1c4ee6514:
-                        v57 = 0;
-                        if (!v42) {
-                            v43 = nil;
-                            os_unfair_lock_unlock(&self->_lock);
-                            v44 = [v29 _assertion];
-                            [v44 invalidate];
-                            v45 = [self->_synchronizer _workspaceQueue];
-                            [v45 performAsync:^void(void) {
-                                [self _resolveSceneLifecycleStateAndInterruptionPolicy];
-                            }];
-                            if (a5 != 0) {
-                                *(a5) = v41;
-                            }
-                            return v43;
-                        }
-                    }
-                    if (([v42 workspaceLock_isValid] & 1) == 0) {
-                        NSString *v132 = [NSString stringWithFormat:@"internal state error : connection is invalidated"];
+                    v54 = NSError;
+                    v57 = @{NSLocalizedFailureReasonErrorKey: @"Invalid scene remnant provided."};
+                    goto blk_1c4ee6240;
+                }
+                [self->_lock_identityToRemnantsMap removeObjectForKey:identity];
+                v44 = self->_lock_incomingConnection;
+                v45 = nil;
+                v46 = 1;
+                if (v44 != nil) {
+blk_1c4ee651c:
+                    long workspaceLock_isValid = [v44 workspaceLock_isValid];
+                    if ((workspaceLock_isValid & 1) == 0) {
+                        NSString *v130 = [NSString stringWithFormat:@"internal state error : connection is invalidated"];
                         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                            NSString *v133 = NSStringFromSelector(_cmd);
-                            NSString *v134 = NSStringFromClass([self class]);
-                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v133, v134, self, @"FBWorkspace.m", 932, v132);
+                            NSString *v131 = NSStringFromSelector(_cmd);
+                            NSString *v132 = NSStringFromClass([self class]);
+                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v131, v132, self, @"FBWorkspace.m", 932, v130);
                         }
-                        _bs_set_crash_log_message([v132 UTF8String]);
+                        _bs_set_crash_log_message([v130 UTF8String]);
                         __break(0);
                     }
-                    v43 = [[FBWorkspaceScene alloc] initWithConnection:v42 host:a1 settings:v18 clientSettings:a3 fromRemnant:v57];
-                    [self->_lock_identityToSceneMap setObject:v43 forKey:identity];
-                    FBProcess *v59 = self->_weak_process;
-                    os_log_t oslog2 = FBLogProcessWorkspace();
-                    if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
-                        NSString *logProem = [v59 logProem];
-                        os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "%{public}@ Registered new scene: %{public}@ (fromRemnant = %d)", logProem, v43, (uint32_t)v57);
+                    v48 = [[FBWorkspaceScene alloc] initWithConnection:v44 host:a1 settings:v25 clientSettings:a3 fromRemnant:v46];
+                    [self->_lock_identityToSceneMap setObject:v48 forKey:identity];
+                    FBProcess *v49 = self->_weak_process;
+                    os_log_t oslog = FBLogProcessWorkspace();
+                    if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
+                        NSString *logProem = [v49 logProem];
+                        os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "%{public}@ Registered new scene: %{public}@ (fromRemnant = %d)", logProem, v48, (uint32_t)v46);
                     }
+                } else {
+blk_1c4ee64c8:
+                    v48 = nil;
                 }
+blk_1c4ee627c:
                 os_unfair_lock_unlock(&self->_lock);
-                v44 = [v29 _assertion];
-                [v44 invalidate];
-                v45 = [self->_synchronizer _workspaceQueue];
-                v46 = ^void(void) {
+                BSSimpleAssertion *_assertion = [v43 _assertion];
+                [_assertion invalidate];
+                id _workspaceQueue = [self->_synchronizer _workspaceQueue];
+                [_workspaceQueue performAsync:^void(void) {
                     [self _resolveSceneLifecycleStateAndInterruptionPolicy];
-                };
-                [v45 performAsync:v46];
+                }];
                 if (a5 != 0) {
-                    *(a5) = v41;
+                    *(a5) = v45;
                 }
-                return v43;
+                return v48;
             }
-            v34 = NSError;
-            v37 = @{NSLocalizedFailureReasonErrorKey: @"Workspace is rejecting all clients for unit tests."};
+            NSXPCListenerEndpoint *endpoint = [self->_lock_outgoingEndpointPromise endpoint];
+            if (![endpoint isNullEndpoint]) {
+                if (!self->_lock_outgoingConnection) {
+                    FBWorkspaceOutgoingConnection *v63 = [[FBWorkspaceOutgoingConnection alloc] initWithWorkspace:self];
+                    self->_lock_outgoingConnection = v63;
+                    v44 = v63;
+                    if (endpoint != nil) {
+                        [self->_lock_outgoingConnection workspaceLock_setEndpoint:endpoint];
+                    }
+                } else {
+                    v44 = self->_lock_outgoingConnection;
+                }
+                v45 = nil;
+            } else {
+                NSDictionary *v67 = @{NSLocalizedFailureReasonErrorKey: @"Workspace cannot establish a connection to a null endpoint."};
+                v45 = [NSError errorWithDomain:@"FBWorkspace" code:1 userInfo:v67];
+                v44 = nil;
+                v25 = a2;
+            }
+blk_1c4ee6514:
+            v46 = 0;
+            if (!v44) {
+                goto blk_1c4ee64c8;
+            } else {
+                goto blk_1c4ee651c;
+            }
         }
-        NSError *v70 = [v34 errorWithDomain:@"FBWorkspace" code:1 userInfo:v37];
-        v43 = nil;
-        os_unfair_lock_unlock(&self->_lock);
-        v44 = [v29 _assertion];
-        [v44 invalidate];
-        v45 = [self->_synchronizer _workspaceQueue];
-        v46 = ^void(void) {
-            [self _resolveSceneLifecycleStateAndInterruptionPolicy];
-        };
-        [v45 performAsync:v46];
-        if (a5 != 0) {
-            *(a5) = v70;
-        }
-        return v43;
+        v54 = NSError;
+        v57 = @{NSLocalizedFailureReasonErrorKey: @"Workspace is rejecting all clients for unit tests."};
+    } else {
+        v54 = NSError;
+        v57 = @{NSLocalizedFailureReasonErrorKey: @"Workspace has been invalidated (process has exited)."};
     }
-    id settingsClass2 = [specification2 settingsClass];
-    NSString *v64 = [NSString stringWithFormat:@"settings of an unexpected class: expected %@, got %@", settingsClass2, [a2 class]];
-    if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-        NSString *v136 = NSStringFromSelector(_cmd);
-        NSString *v137 = NSStringFromClass([self class]);
-        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v136, v137, self, @"FBWorkspace.m", 862, v64);
-    }
-    _bs_set_crash_log_message([v64 UTF8String]);
-    __break(0);
+blk_1c4ee6240:
+    v45 = [v54 errorWithDomain:@"FBWorkspace" code:1 userInfo:v57];
+    v44 = nil;
+    v48 = nil;
+    goto blk_1c4ee627c;
 }
 
 
@@ -989,12 +958,10 @@ void -[FBWorkspace handshakeWithRemnants:](id a1)
     long v16;
     os_log_t v18;
     void *v20;
-    NSUInteger v27;
+    BOOL v41;
     BSSimpleAssertion *v44;
     id v66;
     NSMutableSet *set;
-    NSFastEnumerationState v25;
-    long v28;
     NSFastEnumerationState v55;
     id v58;
     struct FBWorkspace *self;
@@ -1068,14 +1035,64 @@ void -[FBWorkspace handshakeWithRemnants:](id a1)
                         v20 = self;
                     }
                     set = [NSMutableSet set];
-                    _memset(v25, 0, 64);
-                    v27 = [a1 countByEnumeratingWithState:&v25 objects:&v28 count:16];
-                    if (!v27) {
-                        goto blk_1c4eec8e0;
+                    for (id v32 in a1) {
+                        id identity = [v32 identity];
+                        if (identity != nil) {
+                            id internalWorkspaceIdentifier = [identity internalWorkspaceIdentifier];
+                            RBSProcessIdentity *identity2 = [process identity];
+                            id parameters = [v32 parameters];
+                            if (internalWorkspaceIdentifier) {
+                                id _dispatcher = [v20->_synchronizer _dispatcher];
+                                id domain = [_dispatcher domain];
+                                id reconnectableWorkspaces = [domain reconnectableWorkspaces];
+                                v41 = [reconnectableWorkspaces containsObject:internalWorkspaceIdentifier];
+                                v20 = self;
+                                if (v41 && identity2 && parameters) {
+                                    id v45 = [self->_lock_identityToRemnantsMap objectForKey:identity];
+                                    if (v45 != nil) {
+                                        v44 = nil;
+                                    } else {
+                                        v44 = [[BSSimpleAssertion alloc] initWithIdentifier:@"com.apple.frontboard.workspace.remnant" forReason:[identity description] invalidationBlock:^void(BSSimpleAssertion *arg1) {
+                                            if (!__atomic_compare_exchange_n(&(self->_invalidated), &(int){1}, 1, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
+                                                os_unfair_lock_lock(&self->_lock);
+                                                os_unfair_lock_assert_owner(&self->_lock);
+                                                if (!__atomic_compare_exchange_n(&(self->_invalidated), &(int){1}, 1, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
+                                                    id v80 = [self->_lock_identityToRemnantsMap objectForKey:identity];
+                                                    BSSimpleAssertion *v81 = [v80 _assertion];
+                                                    if (v81 == arg1) {
+                                                        [self->_lock_identityToRemnantsMap removeObjectForKey:identity];
+                                                        if (![self->_lock_identityToRemnantsMap count]) {
+                                                            self->_lock_identityToRemnantsMap = nil;
+                                                        }
+                                                        [self->_lock_incomingConnection workspaceLock_enqueueConnectBlock:^void(id<FBSWorkspaceServiceServerInterface> arg1) {
+                                                            [arg1 sceneID:identity destroyWithTransitionContext:0 completion:^void(NSError *arg1) {
+                                                            }];
+                                                        }];
+                                                    }
+                                                }
+                                                os_unfair_lock_unlock(&self->_lock);
+                                            }
+                                        }];
+                                    }
+                                    id v49 = [FBSSceneClientIdentity identityForProcessIdentity:identity2];
+                                    [set addObject:[[FBSceneRemnant alloc] _initWithIdentity:identity client:v49 workspace:self parameters:parameters assertionQueue:0 assertion:v44]];
+                                    v20 = self;
+                                }
+                            }
+                            if (!internalWorkspaceIdentifier || !v41 || !identity2 || !parameters) {
+                                id v42 = [v20->_lock_identityToRemnantsMap objectForKey:identity];
+                                if (v42 == nil) {
+                                    void (^v43)(id<FBSWorkspaceServiceServerInterface>) = ^void(id<FBSWorkspaceServiceServerInterface> arg1) {
+                                        [arg1 sceneID:identity destroyWithTransitionContext:0 completion:^void(NSError *arg1) {
+                                        }];
+                                    };
+                                    [v20->_lock_incomingConnection workspaceLock_enqueueConnectBlock:v43];
+                                }
+                            }
+                        }
                     }
-                    goto blk_1c4eec630;
-                }
-                if (os_log_type_enabled(v18, OS_LOG_TYPE_ERROR)) {
+                    goto blk_1c4eec8e0;
+                } else if (os_log_type_enabled(v18, OS_LOG_TYPE_ERROR)) {
                     os_log_with_type(v18, OS_LOG_TYPE_ERROR, "ignoring handshake because we have no dispatcher registration");
                 }
             } else {
@@ -1098,75 +1115,6 @@ void -[FBWorkspace handshakeWithRemnants:](id a1)
             return;
         }
         return;
-blk_1c4eec630:
-        long v29 = *(v25.mutationsPtr);
-        do {
-            long v31 = 0;
-            do {
-                if (*(v25.mutationsPtr) != v29) {
-                    objc_enumerationMutation(a1);
-                }
-                id v32 = v25.itemsPtr[v31];
-                id identity = [v32 identity];
-                if (identity != nil) {
-                    id internalWorkspaceIdentifier = [identity internalWorkspaceIdentifier];
-                    RBSProcessIdentity *identity2 = [process identity];
-                    id parameters = [v32 parameters];
-                    if (!internalWorkspaceIdentifier) {
-                        goto blk_1c4eec720;
-                    }
-                    id _dispatcher = [v20->_synchronizer _dispatcher];
-                    id domain = [_dispatcher domain];
-                    id reconnectableWorkspaces = [domain reconnectableWorkspaces];
-                    BOOL v41 = [reconnectableWorkspaces containsObject:internalWorkspaceIdentifier];
-                    v20 = self;
-                    if (!v41 || !identity2 || !parameters) {
-blk_1c4eec720:
-                        id v42 = [v20->_lock_identityToRemnantsMap objectForKey:identity];
-                        if (v42 == nil) {
-                            void (^v43)(id<FBSWorkspaceServiceServerInterface>) = ^void(id<FBSWorkspaceServiceServerInterface> arg1) {
-                                [arg1 sceneID:identity destroyWithTransitionContext:0 completion:^void(NSError *arg1) {
-                                }];
-                            };
-                            [v20->_lock_incomingConnection workspaceLock_enqueueConnectBlock:v43];
-                        }
-                    } else {
-                        id v45 = [self->_lock_identityToRemnantsMap objectForKey:identity];
-                        if (v45 != nil) {
-                            v44 = nil;
-                        } else {
-                            v44 = [[BSSimpleAssertion alloc] initWithIdentifier:@"com.apple.frontboard.workspace.remnant" forReason:[identity description] invalidationBlock:^void(BSSimpleAssertion *arg1) {
-                                if (!__atomic_compare_exchange_n(&(self->_invalidated), &(int){1}, 1, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
-                                    os_unfair_lock_lock(&self->_lock);
-                                    os_unfair_lock_assert_owner(&self->_lock);
-                                    if (!__atomic_compare_exchange_n(&(self->_invalidated), &(int){1}, 1, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)) {
-                                        id v80 = [self->_lock_identityToRemnantsMap objectForKey:identity];
-                                        BSSimpleAssertion *v81 = [v80 _assertion];
-                                        if (v81 == arg1) {
-                                            [self->_lock_identityToRemnantsMap removeObjectForKey:identity];
-                                            if (![self->_lock_identityToRemnantsMap count]) {
-                                                self->_lock_identityToRemnantsMap = nil;
-                                            }
-                                            [self->_lock_incomingConnection workspaceLock_enqueueConnectBlock:^void(id<FBSWorkspaceServiceServerInterface> arg1) {
-                                                [arg1 sceneID:identity destroyWithTransitionContext:0 completion:^void(NSError *arg1) {
-                                                }];
-                                            }];
-                                        }
-                                    }
-                                    os_unfair_lock_unlock(&self->_lock);
-                                }
-                            }];
-                        }
-                        id v49 = [FBSSceneClientIdentity identityForProcessIdentity:identity2];
-                        [set addObject:[[FBSceneRemnant alloc] _initWithIdentity:identity client:v49 workspace:self parameters:parameters assertionQueue:0 assertion:v44]];
-                        v20 = self;
-                    }
-                }
-                v31++;
-                v27--;
-            } while (v27 != 0);
-            v27 = [a1 countByEnumeratingWithState:&v25 objects:&v28 count:16];
-        } while (v27 != 0);
 blk_1c4eec8e0:
         NSUInteger count2 = [set count];
         NSMutableDictionary *v52 = v20->_lock_identityToRemnantsMap;
@@ -1414,16 +1362,17 @@ void -[FBWorkspace _handleSceneRequest:](id a1)
 void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, long))
 {
     long v3;
+    Class v5;
+    Class v6;
     id v11;
     void (^v1)(long, long) = a2;
     id currentWorkspaceConnection = [FBWorkspaceConnection currentWorkspaceConnection];
     if (currentWorkspaceConnection) {
-        Class v5 = [currentWorkspaceConnection class];
-        Class v6 = [FBWorkspaceOutgoingConnection class];
+        v5 = [currentWorkspaceConnection class];
+        v6 = [FBWorkspaceOutgoingConnection class];
         if (v5 == v6) {
             if (v1 != nil) {
                 v3 = FBSWorkspaceErrorCreate(0, 2, @"requestScene is not yet supported on directEndpoint connections");
-                goto blk_1c4ef3ce8;
             }
         } else if (v1 != nil) {
             NSString *workspaceIdentifier = [a1 workspaceIdentifier];
@@ -1459,7 +1408,7 @@ void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, 
                             } else {
                                 id v4 = [self _sceneForIdentity:identity];
                                 if (v4 == v23) {
-                                    v1(identity, 0);
+                                    v1(identity, nil);
                                 } else {
                                     v28 = FBSWorkspaceErrorCreate(arg2, 1, @"scene invalidated before create completion");
                                     v1(nil, v28);
@@ -1481,7 +1430,8 @@ void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, 
         }
     } else if (v1 != nil) {
         v3 = FBSWorkspaceErrorCreate(0, 2, @"failed to identify the connection");
-blk_1c4ef3ce8:
+    }
+    if ((!currentWorkspaceConnection && v1 != nil) || (currentWorkspaceConnection && v5 == v6 && v1 != nil)) {
         v1(0, v3);
     }
 }
@@ -1604,13 +1554,13 @@ void -[FBWorkspace host:didReceiveActions:forExtension:](long a1, id a2, long a3
 }
 
 
-void -[FBWorkspace host:didInvalidateWithTransitionContext:completion:](id a1, id a2, id a3)
+void -[FBWorkspace host:didInvalidateWithTransitionContext:completion:](id a1, id a2, void (^a3)(bool, NSError *))
 {
     void (^v4)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
         if (!a3) {
             return;
         } else {
-            a3->field_16(a3, arg1, arg2);
+            a3(arg1, arg2);
             return;
         }
     };
@@ -1989,7 +1939,7 @@ void -[FBWorkspace _queue_unverifiedOutgoingConnection:didError:](id a1, id a2, 
 }
 
 
-void -[FBWorkspace host:sendInvocation:withReply:](long a1, id a2, id a3)
+void -[FBWorkspace host:sendInvocation:withReply:](long a1, id a2, void (^a3)(long, NSError *))
 {
     id v2 = [self _sceneForHost:a1];
     id _workspaceQueue = [self->_synchronizer _workspaceQueue];
@@ -1997,7 +1947,7 @@ void -[FBWorkspace host:sendInvocation:withReply:](long a1, id a2, id a3)
         if (!v2) {
             NSDictionary *v5 = @{NSLocalizedFailureReasonErrorKey: @"Scene client is invalid."};
             NSError *v6 = [NSError errorWithDomain:@"FBWorkspace" code:1 userInfo:v5];
-            a3->field_16(a3, 0, v6);
+            a3(0, v6);
             return;
         }
         [v2 workspace:self sendInvocation:a2 withReply:a3];
@@ -2041,16 +1991,17 @@ void -[FBWorkspace workspaceID:sendActions:completion:](id a1, id a2, void (^a3)
 void -[FBWorkspace createSceneWithOptions:completion:](id a1, void (^a2)(long))
 {
     long v3;
+    Class v5;
+    Class v6;
     id v11;
     void (^v1)(long) = a2;
     id currentWorkspaceConnection = [FBWorkspaceConnection currentWorkspaceConnection];
     if (currentWorkspaceConnection) {
-        Class v5 = [currentWorkspaceConnection class];
-        Class v6 = [FBWorkspaceOutgoingConnection class];
+        v5 = [currentWorkspaceConnection class];
+        v6 = [FBWorkspaceOutgoingConnection class];
         if (v5 == v6) {
             if (v1 != nil) {
                 v3 = FBSWorkspaceErrorCreate(0, 2, @"createScene is not yet supported on directEndpoint connections");
-                goto blk_1c4f21764;
             }
         } else {
             NSString *workspaceIdentifier = [a1 workspaceIdentifier];
@@ -2075,7 +2026,8 @@ void -[FBWorkspace createSceneWithOptions:completion:](id a1, void (^a2)(long))
         }
     } else if (v1 != nil) {
         v3 = FBSWorkspaceErrorCreate(0, 2, @"failed to identify the connection");
-blk_1c4f21764:
+    }
+    if ((!currentWorkspaceConnection && v1 != nil) || (currentWorkspaceConnection && v5 == v6 && v1 != nil)) {
         v1(v3);
     }
 }
@@ -2137,6 +2089,7 @@ void -[FBWorkspace assertion:didInvalidateWithError:](id a1, id a2)
 void -[FBWorkspace assertionWillInvalidate:](id a1)
 {
     os_log_t v5;
+    id logProem;
     os_unfair_lock_lock(&self->_lock);
     FBProcess *v1 = self->_weak_process;
     RBSAssertion *v2 = self->_lock_lifeAssertion;
@@ -2155,14 +2108,14 @@ void -[FBWorkspace assertionWillInvalidate:](id a1)
     if (!continuationRoute1) {
         v5 = FBLogProcessWorkspace();
         if (os_log_type_enabled(v5, OS_LOG_TYPE_DEFAULT)) {
-            NSString *logProem = [v1 logProem];
+            logProem = [v1 logProem];
             os_log_with_type(v5, OS_LOG_TYPE_DEFAULT, "%{public}@ Workspace assertion will expire.", logProem);
             continuationRoute1 = 2;
         }
     }
     if (continuationRoute1 == 1) {
-        NSString *logProem2 = [v1 logProem];
-        os_log_with_type(v5, OS_LOG_TYPE_DEFAULT, "%{public}@ Launch assertion will expire.", logProem2);
+        logProem = [v1 logProem];
+        os_log_with_type(v5, OS_LOG_TYPE_DEFAULT, "%{public}@ Launch assertion will expire.", logProem);
     }
 }
 

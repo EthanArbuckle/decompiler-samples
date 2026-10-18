@@ -90,8 +90,7 @@ id -[FBPlistApplicationDataStoreRepository keysForApplication:](id a1)
             v2 = allKeys;
         }
     });
-    id v1 = v2;
-    return v1;
+    return v2;
 }
 
 
@@ -133,8 +132,7 @@ id -[FBPlistApplicationDataStoreRepository allObjectsForKeys:](id a1)
         id v5 = [self _stateQueue_objectsForKeys:v0];
         v2 = v5;
     });
-    id v1 = v2;
-    return v1;
+    return v2;
 }
 
 
@@ -259,12 +257,11 @@ void -[FBPlistApplicationDataStoreRepository endBatchedUpdate](void)
             return;
         }
         self->_batchCount = self->_batchCount - 1;
-        void *v1 = self;
         if (self->_dirty != 1 || self->_batchCount != 0) {
             return;
         }
         dispatch_async(self->_writeQueue, ^void(void) {
-            [v1 _writeQueue_flushSynchronously];
+            [self _writeQueue_flushSynchronously];
         });
     });
 }
@@ -348,8 +345,7 @@ id -[FBPlistApplicationDataStoreRepository _stateQueue_objectForKey:forIdentifie
 {
     dispatch_assert_queue(self->_stateQueue);
     id v2 = [self _stateQueue_storeForIdentifier:a2];
-    id v3 = (!v2) ? nil : [v2 objectForKey:a1];
-    return v3;
+    return (!v2) ? nil : [v2 objectForKey:a1];
 }
 
 

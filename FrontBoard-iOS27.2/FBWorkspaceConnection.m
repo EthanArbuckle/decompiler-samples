@@ -121,14 +121,13 @@ id -[FBWorkspaceConnection isOutgoing](void)
 
 id +[FBWorkspaceConnection currentWorkspaceConnection](void)
 {
-    id v0 = objc_opt_self(self);
     id currentContext = [BSServiceConnection currentContext];
     if (!currentContext) {
         NSString *v5 = [NSString stringWithFormat:@"if we're asking for the currentContext and we don't have it then something must have gone seriously wrong"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSString *v6 = NSStringFromSelector(@selector(currentWorkspaceConnection));
-            NSString *v7 = NSStringFromClass([v0 class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v6, v7, v0, @"FBWorkspaceConnection.m", 123, v5);
+            NSString *v7 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v6, v7, self, @"FBWorkspaceConnection.m", 123, v5);
         }
         _bs_set_crash_log_message([v5 UTF8String]);
         __break(0);

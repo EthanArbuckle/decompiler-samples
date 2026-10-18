@@ -150,10 +150,10 @@ void -[FBSceneSnapshot _baseTransformForSnapshotConfig:rootConfig:](id a1, id a2
     CGFloat originy = frame.origin.y;
     if (![a2 orientation]) {
         v17 = (v11 != 0) ? interfaceOrientation : 1;
-        long v18 = BSInterfaceOrientationIsLandscape((v11 != 0) ? interfaceOrientation : 1);
+        long v18 = BSInterfaceOrientationIsLandscape(v17);
         v19 = (v18 != 0) ? v15 : originy;
         v20 = (v18 != 0) ? originy : v15;
-        v15 = (v18 != 0) ? v15 : originy;
+        v15 = v19;
     } else {
         v17 = 1;
         v20 = v15;

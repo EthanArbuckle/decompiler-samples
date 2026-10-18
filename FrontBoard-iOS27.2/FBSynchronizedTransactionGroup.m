@@ -77,13 +77,11 @@ id<FBSynchronizedTransactionGroupDelegate> -[FBSynchronizedTransactionGroup sync
 
 bool -[FBSynchronizedTransactionGroup isReadyForSynchronizedCommit](void)
 {
-    bool v0;
     if (self->_commitAllowed != 1) {
-        v0 = false;
+        bool v0 = false;
         return false;
     } else if (!self->_didCommit) {
-        v0 = self->_readyForCommit;
-        return v0;
+        return self->_readyForCommit;
     } else {
         return false;
     }

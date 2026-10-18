@@ -7,7 +7,6 @@ id +[FBWorkspaceRegistration registrationWithIdentifier:options:](id a1, id a2)
 {
     id v3;
     id v6;
-    Class v0 = objc_opt_self(self);
     Class v1 = [NSString class];
     if (v1) {
         v3 = ([a1 isKindOfClass:v1]) ? a1 : nil;
@@ -23,7 +22,7 @@ id +[FBWorkspaceRegistration registrationWithIdentifier:options:](id a1, id a2)
     if (!v3) {
         return nil;
     }
-    id v7 = [v0 new];
+    id v7 = [self new];
     if (v7 != nil) {
         v7->field_16 = [v3 copy];
         v7->field_8 = [v6 bs_boolForKey:@"AcceptClientScenes"];

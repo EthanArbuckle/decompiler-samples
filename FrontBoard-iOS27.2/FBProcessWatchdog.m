@@ -38,7 +38,8 @@ int *-[FBProcessWatchdog activate](void)
         self->_unblockSignal = v10;
         BSAtomicSignal *v13 = v10;
         double v15 = (v6 * 0.5 > 5.0) ? 5.0 : v6 * 0.5;
-        __weak FBProcessWatchdog *v16 = self;
+        long v16 = self->_event;
+        __weak FBProcessWatchdog *v17 = self;
         dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, (long)(v15 * 1000000000.0));
         NSObject<OS_dispatch_workloop> *queue = [FBProcess userInitiatedWorkloop];
         dispatch_after(when, queue, ^void(void) {
@@ -47,48 +48,48 @@ int *-[FBProcessWatchdog activate](void)
             }
             os_log_t oslog = FBLogProcess();
             if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
-                id v2 = NSStringFromProcessWatchdogEvent(self->_event);
+                id v2 = NSStringFromProcessWatchdogEvent(v16);
                 os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "%{public}@ Watchdog for %{public}@ is still active after %.1fs, notifying Unblock.", logProem, v2, v15);
             }
-            Class v27 = getUBStuckServiceClass.softClass;
+            Class v28 = getUBStuckServiceClass.softClass;
             __block long v4 = getUBStuckServiceClass.softClass;
-            if (!v27) {
+            if (!v28) {
                 ^void(void) {
                     UnblockClientLibrary();
                     v4 = objc_getClass("UBStuckService");
                     if (!v4) {
                         NSAssertionHandler *currentHandler = [NSAssertionHandler currentHandler];
-                        NSString *v30 = [NSString stringWithUTF8String:"Class getUBStuckServiceClass(void)_block_invoke"];
-                        [currentHandler handleFailureInFunction:v30 file:@"FBProcessWatchdog.m" lineNumber:20 description:@"Unable to find class %s", "UBStuckService"];
+                        NSString *v31 = [NSString stringWithUTF8String:"Class getUBStuckServiceClass(void)_block_invoke"];
+                        [currentHandler handleFailureInFunction:v31 file:@"FBProcessWatchdog.m" lineNumber:20 description:@"Unable to find class %s", "UBStuckService"];
                         __builtin_trap();
                     }
                     getUBStuckServiceClass.softClass = v4;
                 }();
-                v27 = v4;
+                v28 = v4;
             }
-            id v28 = [v27 alloc];
-            v27 = objc_msgSend$initForPid:threadID:timeElapsed:incidentUUID:(v28, pid, 1, 0, v15);
-            Class v22 = getUBUnblockClientClass.softClass;
-            __block long v29 = getUBUnblockClientClass.softClass;
-            if (!v22) {
+            id v29 = [v28 alloc];
+            v28 = objc_msgSend$initForPid:threadID:timeElapsed:incidentUUID:(v29, pid, 1, 0, v15);
+            Class v23 = getUBUnblockClientClass.softClass;
+            __block long v30 = getUBUnblockClientClass.softClass;
+            if (!v23) {
                 ^void(void) {
                     UnblockClientLibrary();
-                    v29 = objc_getClass("UBUnblockClient");
-                    if (!v29) {
+                    v30 = objc_getClass("UBUnblockClient");
+                    if (!v30) {
                         NSAssertionHandler *currentHandler = [NSAssertionHandler currentHandler];
-                        NSString *v31 = [NSString stringWithUTF8String:"Class getUBUnblockClientClass(void)_block_invoke"];
-                        [currentHandler handleFailureInFunction:v31 file:@"FBProcessWatchdog.m" lineNumber:21 description:@"Unable to find class %s", "UBUnblockClient"];
+                        NSString *v32 = [NSString stringWithUTF8String:"Class getUBUnblockClientClass(void)_block_invoke"];
+                        [currentHandler handleFailureInFunction:v32 file:@"FBProcessWatchdog.m" lineNumber:21 description:@"Unable to find class %s", "UBUnblockClient"];
                         __builtin_trap();
                     }
-                    getUBUnblockClientClass.softClass = v29;
+                    getUBUnblockClientClass.softClass = v30;
                 }();
-                v22 = v29;
+                v23 = v30;
             }
-            id v11 = [[v22 alloc] init];
-            NSArray *v23 = @[v27];
+            id v11 = [[v23 alloc] init];
+            NSArray *v24 = @[v28];
             NSObject<OS_dispatch_workloop> *userInitiatedWorkloop = [FBProcess userInitiatedWorkloop];
-            void (^v24)(NSError *, NSArray *) = ^void(NSError *arg1, NSArray *arg2) {
-                NSString *v56;
+            void (^v25)(NSError *, NSArray *) = ^void(NSError *arg1, NSArray *arg2) {
+                NSString *v38;
                 if (!arg1) {
                     id firstObject = [arg2 firstObject];
                     if (!firstObject) {
@@ -106,41 +107,41 @@ int *-[FBProcessWatchdog activate](void)
                             if (recoveryConfidence > 74) {
                                 switch (recoveryConfidence) {
                                     case 75:
+                                        v38 = @"indirect-correlation";
                                         break;
                                     case 100:
+                                        v38 = @"definitive";
                                         break;
                                     default:
 blk_1c4f17170:
-                                        [NSString stringWithFormat:@"(unknown - %ld)", recoveryConfidence];
+                                        v38 = [NSString stringWithFormat:@"(unknown - %ld)", recoveryConfidence];
                                         break;
                                 }
-                            }
-                            if (!recoveryConfidence) {
-                                v56 = @"undefined";
+                            } else if (!recoveryConfidence) {
+                                v38 = @"undefined";
                             } else if (recoveryConfidence != 25) {
                                 goto blk_1c4f17170;
                             } else {
-                                v56 = @"opportunistic";
+                                v38 = @"opportunistic";
                             }
-                            NSString *v39 = v56;
                             NSString *v35 = (recoveryStatus >= 5) ? [NSString stringWithFormat:@"(unknown - %ld)", recoveryStatus] : (&qword_1e17d5768)[recoveryStatus];
-                            os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "%{public}@ Unblock returned with issue: %{public}@; confidence: %{public}@; status: %{public}@", logProem, v34, v39, v35);
+                            os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "%{public}@ Unblock returned with issue: %{public}@; confidence: %{public}@; status: %{public}@", logProem, v34, v38, v35);
                         }
-                        BOOL isActive = [v16 isActive];
+                        BOOL isActive = [v17 isActive];
                         if (isActive && recoveryStatus == 3 && recoveryConfidence == 100) {
                             id v41 = 0;
-                            if ([process _watchdog:v16 shouldTerminateWithDeclineReason:&v41] != 0) {
+                            if ([process _watchdog:v17 shouldTerminateWithDeclineReason:&v41] != 0) {
                                 os_log_t oslog2 = FBLogProcess();
                                 if (os_log_type_enabled(oslog2, OS_LOG_TYPE_ERROR)) {
                                     os_log_with_type(oslog2, OS_LOG_TYPE_ERROR, "%{public}@ Terminating stuck process.", logProem);
                                 }
                                 id v43 = [NSError bs_errorWithDomain:FBSProcessWatchdogErrorDomain code:2 configuration:^void(id<BSErrorConfiguring> arg1) {
-                                    id v52 = FBSProcessPrettyDescription(process);
-                                    id v53 = _FBSNSStringFromUBIssueType(issueType);
-                                    [arg1 setFailureReason:@"%@ is stuck (%@)", v52, v53];
+                                    id v53 = FBSProcessPrettyDescription(process);
+                                    id v54 = _FBSNSStringFromUBIssueType(issueType);
+                                    [arg1 setFailureReason:@"%@ is stuck (%@)", v53, v54];
                                 }];
-                                id v44 = [process _watchdog:v16 terminationRequestForError:v43];
-                                [process _terminateWithRequest:v44 forWatchdog:v16];
+                                id v44 = [process _watchdog:v17 terminationRequestForError:v43];
+                                [process _terminateWithRequest:v44 forWatchdog:v17];
                             }
                         }
                     }
@@ -152,9 +153,9 @@ blk_1c4f17170:
                     }
                 }
             };
-            [v11 recover:v23 stackshotData:0 replyQueue:userInitiatedWorkloop callback:v24];
+            [v11 recover:v24 stackshotData:0 replyQueue:userInitiatedWorkloop callback:v25];
         });
-        v5 = &v16;
+        v5 = &v17;
     }
     return v5;
 }
@@ -216,19 +217,22 @@ void -[FBProcessWatchdog _getPolicyWallTime:cpuTime:](long *a1, long *a2)
 
 NSString *-[FBProcessWatchdog _policyDesc](void)
 {
+    NSString *v5;
     double v0 = 0;
     double v1 = 0;
     [self _getPolicyWallTime:&v0 cpuTime:&v1];
-    if (v0 > 0.0 && v1 > 0.0) {
-        return [NSString stringWithFormat:@"%.2fs cpu over %.2fs", v1, v0];
+    if (v0 <= 0.0 || v1 <= 0.0) {
+        if (v0 > 0.0) {
+            v5 = [NSString stringWithFormat:@"%.2fs", v0];
+        } else if (v1 <= 0.0) {
+            return @"n/a";
+        } else {
+            v5 = [NSString stringWithFormat:@"%.2fs cpu", v1];
+        }
+    } else {
+        v5 = [NSString stringWithFormat:@"%.2fs cpu over %.2fs", v1, v0];
     }
-    if (v0 > 0.0) {
-        return [NSString stringWithFormat:@"%.2fs", v0];
-    }
-    if (v1 <= 0.0) {
-        return @"n/a";
-    }
-    return [NSString stringWithFormat:@"%.2fs cpu", v1];
+    return v5;
 }
 
 

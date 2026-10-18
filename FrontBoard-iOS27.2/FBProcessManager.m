@@ -62,7 +62,7 @@ id -[FBProcessManager _bootstrapProcessWithExecutionContext:synchronously:error:
                 id identity = [v19 identity];
                 if ([identity isEqual:identity2]) {
                     v8 = v19;
-                    if (!v19) {
+                    if (!v8) {
                         goto blk_1c4ed3dc4;
                     }
                     v7 = [NSError bs_errorWithDomain:@"FBProcessManager" code:2 configuration:^void(id<BSErrorConfiguring> arg1) {
@@ -119,7 +119,7 @@ blk_1c4ed3e9c:
     if (completion != nil && !v8) {
         NSObject<OS_dispatch_queue> *queue = [FBProcess calloutQueue];
         dispatch_async(queue, ^void(void) {
-            completion(0, v7);
+            completion(nil, v7);
         });
         if (!v7) {
             goto blk_1c4ed3c04;
@@ -132,7 +132,7 @@ blk_1c4ed3e9c:
             if (os_log_type_enabled(v27, OS_LOG_TYPE_DEFAULT)) {
                 NSString *localizedFailureReason2 = [v7 localizedFailureReason];
                 os_log_with_type(v27, OS_LOG_TYPE_DEFAULT, "Did not create a new process: %{public}@", localizedFailureReason2);
-                goto blk_1c4ed3c00;
+                goto blk_1c4ed3c04;
             }
         }
 blk_1c4ed3be8:
@@ -141,7 +141,6 @@ blk_1c4ed3be8:
             NSString *localizedFailureReason = [v7 localizedFailureReason];
             os_log_with_type(v27, OS_LOG_TYPE_ERROR, "Failed to create a new process: %{public}@", localizedFailureReason);
         }
-blk_1c4ed3c00:
     }
 blk_1c4ed3c04:
     if (a3 != 0) {
@@ -457,17 +456,17 @@ void -[FBProcessManager domain:didReceiveConnection:](long a1, id a2)
 }
 
 
-void -[FBProcessManager _notifyObserversUsingBlock:completion:](id a1, id a2)
+void -[FBProcessManager _notifyObserversUsingBlock:completion:](void (^a1)(id<FBProcessManagerObserver>), void (^a2)(void))
 {
     dispatch_async(self->_callOutQueue, ^void(void) {
         os_unfair_lock_lock(&self->_lock);
         id v0 = [self->_lock_observers copy];
         os_unfair_lock_unlock(&self->_lock);
-        for (id v8 in v0) {
-            a1->field_16(a1, v8);
+        for (id<FBProcessManagerObserver> v8 in v0) {
+            a1(v8);
         }
         if (a2 != nil) {
-            a2->field_16(a2);
+            a2();
         }
     });
 }
@@ -512,11 +511,11 @@ void -[FBProcessManager _bootstrap_consumeLock_addProcess:](id a1)
             NSArray *v19;
             [self->_bootstrap_bootstrappingProcesses addObject:v0];
             os_unfair_lock_unlock(&self->_bootstrapLock);
-            long v56 = [arg1 bootstrapWithDelegate:self];
+            long v54 = [arg1 bootstrapWithDelegate:self];
             os_unfair_lock_lock(&self->_bootstrapLock);
             [self->_bootstrap_pendingProcesses removeObject:v0];
             [self->_bootstrap_bootstrappingProcesses removeObject:v0];
-            if (!v56) {
+            if (!v54) {
                 os_unfair_lock_unlock(&self->_bootstrapLock);
                 return;
             }
@@ -537,10 +536,10 @@ void -[FBProcessManager _bootstrap_consumeLock_addProcess:](id a1)
             if (pid < 1) {
                 goto blk_1c4ed65a0;
             }
-            NSNumber *v48 = [NSNumber numberWithInt:pid];
-            id v10 = [self->_lock_processesByPID objectForKey:v48];
+            NSNumber *v47 = [NSNumber numberWithInt:pid];
+            id v10 = [self->_lock_processesByPID objectForKey:v47];
             if (!v10) {
-                [self->_lock_processesByPID setObject:v0 forKey:v48];
+                [self->_lock_processesByPID setObject:v0 forKey:v47];
 blk_1c4ed65a0:
                 long versionedPID = [v0 versionedPID];
                 if (versionedPID != -1) {
@@ -549,17 +548,17 @@ blk_1c4ed65a0:
                     if (v14 != nil) {
                         id identity3 = [v0 identity];
                         NSString *description3 = [identity3 description];
-                        id v43 = NSStringFromBSVersionedPID([v0 versionedPID]);
+                        id v42 = NSStringFromBSVersionedPID([v0 versionedPID]);
                         id identity4 = [v14 identity];
                         NSString *description4 = [identity4 description];
-                        id v46 = NSStringFromBSVersionedPID([v14 versionedPID]);
-                        NSString *v47 = [NSString stringWithFormat:@"attempting to add a process with a vpid that is already tracked : new=<%p %@:%@> existing=<%p %@:%@>", v0, description3, v43, v14, description4, v46];
+                        id v45 = NSStringFromBSVersionedPID([v14 versionedPID]);
+                        NSString *v46 = [NSString stringWithFormat:@"attempting to add a process with a vpid that is already tracked : new=<%p %@:%@> existing=<%p %@:%@>", v0, description3, v42, v14, description4, v45];
                         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                            NSString *v53 = NSStringFromSelector(_cmd);
-                            NSString *v54 = NSStringFromClass([self class]);
-                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v53, v54, self, @"FBProcessManager.m", 930, v47);
+                            NSString *v52 = NSStringFromSelector(_cmd);
+                            NSString *v53 = NSStringFromClass([self class]);
+                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v52, v53, self, @"FBProcessManager.m", 930, v46);
                         }
-                        _bs_set_crash_log_message([v47 UTF8String]);
+                        _bs_set_crash_log_message([v46 UTF8String]);
                         __break(0);
                     }
                     [self->_lock_processesByVersionedPID setObject:v0 forKey:v12];
@@ -576,11 +575,11 @@ blk_1c4ed65a0:
                         if (!v16 || [self->_bootstrap_processPredicates containsObject:v16]) {
                             goto blk_1c4ed661c;
                         }
-                        NSMutableSet *v28 = self->_bootstrap_processPredicates;
+                        NSMutableSet *v27 = self->_bootstrap_processPredicates;
                         if (!self->_bootstrap_processPredicates) {
                             self->_bootstrap_processPredicates = [NSMutableSet setWithObject:v16];
                         } else {
-                            [v28 addObject:v16];
+                            [v27 addObject:v16];
                         }
                         v19 = [self->_bootstrap_processPredicates allObjects];
                     } else {
@@ -591,16 +590,15 @@ blk_1c4ed661c:
 blk_1c4ed65fc:
                     v19 = nil;
                 }
-                id v24 = self;
                 [self _notifyObserversUsingBlock:^void(id<FBProcessManagerObserver> arg1) {
                     [arg1 processManager:self didAddProcess:v0];
                 } completion:^void(void) {
-                    os_unfair_lock_lock(&v24->_lock);
-                    os_unfair_lock_unlock(&v24->_lock);
-                    if (v24->_lock_initializationComplete != 1) {
+                    os_unfair_lock_lock(&self->_lock);
+                    os_unfair_lock_unlock(&self->_lock);
+                    if (self->_lock_initializationComplete != 1) {
                         return;
                     }
-                    [v24->_eventDispatcher noteProcessPublished];
+                    [v0 noteProcessPublished];
                 }];
                 os_unfair_lock_unlock(&self->_lock);
                 if (!v19) {
@@ -617,17 +615,17 @@ blk_1c4ed65fc:
             }
             id identity = [v0 identity];
             NSString *description = [identity description];
-            id v35 = NSStringFromBSVersionedPID([v0 versionedPID]);
+            id v34 = NSStringFromBSVersionedPID([v0 versionedPID]);
             id identity2 = [v10 identity];
             NSString *description2 = [identity2 description];
-            id v38 = NSStringFromBSVersionedPID([v10 versionedPID]);
-            NSString *v39 = [NSString stringWithFormat:@"attempting to add a process with a pid that is already tracked : new=<%p %@:%@> existing=<%p %@:%@>", v0, description, v35, v10, description2, v38];
+            id v37 = NSStringFromBSVersionedPID([v10 versionedPID]);
+            NSString *v38 = [NSString stringWithFormat:@"attempting to add a process with a pid that is already tracked : new=<%p %@:%@> existing=<%p %@:%@>", v0, description, v34, v10, description2, v37];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v50 = NSStringFromSelector(_cmd);
-                NSString *v51 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v50, v51, self, @"FBProcessManager.m", 920, v39);
+                NSString *v49 = NSStringFromSelector(_cmd);
+                NSString *v50 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v49, v50, self, @"FBProcessManager.m", 920, v38);
             }
-            _bs_set_crash_log_message([v39 UTF8String]);
+            _bs_set_crash_log_message([v38 UTF8String]);
             __break(0);
         }];
         os_unfair_lock_assert_not_owner(&self->_bootstrapLock);
@@ -686,7 +684,7 @@ long -[FBProcessManager _createProcessFutureForProcessHandle:error:](long a1, lo
 }
 
 
-long +[FBProcessManager _sharedInstanceCreateIfNeeded:](int a1)
+id +[FBProcessManager _sharedInstanceCreateIfNeeded:](int a1)
 {
     if (a1 != 0) {
         dispatch_once(&_sharedInstanceCreateIfNeeded:.onceToken, ^void(void) {
@@ -732,8 +730,7 @@ id -[FBProcessManager _reallyRegisterProcessForHandle:](id a1)
             [self _reallyRegisterProcessForHandle:v8];
         }
     }
-    id v1 = [self _bootstrapProcessWithHandle:a1 synchronously:1 error:0];
-    return v1;
+    return [self _bootstrapProcessWithHandle:a1 synchronously:1 error:0];
 }
 
 
@@ -1262,8 +1259,7 @@ NSMutableArray *-[FBProcessManager allApplicationProcesses](void)
 id -[FBProcessManager applicationProcessForPID:](long a1)
 {
     id v0 = [self processForPID:a1];
-    id v1 = (![v0 isApplicationProcess]) ? nil : v0;
-    return v1;
+    return (![v0 isApplicationProcess]) ? nil : v0;
 }
 
 

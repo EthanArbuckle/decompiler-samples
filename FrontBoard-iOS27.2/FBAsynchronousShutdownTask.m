@@ -45,7 +45,7 @@ void +[FBAsynchronousShutdownTask waitForTasks](void)
 }
 
 
-void +[FBAsynchronousShutdownTask startTaskWithName:timeout:workItem:](id a1, id a2, long a3)
+void +[FBAsynchronousShutdownTask startTaskWithName:timeout:workItem:](id a1, void (^a2)(NSObject<OS_dispatch_queue> *, void (^)(NSError *)), long a3)
 {
     double v3;
     id v1 = [a1 copy];
@@ -80,7 +80,7 @@ void +[FBAsynchronousShutdownTask startTaskWithName:timeout:workItem:](id a1, id
     dispatch_queue_t queue = BSDispatchQueueCreateSerialWithQoS(v11, 33);
     NSDate *date = [NSDate date];
     dispatch_async(queue, ^void(void) {
-        a2->field_16(a2, queue, ^void(NSError *arg1) {
+        a2(queue, ^void(NSError *arg1) {
             os_unfair_lock_lock(&__lock);
             [__lock_tasks removeObject:v2];
             os_unfair_lock_unlock(&__lock);

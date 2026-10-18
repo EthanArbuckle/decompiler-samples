@@ -51,30 +51,29 @@ NSString *_publicDescriptionForObject(id a1)
     if (([a1 isNSNumber__] & 1) != 0 || [a1 isNSDate__] != 0) {
         NSString *v2 = NSStringFromClass([a1 classForCoder]);
         NSString *description = [a1 description];
-        v1 = [NSString stringWithFormat:@"<%@; %@>", v2, description];
+        return [NSString stringWithFormat:@"<%@; %@>", v2, description];
+    }
+    if ([a1 isNSString__] != 0) {
+        NSUInteger length = [a1 length];
+        return [NSString stringWithFormat:@"<NSString; length = %lu>", length];
+    }
+    if ([a1 isNSData__] != 0) {
+        NSUInteger length2 = [a1 length];
+        return [NSString stringWithFormat:@"<NSData; length = %lu>", length2];
+    }
+    if ([a1 isNSArray__] != 0) {
+        long count2 = [a1 count];
+        return [NSString stringWithFormat:@"<NSArray; count = %lu>", count2];
+    }
+    if ([a1 isNSDictionary__]) {
+        long count = [a1 count];
+        NSString *v7 = [NSString stringWithFormat:@"<NSDictionary; count = %lu>", count];
+        v1 = v7;
+    } else if (!a1) {
+        v1 = nil;
     } else {
-        if ([a1 isNSString__] != 0) {
-            NSUInteger length2 = [a1 length];
-            return [NSString stringWithFormat:@"<NSString; length = %lu>", length2];
-        }
-        if ([a1 isNSData__] != 0) {
-            NSUInteger length = [a1 length];
-            return [NSString stringWithFormat:@"<NSData; length = %lu>", length];
-        }
-        if ([a1 isNSArray__] != 0) {
-            long count2 = [a1 count];
-            return [NSString stringWithFormat:@"<NSArray; count = %lu>", count2];
-        }
-        if ([a1 isNSDictionary__]) {
-            long count = [a1 count];
-            NSString *v6 = [NSString stringWithFormat:@"<NSDictionary; count = %lu>", count];
-            v1 = v6;
-        } else if (!a1) {
-            v1 = nil;
-        } else {
-            NSString *v4 = NSStringFromClass([a1 classForCoder]);
-            v1 = [NSString stringWithFormat:@"<%@>", v4];
-        }
+        NSString *v5 = NSStringFromClass([a1 classForCoder]);
+        v1 = [NSString stringWithFormat:@"<%@>", v5];
     }
     return v1;
 }
@@ -549,7 +548,8 @@ NSString *NSStringFromFBWorkspaceState(int a1)
 void (^FBAnalyticsLogHangTracerEvent(id a1, long a2))(bool)
 {
     int v8;
-    id v18;
+    int v9;
+    id v19;
     void (^v2)(bool);
     NSString *bundleIdentifier = [a1 bundleIdentifier];
     if (!bundleIdentifier || ![[a1 identity] isEmbeddedApplication]) {
@@ -558,57 +558,66 @@ void (^FBAnalyticsLogHangTracerEvent(id a1, long a2))(bool)
     id v5 = objc_getAssociatedObject(a1, &FBAnalyticsLogHangTracerEvent.__FBAnalyticsHangTracerID);
     unsigned long v6 = [v5 unsignedLongLongValue];
     if (!v6) {
-        [bundleIdentifier UTF8String];
-        v6 = HTAppActivationGenerateAppIdentifier();
+        v6 = HTAppActivationGenerateAppIdentifier([bundleIdentifier UTF8String]);
         NSNumber *value = [NSNumber numberWithUnsignedLongLong:v6];
         objc_setAssociatedObject(a1, &FBAnalyticsLogHangTracerEvent.__FBAnalyticsHangTracerID, value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-    if (a2 != 1 && a2 != 2) {
-        if (a2 != 3) {
-            return nil;
-        }
-        v8 = 0;
-    } else {
-        v8 = 1;
+    switch (a2) {
+        case 1:
+            v8 = 1;
+            v9 = 2;
+            break;
+        case 2:
+            v8 = 1;
+            v9 = 4;
+            break;
+        default:
+            if (a2 != 3) {
+                return nil;
+            }
+            v8 = 0;
+            v9 = 8;
+            break;
     }
     int pid = [a1 pid];
-    NSNumber *v11 = [NSNumber numberWithInt:pid];
+    NSNumber *v12 = [NSNumber numberWithInt:pid];
     bool isForeground = [a1 isForeground];
-    NSNumber *v14 = [NSNumber numberWithInt:isForeground];
-    NSDictionary *v15 = @{kHTAppActivationKeyPID: v11, kHTAppActivationKeyBundleID: bundleIdentifier, kHTAppActivationKeyState: v14};
+    NSNumber *v15 = [NSNumber numberWithInt:isForeground];
+    NSDictionary *v16 = @{kHTAppActivationKeyPID: v12, kHTAppActivationKeyBundleID: bundleIdentifier, kHTAppActivationKeyState: v15};
     if (a2 != 1) {
         if (a2 == 3) {
             FBProcessExitContext *exitContext = [a1 exitContext];
             unsigned long exitReason = [exitContext exitReason];
             if (exitReason == 16) {
-                v18 = [v15 mutableCopy];
-                [v18 setObject:kHTAppActivationKeyFailureReason forKey:@8ULL];
-                v15 = v18;
+                v19 = [v16 mutableCopy];
+                [v19 setObject:kHTAppActivationKeyFailureReason forKey:@8ULL];
+                v16 = v19;
             } else if (exitReason == 2) {
-                v18 = [v15 mutableCopy];
-                NSNumber *v19 = [NSNumber numberWithInt:kHTAppActivationFailureReasonWatchdog];
-                [v18 setObject:kHTAppActivationKeyFailureReason forKey:v19];
-                v15 = v18;
+                v19 = [v16 mutableCopy];
+                NSNumber *v20 = [NSNumber numberWithInt:kHTAppActivationFailureReasonWatchdog];
+                [v19 setObject:kHTAppActivationKeyFailureReason forKey:v20];
+                v16 = v19;
             }
         }
     } else {
-        HTAppActivationEvent();
+        HTAppActivationEvent(v6, 1, v16);
     }
-    long v20 = HTAppActivationEvent();
-    if (((!v20) ? 0 : v8) != 1) {
+    long v21 = HTAppActivationEvent(v6, v9, v16);
+    if (((!v21) ? 0 : v8) != 1) {
         v2 = nil;
     } else {
         v2 = ^void(bool arg1) {
             if (!arg1) {
                 return;
             }
-            NSDictionary *v23 = v15;
-            if (v20 != 0) {
-                id v24 = [v23 mutableCopy];
-                NSNumber *v25 = [NSNumber numberWithUnsignedLongLong:v20];
-                [v24 setObject:kHTAppActivationKeyEventToken forKey:v25];
+            id v24 = v16;
+            if (v21 != 0) {
+                id v25 = [v24 mutableCopy];
+                NSNumber *v26 = [NSNumber numberWithUnsignedLongLong:v21];
+                [v25 setObject:kHTAppActivationKeyEventToken forKey:v26];
+                v24 = v25;
             }
-            HTAppActivationEvent();
+            HTAppActivationEvent(v6, 5, v24);
         };
     }
     return v2;
@@ -721,12 +730,6 @@ void OUTLINED_FUNCTION_23(void *a1, os_log_t a2, char *a3, uint8_t *a4)
 
 void OUTLINED_FUNCTION_23(long a1)
 {
-}
-
-
-long __46-[FBScene _applySettingsUpdateWithCompletion:]_block_invoke_2.293(void *a1, id a2)
-{
-    return [a2 scene:a1->field_32 didUpdateSettings:a1->field_40];
 }
 
 
@@ -866,20 +869,6 @@ os_log_t FBLogScene(void)
 }
 
 
-void __46-[FBScene _applySettingsUpdateWithCompletion:]_block_invoke.312(void *a1, id a2)
-{
-    if ([a2 receiverWantsInactiveUpdates] != 0) {
-        [a2 scene:a1->field_32 didUpdateSettings:a1->field_40];
-    }
-}
-
-
-long __52-[FBScene activateWithTransitionContext:completion:]_block_invoke_4(void *a1, id a2)
-{
-    return [a2 sceneWillActivate:a1->field_32];
-}
-
-
 id NSStringFromFBSceneContentState(long a1)
 {
     if ((unsigned long)a1 < 3) {
@@ -889,24 +878,12 @@ id NSStringFromFBSceneContentState(long a1)
 }
 
 
-long __44-[FBScene _setContentState:notifyObservers:]_block_invoke(void *a1, id a2)
-{
-    return [a2 sceneContentStateDidChange:a1->field_32];
-}
-
-
 id FBSceneLifecycleStateDescription(int a1)
 {
     if ((unsigned int)a1 < 3) {
         return (&qword_1e17d6278)[a1];
     }
     return [NSString stringWithFormat:@"(Unknown:%li)", a1];
-}
-
-
-long __46-[FBScene _applySettingsUpdateWithCompletion:]_block_invoke_5(void *a1, id a2)
-{
-    return [a2 sceneDidActivate:a1->field_32];
 }
 
 
@@ -933,12 +910,6 @@ long OUTLINED_FUNCTION_15(long a1, long *a2)
 }
 
 
-long __46-[FBScene _applySettingsUpdateWithCompletion:]_block_invoke.294(void *a1, id a2)
-{
-    return [a2 scene:a1->field_32 didCompleteUpdateWithContext:a1->field_40 error:a1->field_48];
-}
-
-
 void OUTLINED_FUNCTION_20(long a1)
 {
 }
@@ -954,13 +925,6 @@ void OUTLINED_FUNCTION_20(void *a1, os_log_t a2, char *a3)
 long OUTLINED_FUNCTION_13(void *self)
 {
     return self;
-}
-
-
-long __48-[FBScene _activateWithTransitionContext:error:]_block_invoke.243(void *a1, id a2)
-{
-    void *v0 = a1->field_32;
-    return [a2 scene:v0 clientDidConnect:v0->field_232];
 }
 
 
@@ -1249,12 +1213,6 @@ long OUTLINED_FUNCTION_18(void)
 }
 
 
-long __54-[FBScene _deactivateAndInvalidate:transitionContext:]_block_invoke_2(void *a1, id a2)
-{
-    return [a2 sceneWillDeactivate:a1->field_32 withContext:a1->field_40];
-}
-
-
 long UIKitLibraryCore(long a1)
 {
     static long frameworkLibrary;
@@ -1520,6 +1478,9 @@ void BacklightServicesLibrary(void)
         [currentHandler handleFailureInFunction:v4 file:@"FBMainDisplayLayoutPublisher.m" lineNumber:24 description:@"%s", v0];
         __builtin_trap();
     }
+    if (v0 != 0) {
+        free(v0);
+    }
 }
 
 
@@ -1659,7 +1620,7 @@ void FBAnalyticsLogWatchdogEvent(id a1, id a2, id a3, id a4)
     id v13 = (&qword_1e17d54c0)[event - 1];
     if (v8 != 0) {
         NSString *v12 = [NSString stringWithFormat:(v8 == 2) ? @"com.apple.frontboard.watchdog-terminate.foreground.%@" : @"com.apple.frontboard.watchdog-terminate.background.%@", v13];
-        ADClientAddValueForScalarKey(v12);
+        ADClientAddValueForScalarKey(v12, 1);
     }
     if (bundleIdentifier != nil) {
         os_log_t log = FBLogWatchdog();
@@ -1768,6 +1729,9 @@ void UnblockClientLibrary(void)
         NSString *v4 = [NSString stringWithUTF8String:"void *UnblockClientLibrary(void)"];
         [currentHandler handleFailureInFunction:v4 file:@"FBProcessWatchdog.m" lineNumber:19 description:@"%s", v0];
         __builtin_trap();
+    }
+    if (v0 != 0) {
+        free(v0);
     }
 }
 
@@ -1934,6 +1898,9 @@ long CoreBluetoothLibrary(void)
         [currentHandler handleFailureInFunction:v4 file:@"FBSystemService.m" lineNumber:67 description:@"%s", v0];
         __builtin_trap();
     }
+    if (v0 != 0) {
+        free(v0);
+    }
     return CoreBluetoothLibraryCore.frameworkLibrary;
 }
 
@@ -1963,6 +1930,9 @@ void *__getAKSEventsRegisterSymbolLoc_block_invoke(void *a1)
         NSString *v6 = [NSString stringWithUTF8String:"void *AppleKeyStoreLibrary(void)"];
         [currentHandler handleFailureInFunction:v6 file:@"FBSystemService.m" lineNumber:54 description:@"%s", v1];
         __builtin_trap();
+    }
+    if (v1 != 0) {
+        free(v1);
     }
     void *v5 = dlsym(AppleKeyStoreLibraryCore.frameworkLibrary, "AKSEventsRegister");
     a1->field_32->field_8->field_24 = v5;
@@ -1996,6 +1966,9 @@ Class __getNFHardwareManagerClass_block_invoke(void *a1)
         NSString *v5 = [NSString stringWithUTF8String:"void *NearFieldLibrary(void)"];
         [currentHandler handleFailureInFunction:v5 file:@"FBSystemService.m" lineNumber:63 description:@"%s", v0];
         __builtin_trap();
+    }
+    if (v0 != 0) {
+        free(v0);
     }
     Class v3 = objc_getClass("NFHardwareManager");
     a1->field_32->field_8->field_24 = v3;
@@ -2051,6 +2024,9 @@ long NearbyInteractionLibrary(void)
         NSString *v4 = [NSString stringWithUTF8String:"void *NearbyInteractionLibrary(void)"];
         [currentHandler handleFailureInFunction:v4 file:@"FBSystemService.m" lineNumber:74 description:@"%s", v0];
         __builtin_trap();
+    }
+    if (v0 != 0) {
+        free(v0);
     }
     return NearbyInteractionLibraryCore.frameworkLibrary;
 }
@@ -2197,8 +2173,7 @@ NSString *NSStringFromFBSceneLayerTypeMask(long a1, __uint128_t a2)
             v8++;
         } while (v9 >= 1 && v8 < 63);
     }
-    NSString *v7 = (![array count]) ? @"none" : [array componentsJoinedByString:@", "];
-    return v7;
+    return (![array count]) ? @"none" : [array componentsJoinedByString:@", "];
 }
 
 
@@ -2549,17 +2524,19 @@ long FBWorkspaceStateCompare(int a1, int a2)
     int v0 = a1 & 255;
     if ((a1 & 255) != (uint8_t)a2) {
         v1 = a2 & 255;
-blk_1c4f39bc0:
+    }
+    if ((a1 & 255) == (uint8_t)a2) {
+        v0 = (a1 >> 8) & 255;
+        if (((a1 >> 8) & 255) != (uint8_t)(a2 / 0x100)) {
+            v1 = (a2 >> 8) & 255;
+        }
+    }
+    if ((a1 & 255) != (uint8_t)a2 || ((a1 & 255) == (uint8_t)a2 && ((a1 >> 8) & 255) != (uint8_t)(a2 / 0x100))) {
         if ((unsigned int)v0 <= (unsigned int)v1) {
             return -1;
         } else {
             return 1;
         }
-    }
-    v0 = (a1 >> 8) & 255;
-    if (((a1 >> 8) & 255) != (uint8_t)(a2 / 0x100)) {
-        v1 = (a2 >> 8) & 255;
-        goto blk_1c4f39bc0;
     }
     int v2 = (a1 >> 16) & 255;
     unsigned int v3 = a2 >> 16;

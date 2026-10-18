@@ -48,7 +48,7 @@ id -[FBSceneManager createScene:](void (^a1)(id<FBSceneCreating_Internal>))
 
 id +[FBSceneManager(Keyboard) keyboardScene](void)
 {
-    BSDispatchQueueAssertMain(self);
+    BSDispatchQueueAssertMain();
     return __fbKeyboardScene;
 }
 
@@ -151,7 +151,7 @@ void +[FBSceneManager(Keyboard) setKeyboardScene:](id a1)
         _bs_set_crash_log_message([v12 UTF8String]);
         __break(0);
     }
-    BSDispatchQueueAssertMain(a1);
+    BSDispatchQueueAssertMain();
     if (!__fbKeyboardScene) {
         __fbKeyboardScene = a1;
         id v1 = [__availabilityObserverMap copy];
@@ -166,10 +166,9 @@ void +[FBSceneManager(Keyboard) setKeyboardScene:](id a1)
 }
 
 
-BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:](id a1)
+BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:](void (^a1)(long))
 {
     BSSimpleAssertion *v2;
-    void (^v0)(long) = a1;
     if (!a1) {
         NSString *v5 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"block"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
@@ -180,7 +179,7 @@ BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:]
         _bs_set_crash_log_message([v5 UTF8String]);
         __break(0);
     }
-    BSDispatchQueueAssertMain(v0);
+    BSDispatchQueueAssertMain();
     id v1 = __fbKeyboardScene;
     if (!__fbKeyboardScene) {
         if (!__availabilityObserverMap) {
@@ -189,10 +188,10 @@ BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:]
         v2 = [[BSSimpleAssertion alloc] initWithIdentifier:@"keyboardAvailableObserverToken" forReason:@"observation" queue:dispatch_get_main_queue() invalidationBlock:^void(BSSimpleAssertion *arg1) {
             [__availabilityObserverMap removeObjectForKey:arg1];
         }];
-        id v3 = _Block_copy(v0);
+        id v3 = _Block_copy(a1);
         [__availabilityObserverMap setObject:v3 forKey:v2];
     } else {
-        v0(v1);
+        a1(v1);
         v2 = nil;
     }
     return v2;
@@ -363,33 +362,33 @@ id -[FBSceneManager createLegacySceneFromRemnant:withSettings:transitionContext:
     long v1 = a3;
     Class v3 = NSClassFromString(@"FBSceneRemnant");
     if (!a1) {
-        NSString *v10 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
+        NSString *v11 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v11 = NSStringFromSelector(_cmd);
-            NSString *v12 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v11, v12, self, @"FBSceneManager.m", 207, v10);
+            NSString *v12 = NSStringFromSelector(_cmd);
+            NSString *v13 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v12, v13, self, @"FBSceneManager.m", 207, v11);
         }
-        _bs_set_crash_log_message([v10 UTF8String]);
+        _bs_set_crash_log_message([v11 UTF8String]);
         __break(0);
     }
     if (![a1 isKindOfClass:v3]) {
-        NSString *v14 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSceneRemnantClass]"];
+        NSString *v15 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSceneRemnantClass]"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v15 = NSStringFromSelector(_cmd);
-            NSString *v16 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v15, v16, self, @"FBSceneManager.m", 207, v14);
+            NSString *v16 = NSStringFromSelector(_cmd);
+            NSString *v17 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v16, v17, self, @"FBSceneManager.m", 207, v15);
         }
-        _bs_set_crash_log_message([v14 UTF8String]);
+        _bs_set_crash_log_message([v15 UTF8String]);
         __break(0);
     }
     if ([a1 _hasBeenInvalidated]) {
-        NSString *v18 = [NSString stringWithFormat:@"cannot create a scene from an invalidated remnant"];
+        NSString *v19 = [NSString stringWithFormat:@"cannot create a scene from an invalidated remnant"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v19 = NSStringFromSelector(_cmd);
-            NSString *v20 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v19, v20, self, @"FBSceneManager.m", 208, v18);
+            NSString *v20 = NSStringFromSelector(_cmd);
+            NSString *v21 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v20, v21, self, @"FBSceneManager.m", 208, v19);
         }
-        _bs_set_crash_log_message([v18 UTF8String]);
+        _bs_set_crash_log_message([v19 UTF8String]);
         __break(0);
     }
     FBWorkspace *_workspace = [a1 _workspace];
@@ -397,16 +396,15 @@ id -[FBSceneManager createLegacySceneFromRemnant:withSettings:transitionContext:
         return nil;
     }
     BSSimpleAssertion *_assertion = [a1 _assertion];
-    if (![_assertion isValid]) {
-        return nil;
+    if ([_assertion isValid]) {
+        FBSSceneDefinition *definition = [a1 definition];
+        FBSSceneClientSettings *_clientSettings = [a1 _clientSettings];
+        id v5 = [self _createSceneWithDefinition:definition settings:v0 initialClientSettings:_clientSettings transitionContext:v1 fromRemnant:a1 usingClientProvider:_workspace completion:0];
+        if ([v5 isValid]) {
+            return v5;
+        }
     }
-    FBSSceneDefinition *definition = [a1 definition];
-    FBSSceneClientSettings *_clientSettings = [a1 _clientSettings];
-    id v5 = [self _createSceneWithDefinition:definition settings:v0 initialClientSettings:_clientSettings transitionContext:v1 fromRemnant:a1 usingClientProvider:_workspace completion:0];
-    if (![v5 isValid]) {
-        return nil;
-    }
-    return v5;
+    return nil;
 }
 
 

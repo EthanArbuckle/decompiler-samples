@@ -53,7 +53,6 @@ unsigned long -[FBSystemShellInitializationOptions hash](void)
 
 int -[FBSystemShellInitializationOptions isEqual:](id a1)
 {
-    int v1;
     if (self == a1) {
         return 1;
     }
@@ -62,12 +61,10 @@ int -[FBSystemShellInitializationOptions isEqual:](id a1)
         if (v3 != 0 && BSFloatEqualToFloat(v3) != 0) {
             id v4 = _Block_copy(self->_registerServicesBlock);
             id v5 = _Block_copy(a1->field_32);
-            v1 = (!BSEqualObjects(v4, v5)) ? 0 : BSEqualObjects(self->_independentWatchdogPortName, a1->field_16);
-            return v1;
+            return (!BSEqualObjects(v4, v5)) ? 0 : BSEqualObjects(self->_independentWatchdogPortName, a1->field_16);
         }
     }
-    v1 = 0;
-    return v1;
+    return 0;
 }
 
 

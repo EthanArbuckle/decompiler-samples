@@ -255,10 +255,10 @@ void -[FBScene _joinUpdate:block:completion:](int a1, void (^a2)(FBSMutableScene
             if (!self->_updateCompletion) {
                 self->_updateCompletion = [v1 copy];
             } else {
-                id v12 = _Block_copy(self->_updateCompletion);
+                void (^v12)(bool, NSError *) = _Block_copy(self->_updateCompletion);
                 self->_updateCompletion = ^void(bool arg1, NSError *arg2) {
                     v1(arg1, arg2);
-                    v12->field_16(v12, arg1, arg2);
+                    v12(arg1, arg2);
                 };
             }
         }
@@ -411,11 +411,11 @@ void -[FBScene _finalizeSettingsUpdate](void)
 }
 
 
-void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(long, long))
+void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
 {
     id v4;
     FBSSceneSettings *v15;
-    void (^v0)(long, id) = a1;
+    void (^v0)(int, id) = a1;
     if (self != nil) {
         if (![NSThread isMainThread]) {
             __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene _applySettingsUpdateWithCompletion:]");
@@ -524,7 +524,11 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(long, long))
                 *(v22) = 0;
                 [self _resetUpdateState];
                 if (v4->_diff != 0) {
-                    -[FBScene _iterateObservers:](self);
+                    [self _iterateObservers:^void(FBSceneObserver *arg1) {
+                        if ([arg1 receiverWantsInactiveUpdates] != 0) {
+                            [arg1 scene:self didUpdateSettings:v4];
+                        }
+                    }];
                 }
             } else {
                 if (!self->_workspace) {
@@ -673,73 +677,78 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(long, long))
                     [self _resetUpdateState];
                     [self->_eventQueue executeOrAppend:^void(void) {
                         id v179;
-                        long v168 = self->_contentState;
+                        long v169 = self->_contentState;
                         if (![self->_settings isForeground]) {
-                            v168 = 0;
+                            v169 = 0;
                             self->_lastForegroundingTransitionID = 0;
-                        } else if (!v168) {
-                            v168 = 1;
+                        } else if (!v169) {
+                            v169 = 1;
                             self->_lastForegroundingTransitionID = _beginTransaction;
                         }
                         if (!self) {
                             v179 = nil;
                         } else {
-                            [self _setContentState:v168 notifyObservers:1];
+                            [self _setContentState:v169 notifyObservers:1];
                             v179 = self;
                         }
-                        -[FBScene _iterateObservers:](v179);
+                        [v179 _iterateObservers:^void(FBSceneObserver *arg1) {
+                            [arg1 scene:v179 didUpdateSettings:v4];
+                        }];
                         [self->_workspace scene:self didApplyUpdate:v4];
                         id takeUpdateCompletions = [v4 takeUpdateCompletions];
-                        void (^v169)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
+                        void (^v170)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
+                            NSError *v183 = arg2;
                             if (arg1 == 0) {
-                                os_log_t v189 = FBLogScene();
-                                if (os_log_type_enabled(v189, OS_LOG_TYPE_ERROR)) {
-                                    id v188 = [arg2 descriptionWithMultilinePrefix:0];
-                                    os_log_with_type(v189, OS_LOG_TYPE_ERROR, "[%{public}@] Update failed: %{public}@", loggingIdentifier2, v188);
+                                os_log_t v187 = FBLogScene();
+                                if (os_log_type_enabled(v187, OS_LOG_TYPE_ERROR)) {
+                                    id v186 = [v183 descriptionWithMultilinePrefix:0];
+                                    os_log_with_type(v187, OS_LOG_TYPE_ERROR, "[%{public}@] Update failed: %{public}@", loggingIdentifier2, v186);
                                 }
                             }
                             if (v0 != nil) {
-                                v0(arg1, arg2);
+                                v0(arg1, v183);
                             }
                             if ([self isActive]) {
-                                -[FBScene _iterateObservers:](self);
-                                void *v183 = self;
-                                [self->_workspace scene:v183 didCompleteUpdate:v109];
+                                [self _iterateObservers:^void(FBSceneObserver *arg1) {
+                                    [arg1 scene:self didCompleteUpdateWithContext:v109 error:v183];
+                                }];
+                                [self->_workspace scene:self didCompleteUpdate:v109];
                             }
-                            for (id v23 in takeUpdateCompletions) {
-                                v187->field_16(v187);
+                            for (id v185 in takeUpdateCompletions) {
+                                v185->field_16(v185);
                             }
                         };
-                        id v170 = self;
                         if (!self->_clientToken) {
-                            void (^v171)(void) = ^void(void) {
-                                NSError *v191 = FBSceneErrorCreate(1, @"No scene client exists", 0);
-                                v169(NO, v191);
+                            void (^v172)(void) = ^void(void) {
+                                NSError *v187 = FBSceneErrorCreate(1, @"No scene client exists", 0);
+                                v170(NO, v187);
                             };
-                            [v170 _dispatchClientMessageWithBlock:v171];
+                            [self _dispatchClientMessageWithBlock:v172];
                         } else {
-                            void (^v173)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
-                                [v170 _dispatchClientMessageWithBlock:^void(void) {
-                                    NSError *v193;
+                            void (^v174)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
+                                [self _dispatchClientMessageWithBlock:^void(void) {
+                                    NSError *v192;
                                     if (arg1 == 1) {
-                                        if (v170->field_219 == 1 && v170->field_208 == _beginTransaction && [v170->field_104 isForeground] && v170 != nil) {
-                                            [v170 _setContentState:2 notifyObservers:1];
+                                        if (self->_active == 1 && self->_lastForegroundingTransitionID == _beginTransaction && [self->_settings isForeground] && self != nil) {
+                                            [self _setContentState:2 notifyObservers:1];
                                         }
-                                        v193 = nil;
+                                        v192 = nil;
                                     } else {
-                                        v193 = FBSceneErrorCreate(1, @"Scene update failed.", arg2);
+                                        v192 = FBSceneErrorCreate(1, @"Scene update failed.", arg2);
                                     }
-                                    v169(arg1, v193);
+                                    v170(arg1, v192);
                                 }];
                             };
-                            [self->_client host:v170 didUpdateSettings:self->_settings withDiff:settingsDiff transitionContext:v15 completion:v173];
+                            [self->_client host:self didUpdateSettings:self->_settings withDiff:settingsDiff transitionContext:v15 completion:v174];
                         }
                         [self _endTransaction:_beginTransaction];
                         if ((uint32_t)v59 == 1) {
-                            -[FBScene _iterateObservers:](self);
+                            [self _iterateObservers:^void(FBSceneObserver *arg1) {
+                                [arg1 sceneDidActivate:self];
+                            }];
                         }
-                        long *v174 = &*(v4);
-                        *(v174) = 0;
+                        long *v176 = &*(v4);
+                        *(v176) = 0;
                         long *v19 = &*(v4);
                         *(v19) = 0;
                     }];
@@ -977,7 +986,9 @@ void -[FBScene _setContentState:notifyObservers:](long a1, int a2)
     self->_contentState = a1;
     self->_contentStateIsChanging = YES;
     if (a2 != 0) {
-        -[FBScene _iterateObservers:](self);
+        [self _iterateObservers:^void(FBSceneObserver *arg1) {
+            [arg1 sceneContentStateDidChange:self];
+        }];
     }
     self->_contentStateIsChanging = NO;
 }
@@ -1132,7 +1143,7 @@ void -[FBScene _addExtensions:removeExtensions:settings:](id a1, id a2, id a3)
 }
 
 
-void -[FBScene updateSettings:](void (^a1)(FBSMutableSceneSettings *, FBSSceneTransitionContext *))
+void -[FBScene updateSettings:](void (^a1)(FBSMutableSceneSettings *))
 {
     [self _joinUpdate:0 block:a1 completion:nil];
 }
@@ -1261,8 +1272,7 @@ FBScene *-[FBScene initWithDefiniton:remnant:settings:initialClientSettings:clie
     id loggingIdentifier = [v6 loggingIdentifier];
     NSString *v59 = [NSString stringWithFormat:@"FBScene - %@", loggingIdentifier];
     v6->_stateCaptureAssertion = BSLogAddStateCaptureBlockForUserRequestsOnlyWithTitle(dispatch_get_main_queue(), v59, ^id(void) {
-        NSString *debugDescription = [v57 debugDescription];
-        return debugDescription;
+        return [v57 debugDescription];
     });
     v6->_finishedInit = YES;
     return v6;
@@ -1348,7 +1358,7 @@ FBSSceneDefinition *-[FBScene definition](void)
 }
 
 
-void -[FBScene activateWithTransitionContext:completion:](id a1, id a2)
+void -[FBScene activateWithTransitionContext:completion:](id a1, void (^a2)(bool, NSError *))
 {
     NSString *v8;
     id v0 = a1;
@@ -1400,7 +1410,7 @@ void -[FBScene activateWithTransitionContext:completion:](id a1, id a2)
     long v4 = [self _activateWithTransitionContext:v0 error:&v3];
     id v5 = v3;
     FBProcessExecutionContext *executionContext = [v0 executionContext];
-    void (^completion)(long, NSError *) = [executionContext completion];
+    void (^completion)(id, NSError *) = [executionContext completion];
     if (completion != nil) {
         if (self->_active) {
             v8 = @"Provided execution context was not used because the scene was already active.";
@@ -1422,18 +1432,25 @@ void -[FBScene activateWithTransitionContext:completion:](id a1, id a2)
             [self->_clientProcess _executeBlockAfterBootstrap:v13];
         }
     }
+    bool v14 = self->_remnant != nil;
     [self performUpdate:^void(FBSMutableSceneSettings *arg1, FBSSceneTransitionContext *arg2) {
         if (v0 != nil) {
             self->_settingsUpdate->_context = v0;
         }
+        id v38 = self;
         if (!self->_transactionID) {
-            if (self->_legacy || self->_remnant != nil) {
-                [self->_workspace didAddScene:self];
+            if (v38->_legacy || v14 == 1) {
+                [v38->_workspace didAddScene:v38];
+                v38 = self;
                 if (self->_legacy == 0) {
-                    -[FBScene _iterateObservers:](self);
+                    [v38 _iterateObservers:^void(FBSceneObserver *arg1) {
+                        [arg1 sceneWillActivate:v38];
+                    }];
                 }
             } else {
-                -[FBScene _iterateObservers:](self);
+                [v38 _iterateObservers:^void(FBSceneObserver *arg1) {
+                    [arg1 sceneWillActivate:v38];
+                }];
             }
             if ([arg1 isClientFuture] != 0) {
                 [arg1 setClientFuture:0];
@@ -1441,28 +1458,28 @@ void -[FBScene activateWithTransitionContext:completion:](id a1, id a2)
             }
         }
     } withCompletion:^void(bool arg1, NSError *arg2) {
-        NSError *v44;
+        NSError *v43;
         if (arg1 && (v4 & 1) == 0) {
-            NSString *v41 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"activated || !success"];
+            NSString *v40 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"activated || !success"];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v42 = NSStringFromSelector(_cmd);
-                NSString *v47 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v42, v47, self, @"FBScene.m", 395, v41);
+                NSString *v41 = NSStringFromSelector(_cmd);
+                NSString *v46 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v41, v46, self, @"FBScene.m", 395, v40);
             }
-            _bs_set_crash_log_message([v41 UTF8String]);
+            _bs_set_crash_log_message([v40 UTF8String]);
             __break(0);
         }
         if (!arg1) {
-            NSError *v43 = FBSceneErrorCreate(1, @"Scene activation failed.", (!v5) ? arg2 : v5);
-            v44 = v43;
+            NSError *v42 = FBSceneErrorCreate(1, @"Scene activation failed.", (!v5) ? arg2 : v5);
+            v43 = v42;
             id _createTransitionContext = [self _createTransitionContext];
-            [_createTransitionContext setError:v43];
+            [_createTransitionContext setError:v42];
             [self _deactivateAndInvalidate:0 transitionContext:_createTransitionContext];
         } else {
-            v44 = nil;
+            v43 = nil;
         }
         if (a2 != nil) {
-            a2->field_16(a2, arg1, v44);
+            a2(arg1, v43);
         }
     }];
     [v2 invalidate];
@@ -1490,65 +1507,65 @@ struct FBScene *-[FBScene _activateWithTransitionContext:error:](id a1, id *a2)
                 if (!self->_workspace) {
                     NSString *v1 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_workspace"];
                     if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                        NSString *v62 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                        NSString *v63 = NSStringFromClass([self class]);
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v62, v63, self, @"FBScene.m", 1060, v1);
+                        NSString *v63 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                        NSString *v64 = NSStringFromClass([self class]);
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v63, v64, self, @"FBScene.m", 1060, v1);
                     }
                     _bs_set_crash_log_message([v1 UTF8String]);
                     __break(0);
                 }
                 if (self->_clientHandle != nil) {
-                    NSString *v64 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_clientHandle == nil"];
+                    NSString *v65 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_clientHandle == nil"];
                     if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                        NSString *v65 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                        NSString *v66 = NSStringFromClass([self class]);
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v65, v66, self, @"FBScene.m", 1061, v64);
+                        NSString *v66 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                        NSString *v67 = NSStringFromClass([self class]);
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v66, v67, self, @"FBScene.m", 1061, v65);
                     }
-                    _bs_set_crash_log_message([v64 UTF8String]);
+                    _bs_set_crash_log_message([v65 UTF8String]);
                     __break(0);
                 }
                 if (self->_legacy == 1) {
                     if (!self->_client) {
-                        NSString *v68 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_client != nil"];
+                        NSString *v69 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_client != nil"];
                         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                            NSString *v69 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                            NSString *v70 = NSStringFromClass([self class]);
-                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v69, v70, self, @"FBScene.m", 1066, v68);
+                            NSString *v70 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                            NSString *v71 = NSStringFromClass([self class]);
+                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v70, v71, self, @"FBScene.m", 1066, v69);
                         }
-                        _bs_set_crash_log_message([v68 UTF8String]);
+                        _bs_set_crash_log_message([v69 UTF8String]);
                         __break(0);
                     }
                     id clientProcessHandle = [a1 clientProcessHandle];
                     if (clientProcessHandle != nil) {
-                        NSString *v72 = [NSString stringWithFormat:@"legacy scenes do not support targeting clients by PID"];
+                        NSString *v73 = [NSString stringWithFormat:@"legacy scenes do not support targeting clients by PID"];
                         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                            NSString *v73 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                            NSString *v74 = NSStringFromClass([self class]);
-                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v73, v74, self, @"FBScene.m", 1067, v72);
+                            NSString *v74 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                            NSString *v75 = NSStringFromClass([self class]);
+                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v74, v75, self, @"FBScene.m", 1067, v73);
                         }
-                        _bs_set_crash_log_message([v72 UTF8String]);
+                        _bs_set_crash_log_message([v73 UTF8String]);
                         __break(0);
                     }
-                    Class v76 = [FBWorkspace class];
-                    if (![self->_client isKindOfClass:v76]) {
+                    Class v77 = [FBWorkspace class];
+                    if (![self->_client isKindOfClass:v77]) {
                         id domain4 = [self->_workspace domain];
                         self->_clientProcess = [domain4 currentProcess];
                     } else {
                         FBProcess *process2 = [self->_client process];
-                        FBProcess *v116 = self->_clientProcess;
+                        FBProcess *v117 = self->_clientProcess;
                         self->_clientProcess = process2;
                     }
                     self->_clientHandle = [FBSceneClientHandle handleForScene:self clientProcess:self->_clientProcess];
                     v7 = nil;
                 } else {
                     if (self->_client != nil) {
-                        NSString *v84 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_client == nil"];
+                        NSString *v85 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_client == nil"];
                         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                            NSString *v85 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                            NSString *v86 = NSStringFromClass([self class]);
-                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v85, v86, self, @"FBScene.m", 1076, v84);
+                            NSString *v86 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                            NSString *v87 = NSStringFromClass([self class]);
+                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v86, v87, self, @"FBScene.m", 1076, v85);
                         }
-                        _bs_set_crash_log_message([v84 UTF8String]);
+                        _bs_set_crash_log_message([v85 UTF8String]);
                         __break(0);
                     }
                     id clientIdentity = [self->_definition clientIdentity];
@@ -1568,13 +1585,13 @@ struct FBScene *-[FBScene _activateWithTransitionContext:error:](id a1, id *a2)
                                 BSProcessHandle *handle = [clientProcess handle];
                                 if (handle != nil) {
                                     if (v11 != nil && ![v11 isEqual:handle]) {
-                                        NSString *v96 = [NSString stringWithFormat:@"a client future can only activate for the process that requested it"];
+                                        NSString *v97 = [NSString stringWithFormat:@"a client future can only activate for the process that requested it"];
                                         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                                            NSString *v97 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                                            NSString *v98 = NSStringFromClass([self class]);
-                                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v97, v98, self, @"FBScene.m", 1102, v96);
+                                            NSString *v98 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                                            NSString *v99 = NSStringFromClass([self class]);
+                                            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v98, v99, self, @"FBScene.m", 1102, v97);
                                         }
-                                        _bs_set_crash_log_message([v96 UTF8String]);
+                                        _bs_set_crash_log_message([v97 UTF8String]);
                                         __break(0);
                                     }
                                     v11 = handle;
@@ -1609,13 +1626,13 @@ blk_1c4ee5a40:
                                     } else {
                                         RBSProcessIdentity *identity = [v21 identity];
                                         if (![identity isEqual:processIdentity]) {
-                                            NSString *v104 = [NSString stringWithFormat:@"Client process identity does not match execution context identity"];
+                                            NSString *v105 = [NSString stringWithFormat:@"Client process identity does not match execution context identity"];
                                             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                                                NSString *v105 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                                                NSString *v106 = NSStringFromClass([self class]);
-                                                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v105, v106, self, @"FBScene.m", 1124, v104);
+                                                NSString *v106 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                                                NSString *v107 = NSStringFromClass([self class]);
+                                                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v106, v107, self, @"FBScene.m", 1124, v105);
                                             }
-                                            _bs_set_crash_log_message([v104 UTF8String]);
+                                            _bs_set_crash_log_message([v105 UTF8String]);
                                             __break(0);
                                         }
                                     }
@@ -1638,13 +1655,13 @@ blk_1c4ee5a3c:
                             }
                             id identity2 = [v11 identity];
                             if (![identity2 isEqual:processIdentity]) {
-                                NSString *v108 = [NSString stringWithFormat:@"Client process identity does not match provided handle's identity"];
+                                NSString *v109 = [NSString stringWithFormat:@"Client process identity does not match provided handle's identity"];
                                 if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                                    NSString *v109 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                                    NSString *v110 = NSStringFromClass([self class]);
-                                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v109, v110, self, @"FBScene.m", 1108, v108);
+                                    NSString *v110 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                                    NSString *v111 = NSStringFromClass([self class]);
+                                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v110, v111, self, @"FBScene.m", 1108, v109);
                                 }
-                                _bs_set_crash_log_message([v108 UTF8String]);
+                                _bs_set_crash_log_message([v109 UTF8String]);
                                 __break(0);
                             }
                             id domain3 = [self->_workspace domain];
@@ -1662,13 +1679,13 @@ blk_1c4ee5a00:
                         }
                         v28 = [self->_remnant _workspace];
                         FBProcess *process = [v28 process];
-                        bool v61 = !v28 || !process;
-                        if (!v61) {
+                        bool v62 = !v28 || !process;
+                        if (!v62) {
                             BSSimpleAssertion *_assertion = [self->_remnant _assertion];
                             BOOL isValid = [_assertion isValid];
-                            v61 = !isValid;
+                            v62 = !isValid;
                         }
-                        if (v61) {
+                        if (v62) {
                             v7 = FBSceneErrorCreate(1, @"failed to activate scene from remnant", 0);
                             v28 = nil;
                             v18 = self->_clientProcess;
@@ -1701,8 +1718,8 @@ blk_1c4ee5a48:
                     v45 = FBLogScene();
                     if (os_log_type_enabled(v45, OS_LOG_TYPE_ERROR)) {
                         id loggingIdentifier2 = [self loggingIdentifier];
-                        id v115 = [v7 descriptionWithMultilinePrefix:0];
-                        os_log_with_type(v45, OS_LOG_TYPE_ERROR, "[%{public}@] Failed to resolve a scene client provider: %{public}@", loggingIdentifier2, v115);
+                        id v116 = [v7 descriptionWithMultilinePrefix:0];
+                        os_log_with_type(v45, OS_LOG_TYPE_ERROR, "[%{public}@] Failed to resolve a scene client provider: %{public}@", loggingIdentifier2, v116);
                     }
 blk_1c4ee5b70:
                     v46 = 0;
@@ -1739,27 +1756,27 @@ blk_1c4ee5b70:
                     _os_log_impl(&_mh_dylib_header, oslog2, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene activated.", &v16, 22);
                 }
                 if (v46 && !self->_clientHandle) {
-                    [self->_clientProcess _executeBlockAfterLaunchCompletes:^void(bool arg1) {
+                    unsigned long v57 = self->_activationID;
+                    FBProcess *v58 = self->_clientProcess;
+                    [v58 _executeBlockAfterLaunchCompletes:^void(bool arg1) {
                         [self _dispatchClientMessageWithBlock:^void(void) {
                             if (arg1 != 1) {
                                 return;
                             }
-                            void *v9 = self;
-                            if (self->_invalidated || self->_active != 1 || self->_activationID != self->_activationID) {
+                            if (self->_invalidated || self->_active != 1 || v57 != self->_activationID) {
                                 return;
                             }
                             if (self->_clientHandle != nil) {
-                                NSString *v118 = [NSString stringWithFormat:@"client handle must be nil"];
+                                NSString *v119 = [NSString stringWithFormat:@"client handle must be nil"];
                                 if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                                    NSString *v119 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
-                                    NSString *v120 = NSStringFromClass([self class]);
-                                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v119, v120, self, @"FBScene.m", 1181, v118);
+                                    NSString *v120 = NSStringFromSelector(@selector(_activateWithTransitionContext:error:));
+                                    NSString *v121 = NSStringFromClass([self class]);
+                                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v120, v121, self, @"FBScene.m", 1181, v119);
                                 }
-                                _bs_set_crash_log_message([v118 UTF8String]);
+                                _bs_set_crash_log_message([v119 UTF8String]);
                                 __break(0);
                             }
-                            FBSceneClientHandle *v117 = [FBSceneClientHandle handleForScene:v9 clientProcess:self->_clientProcess];
-                            self->_clientHandle = v117;
+                            self->_clientHandle = [FBSceneClientHandle handleForScene:self clientProcess:v58];
                             os_log_t oslog = FBLogScene();
                             if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
                                 id loggingIdentifier = [self loggingIdentifier];
@@ -1767,7 +1784,9 @@ blk_1c4ee5b70:
                                 os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[%{public}@] Client process connected: %{public}@", loggingIdentifier, v1);
                             }
                             if (![self->_workspace _suppressConnectionHandshakes]) {
-                                -[FBScene _iterateObservers:](self);
+                                [self _iterateObservers:^void(FBSceneObserver *arg1) {
+                                    [arg1 scene:self clientDidConnect:self->_clientHandle];
+                                }];
                             }
                         }];
                     }];
@@ -1779,9 +1798,9 @@ blk_1c4ee5b70:
             } else if (!a2) {
                 self = 0;
             } else {
-                NSError *v60 = FBSceneErrorCreate(2, @"Cannot activate an invalidated scene.", 0);
+                NSError *v61 = FBSceneErrorCreate(2, @"Cannot activate an invalidated scene.", 0);
                 self = 0;
-                *(a2) = v60;
+                *(a2) = v61;
             }
         } else {
             if (a2 != 0) {
@@ -1825,7 +1844,6 @@ long -[FBScene contentState](void)
 
 long -[FBScene(UIApp) currentInterfaceOrientation](void)
 {
-    long interfaceOrientation;
     FBSSceneSettings *settings = [self settings];
     id _uiApplicationSceneSettingsShim = [settings _uiApplicationSceneSettingsShim];
     FBSSceneClientSettings *clientSettings = [self clientSettings];
@@ -1834,13 +1852,14 @@ long -[FBScene(UIApp) currentInterfaceOrientation](void)
         if (!_uiApplicationSceneSettingsShim) {
             return 0;
         }
-    } else if ([_uiApplicationSceneSettingsShim deviceOrientationEventsEnabled]) {
-        interfaceOrientation = [_uiApplicationSceneClientSettingsShim interfaceOrientation];
-        if (interfaceOrientation) {
-            return interfaceOrientation;
-        }
+        return [_uiApplicationSceneSettingsShim interfaceOrientation];
+    } else if (![_uiApplicationSceneSettingsShim deviceOrientationEventsEnabled]) {
+        return [_uiApplicationSceneSettingsShim interfaceOrientation];
     }
-    interfaceOrientation = [_uiApplicationSceneSettingsShim interfaceOrientation];
+    long interfaceOrientation = [_uiApplicationSceneClientSettingsShim interfaceOrientation];
+    if (!interfaceOrientation) {
+        return [_uiApplicationSceneSettingsShim interfaceOrientation];
+    }
     return interfaceOrientation;
 }
 
@@ -1928,7 +1947,7 @@ void -[FBScene _propagateSettings:fromSettings:toSettings:](id a1, id a2, id a3)
                 [otherSettings setObject:v15 forSetting:indirect_legacySetting];
                 [otherSettings setFlag:v16 forSetting:indirect_legacySetting];
             } else {
-                v15 = FBSSettingsValueForSetting(a2);
+                v15 = FBSSettingsValueForSetting(a2, v12);
                 FBSSettingsSetValueForSetting(a3, v12, v15);
             }
         }
@@ -2115,12 +2134,12 @@ FBSSceneTransitionContext *-[FBScene _createTransitionContext](void)
 }
 
 
-int -[FBScene updateWhenMutable:](id a1)
+int -[FBScene updateWhenMutable:](void (^a1)(FBSMutableSceneSettings *, long))
 {
     return [self executeWhenMutable:^void(void) {
         if (![self isActive]) {
             [self updateSettings:^void(FBSMutableSceneSettings *arg1) {
-                a1->field_16(a1, arg1, 0);
+                a1(arg1, 0);
             }];
             return;
         }
@@ -2395,7 +2414,7 @@ void -[FBScene clientToken:didReceiveActions:forExtension:](id a1, id a2, Class 
 }
 
 
-void -[FBScene configureParameters:](void (^a1)(id))
+void -[FBScene configureParameters:](void (^a1)(FBSMutableSceneParameters *))
 {
     if (![NSThread isMainThread]) {
         __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene configureParameters:]");
@@ -2565,7 +2584,9 @@ void -[FBScene _deactivateAndInvalidate:transitionContext:](int a1, id a2)
             [self->_layerManager _setLayers:layers];
             bool isActive = [self isActive];
             if (isActive) {
-                -[FBScene _iterateObservers:](self);
+                [self _iterateObservers:^void(FBSceneObserver *arg1) {
+                    [arg1 sceneWillDeactivate:self withContext:v0];
+                }];
             }
             if (v2) {
                 FBSScene *v22 = self->_parentScene;
@@ -2579,6 +2600,7 @@ void -[FBScene _deactivateAndInvalidate:transitionContext:](int a1, id a2)
                 v25 = nil;
             }
             id<NSObject> v28 = v25;
+            unsigned long v29 = self->_activationID;
             self->_active = NO;
             self->_deactivating = NO;
             self->_transactionID = 0;
@@ -2601,33 +2623,39 @@ void -[FBScene _deactivateAndInvalidate:transitionContext:](int a1, id a2)
                 self->_remnant = nil;
             }
             void (^v39)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
+                id loggingIdentifier;
+                id succinctDescription;
                 os_log_t log = FBLogScene();
-                bool v67 = os_log_type_enabled(log, OS_LOG_TYPE_DEFAULT);
+                bool v66 = os_log_type_enabled(log, OS_LOG_TYPE_DEFAULT);
                 if (v2 != 1) {
                     if (!arg2) {
-                        if (v67) {
-                            id loggingIdentifier = [self loggingIdentifier];
-                            unsigned long v1 = self->_activationID;
-                            os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene deactivated.", loggingIdentifier, v1);
+                        if (!v66) {
+                            return;
                         }
-                    } else if (v67) {
-                        id loggingIdentifier2 = [self loggingIdentifier];
-                        id succinctDescription = [arg2 succinctDescription];
-                        unsigned long v3 = self->_activationID;
-                        os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene deactivated with error: %{public}@.", loggingIdentifier2, v3, succinctDescription);
+                        loggingIdentifier = [self loggingIdentifier];
+                        os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene deactivated.", loggingIdentifier, v29);
+                    } else {
+                        if (!v66) {
+                            return;
+                        }
+                        loggingIdentifier = [self loggingIdentifier];
+                        succinctDescription = [arg2 succinctDescription];
+                        os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene deactivated with error: %{public}@.", loggingIdentifier, v29, succinctDescription);
                     }
+                    return;
                 } else if (!arg2) {
-                    if (v67) {
-                        id loggingIdentifier3 = [self loggingIdentifier];
-                        unsigned long v4 = self->_activationID;
-                        os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene invalidated.", loggingIdentifier3, v4);
+                    if (!v66) {
+                        return;
                     }
-                } else if (v67) {
-                    id loggingIdentifier4 = [self loggingIdentifier];
-                    id succinctDescription2 = [arg2 succinctDescription];
-                    unsigned long v5 = self->_activationID;
-                    os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene invalidated with error: %{public}@.", loggingIdentifier4, v5, succinctDescription2);
+                    loggingIdentifier = [self loggingIdentifier];
+                    os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene invalidated.", loggingIdentifier, v29);
+                    return;
+                } else if (!v66) {
+                    return;
                 }
+                loggingIdentifier = [self loggingIdentifier];
+                succinctDescription = [arg2 succinctDescription];
+                os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@][%lu] Scene invalidated with error: %{public}@.", loggingIdentifier, v29, succinctDescription);
             };
             if (v28 != nil) {
                 [v24 host:self didInvalidateWithTransitionContext:v0 completion:v39];
@@ -2657,7 +2685,6 @@ void -[FBScene sendActions:toExtension:](id a1, Class a2)
 {
     os_log_t v8;
     id loggingIdentifier3;
-    long v7 = 0;
     if (![NSThread isMainThread]) {
         __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene sendActions:toExtension:]");
     }
@@ -2680,8 +2707,10 @@ void -[FBScene sendActions:toExtension:](id a1, Class a2)
             if (os_log_type_enabled(v8, OS_LOG_TYPE_ERROR)) {
                 id loggingIdentifier = [self loggingIdentifier];
                 os_log_with_type(v8, OS_LOG_TYPE_ERROR, "[%{public}@]  Dropping actions for invalidated scene.", loggingIdentifier);
+                return;
+            } else {
+                return;
             }
-            v7 = 1;
         }
     } else {
         if (!self->_active) {
@@ -2705,40 +2734,38 @@ void -[FBScene sendActions:toExtension:](id a1, Class a2)
             __break(0);
         }
     }
-    if (!v7) {
-        if (a2 != 0 && ([self conformsToExtension:a2] & 1) == 0) {
-            NSString *v27 = NSStringFromClass(a2);
-            NSString *v28 = [NSString stringWithFormat:@"scene does not conform to extension \"%@\"", v27];
+    if (a2 != 0 && ([self conformsToExtension:a2] & 1) == 0) {
+        NSString *v27 = NSStringFromClass(a2);
+        NSString *v28 = [NSString stringWithFormat:@"scene does not conform to extension \"%@\"", v27];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v29 = NSStringFromSelector(_cmd);
+            NSString *v30 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v29, v30, self, @"FBScene.m", 731, v28);
+        }
+        _bs_set_crash_log_message([v28 UTF8String]);
+        __break(0);
+    }
+    Class v9 = [BSAction class];
+    for (id v16 in a1) {
+        if (![v16 isKindOfClass:v9]) {
+            NSString *v32 = [NSString stringWithFormat:@"only actions of type BSAction can be sent : tried to send %@", v16];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v29 = NSStringFromSelector(_cmd);
-                NSString *v30 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v29, v30, self, @"FBScene.m", 731, v28);
+                NSString *v33 = NSStringFromSelector(_cmd);
+                NSString *v34 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v33, v34, self, @"FBScene.m", 736, v32);
             }
-            _bs_set_crash_log_message([v28 UTF8String]);
+            _bs_set_crash_log_message([v32 UTF8String]);
             __break(0);
         }
-        Class v9 = [BSAction class];
-        for (id v16 in a1) {
-            if (![v16 isKindOfClass:v9]) {
-                NSString *v32 = [NSString stringWithFormat:@"only actions of type BSAction can be sent : tried to send %@", v16];
-                if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                    NSString *v33 = NSStringFromSelector(_cmd);
-                    NSString *v34 = NSStringFromClass([self class]);
-                    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v33, v34, self, @"FBScene.m", 736, v32);
-                }
-                _bs_set_crash_log_message([v32 UTF8String]);
-                __break(0);
-            }
+    }
+    if (!self->_clientToken) {
+        v8 = FBLogScene();
+        if (os_log_type_enabled(v8, OS_LOG_TYPE_ERROR)) {
+            id loggingIdentifier2 = [self loggingIdentifier];
+            os_log_with_type(v8, OS_LOG_TYPE_ERROR, "[%{public}@] Dropping actions for scene with no client.", loggingIdentifier2);
         }
-        if (!self->_clientToken) {
-            v8 = FBLogScene();
-            if (os_log_type_enabled(v8, OS_LOG_TYPE_ERROR)) {
-                id loggingIdentifier2 = [self loggingIdentifier];
-                os_log_with_type(v8, OS_LOG_TYPE_ERROR, "[%{public}@] Dropping actions for scene with no client.", loggingIdentifier2);
-            }
-        } else {
-            [self->_client host:self didReceiveActions:a1 forExtension:a2];
-        }
+    } else {
+        [self->_client host:self didReceiveActions:a1 forExtension:a2];
     }
 }
 
@@ -2975,7 +3002,7 @@ void -[FBScene(UIApp) updateUISettingsWithBlock:](void (^a1)(FBSMutableSceneSett
 }
 
 
-FBSceneSnapshot *-[FBScene prepareSnapshotWithConfigurator:](id a1)
+FBSceneSnapshot *-[FBScene prepareSnapshotWithConfigurator:](void (^a1)(FBSceneSnapshotContext *))
 {
     return [[FBSceneSnapshot alloc] initWithScene:self context:[[FBSceneSnapshotContext alloc] initWithScene:self configurator:a1]];
 }

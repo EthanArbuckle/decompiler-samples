@@ -8,6 +8,5 @@ void -[RBSAssertion(FBWorkspace) fb_setWorkspaceState:](int a1)
 unsigned int -[RBSAssertion(FBWorkspace) fb_workspaceState](void)
 {
     id v0 = objc_getAssociatedObject(self, &__FBWorkspaceState);
-    unsigned int v1 = (!v0) ? &FBWorkspaceStateNone : [v0 unsignedIntValue];
-    return v1;
+    return (!v0) ? &FBWorkspaceStateNone : [v0 unsignedIntValue];
 }

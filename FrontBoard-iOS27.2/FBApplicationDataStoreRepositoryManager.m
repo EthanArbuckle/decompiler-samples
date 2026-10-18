@@ -91,8 +91,7 @@ int -[FBApplicationDataStoreRepositoryManager removeStoreAtURL:error:](id a1, NS
         if (![defaultManager removeItemAtURL:URL2 error:a2]) {
             return 0;
         }
-        int v2 = 1;
-        return v2;
+        return 1;
     }
     return 0;
 }
@@ -125,8 +124,8 @@ void -[FBApplicationDataStoreRepositoryManager migrateApplicationStorePathIfNece
                 if ((v22 & 1) == 0) {
                     os_log_t oslog = FBLogAppDataStore();
                     if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                        NSURL *v14 = self->_dataStoreURL;
-                        os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "Unable to migrate application state store from %{public}@ to %{public}@ due to error: %{public}@", v18, v14, v23);
+                        NSURL *v13 = self->_dataStoreURL;
+                        os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "Unable to migrate application state store from %{public}@ to %{public}@ due to error: %{public}@", v18, v13, v23);
                     }
                 }
             } else {
@@ -134,18 +133,18 @@ void -[FBApplicationDataStoreRepositoryManager migrateApplicationStorePathIfNece
             }
             id v25 = v23;
             long v26 = [self migrateFromPlistStoreAtURL:v18 toSqliteStoreAtURL:self->_dataStoreURL error:&v25];
-            if (v26 != 0) {
+            if (v26) {
                 os_log_t oslog3 = FBLogAppDataStore();
                 if (os_log_type_enabled(oslog3, OS_LOG_TYPE_INFO)) {
-                    NSURL *v12 = self->_dataStoreURL;
-                    os_log_with_type(oslog3, OS_LOG_TYPE_INFO, "Successfully migrated application state store from %{public}@ to %{public}@.", v18, v12);
+                    NSURL *v6 = self->_dataStoreURL;
+                    os_log_with_type(oslog3, OS_LOG_TYPE_INFO, "Successfully migrated application state store from %{public}@ to %{public}@.", v18, v6);
                 }
                 break;
             } else if (v25 != nil) {
                 os_log_t oslog2 = FBLogAppDataStore();
                 if (os_log_type_enabled(oslog2, OS_LOG_TYPE_ERROR)) {
-                    NSURL *v13 = self->_dataStoreURL;
-                    os_log_with_type(oslog2, OS_LOG_TYPE_ERROR, "Unable to migrate application state store from %{public}@ to %{public}@ due to error: %{public}@", v18, v13, v25);
+                    NSURL *v12 = self->_dataStoreURL;
+                    os_log_with_type(oslog2, OS_LOG_TYPE_ERROR, "Unable to migrate application state store from %{public}@ to %{public}@ due to error: %{public}@", v18, v12, v25);
                     continue;
                 }
             }
@@ -191,8 +190,7 @@ int -[FBApplicationDataStoreRepositoryManager migrateFromPlistStoreAtURL:toSqlit
     if (v2 == nil || v3 == nil) {
         return 0;
     }
-    int v4 = [self migrateFromApplicationStore:v2 toApplicationStore:v3 error:a3];
-    return v4;
+    return [self migrateFromApplicationStore:v2 toApplicationStore:v3 error:a3];
 }
 
 
@@ -228,53 +226,44 @@ void -[FBApplicationDataStoreRepositoryManager clearExpiredUninstalledApplicatio
             long v34 = [self _safeObjectForKey:@"__UninstallDate" forApplication:v31 ofType:[NSDate class]];
             id v35 = v34;
             if (!v34) {
-                long v8 = 0;
                 NSArray *v37 = v18;
+                v35 = nil;
                 for (id v14 in v37) {
                     v35 = [self _safeObjectForKey:v14 forApplication:v31 ofType:[NSDate class]];
-                    if (v35 != nil) {
-                        v8 = 1;
-                    }
-                    if (v8) {
+                    if (v35) {
                         break;
                     }
                 }
-                if (!v8) {
-                    v35 = nil;
-                }
             }
             [self->_dataStore removeObjectsForKeys:v18 forApplication:v31];
-            if (((v35 != nil) ? !v33 : 1) == 0) {
+            bool v43 = !v33;
+            if ((((v35 != nil) ? v43 : 1) & 1) == 0) {
                 os_log_t oslog2 = FBLogAppDataStore();
                 if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
                     os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "Application has been re-installed: %{public}@", v31);
                 }
 blk_1c4f2f2cc:
                 [self->_dataStore removeObjectForKey:@"__UninstallDate" forApplication:v31];
-            } else {
-                void (^v6)(void) = 0;
-                if ((((!v35) ? v33 : 1) & 1) != 0) {
-                    if (!v35 || v33) {
-                        goto blk_1c4f2f2cc;
-                    }
-                    if ([v35 timeIntervalSinceNow] >= -86400.0) {
-                        v6 = 1;
-                    }
-                    if (!v6) {
-                        [v17 addObject:v31];
+            } else if ((((!v35) ? v33 : 1) & 1) != 0) {
+                if (!v35 || v33) {
+                    goto blk_1c4f2f2cc;
+                }
+                NSTimeInterval timeIntervalSinceNow = [v35 timeIntervalSinceNow];
+                if (timeIntervalSinceNow >= -86400.0) {
+                    if (!v34) {
+                        [self->_dataStore setObject:v35 forKey:@"__UninstallDate" forApplication:v31];
                     }
                 } else {
-                    os_log_t oslog3 = FBLogAppDataStore();
-                    if (os_log_type_enabled(oslog3, OS_LOG_TYPE_DEFAULT)) {
-                        os_log_with_type(oslog3, OS_LOG_TYPE_DEFAULT, "Flagging application as uninstalled: %{public}@", v31);
-                    }
-                    NSDate *date = [NSDate date];
-                    [self->_dataStore setObject:date forKey:@"__UninstallDate" forApplication:v31];
-                    continue;
+                    [v17 addObject:v31];
                 }
-                if (v6 && !v34) {
-                    [self->_dataStore setObject:v35 forKey:@"__UninstallDate" forApplication:v31];
+            } else {
+                os_log_t oslog3 = FBLogAppDataStore();
+                if (os_log_type_enabled(oslog3, OS_LOG_TYPE_DEFAULT)) {
+                    os_log_with_type(oslog3, OS_LOG_TYPE_DEFAULT, "Flagging application as uninstalled: %{public}@", v31);
                 }
+                NSDate *date = [NSDate date];
+                [self->_dataStore setObject:date forKey:@"__UninstallDate" forApplication:v31];
+                continue;
             }
         }
         for (id v60 in v17) {

@@ -139,18 +139,15 @@ long -[FBProcessObserver invalidate](void)
 
 bool -[FBProcessObserver isEqual:](id a1)
 {
-    bool v1;
     if (self == a1) {
         return true;
     }
     if ([a1 isKindOfClass:[self class]] && a1->field_16 == self->_observerAddress && a1->field_24 == self->_observerClass) {
         id v2 = objc_loadWeakRetained(a1 + 8);
         id<FBProcessObserver> v3 = self->_observer;
-        v1 = v2 == v3;
-        return v1;
+        return v2 == v3;
     }
-    v1 = false;
-    return v1;
+    return false;
 }
 
 

@@ -168,9 +168,8 @@ void -[FBLocalSynchronousSceneClientProvider _sendToSceneWithInfo:updatedSetting
     [v7 _callOutQueue_didCreateWithTransitionContext:v3 alternativeCreationCallout:^void(void) {
         v10 = true;
         [v0 setPendingTransitionContext:v3];
-        id v24 = self;
         if (self->_callOutQueue_workspace != nil) {
-            [v24 _sendSceneCreateFBSWorkspaceDelegateForSceneInfo:v0];
+            [self _sendSceneCreateFBSWorkspaceDelegateForSceneInfo:v0];
             return;
         }
         if ([self->_pendingSceneCreatesBeforeFBSWorkspaceInitialization containsObject:v0] == 0) {
@@ -488,48 +487,47 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
 
 void -[FBLocalSynchronousSceneClientProvider _sendSceneCreateFBSWorkspaceDelegateForSceneInfo:](id a1)
 {
-    id v2;
     id v0 = a1;
-    if (self != nil) {
-        id callOutQueue = [self callOutQueue];
-        [callOutQueue assertBarrierOnQueue];
-        if (!v0) {
-            v2 = nil;
-        } else {
-            if ((v0->field_9 & 1) != 0) {
-                return;
-            }
-            v0->field_9 = 1;
-            v2 = v0->field_16;
-        }
-        id v3 = v2;
-        if (!self->_callOutQueue_workspace) {
-            FBSSceneIdentityToken *identityToken = [v3 identityToken];
-            NSString *v7 = [NSString stringWithFormat:@"cannot note creation of %@ without a reference to the workspace", identityToken];
-            if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v8 = NSStringFromSelector(@selector(_sendSceneCreateFBSWorkspaceDelegateForSceneInfo:));
-                NSString *v4 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v8, v4, self, @"FBLocalSynchronousSceneClientProvider.m", 585, v7);
-            }
-            _bs_set_crash_log_message([v7 UTF8String]);
-            __break(0);
-        }
-        [self->_callOutQueue_workspace _calloutQueue_executeCalloutFromSource:self withBlock:^void(void) {
-            id delegate = [self->_callOutQueue_workspace delegate];
-            BOOL v11 = [delegate respondsToSelector:@selector(workspace:didCreateScene:withTransitionContext:completion:)];
-            if (v11) {
-                id delegate2 = [self->_callOutQueue_workspace delegate];
-                id v13 = v0;
-                if (v0 != nil) {
-                    v13 = v13->field_16;
-                }
-                [delegate2 workspace:self->_callOutQueue_workspace didCreateScene:v13 withTransitionContext:(!v0) ? 0 : v0->field_24 completion:^void(FBSWorkspaceCreateSceneResponse *arg1) {
-                }];
-                return;
-            }
-        }];
-        [v0 setPendingTransitionContext:0];
+    if (!self) {
+        return;
     }
+    id callOutQueue = [self callOutQueue];
+    [callOutQueue assertBarrierOnQueue];
+    id v2 = nil;
+    if (v0 != nil) {
+        if ((v0->field_9 & 1) != 0) {
+            return;
+        }
+        v0->field_9 = 1;
+        v2 = v0->field_16;
+    }
+    id v3 = v2;
+    if (!self->_callOutQueue_workspace) {
+        FBSSceneIdentityToken *identityToken = [v3 identityToken];
+        NSString *v7 = [NSString stringWithFormat:@"cannot note creation of %@ without a reference to the workspace", identityToken];
+        if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+            NSString *v8 = NSStringFromSelector(@selector(_sendSceneCreateFBSWorkspaceDelegateForSceneInfo:));
+            NSString *v9 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v8, v9, self, @"FBLocalSynchronousSceneClientProvider.m", 585, v7);
+        }
+        _bs_set_crash_log_message([v7 UTF8String]);
+        __break(0);
+    }
+    [self->_callOutQueue_workspace _calloutQueue_executeCalloutFromSource:self withBlock:^void(void) {
+        id delegate = [self->_callOutQueue_workspace delegate];
+        BOOL v11 = [delegate respondsToSelector:@selector(workspace:didCreateScene:withTransitionContext:completion:)];
+        if (v11) {
+            id delegate2 = [self->_callOutQueue_workspace delegate];
+            id v13 = v0;
+            if (v0 != nil) {
+                v13 = v13->field_16;
+            }
+            [delegate2 workspace:self->_callOutQueue_workspace didCreateScene:v13 withTransitionContext:(!v0) ? 0 : v0->field_24 completion:^void(FBSWorkspaceCreateSceneResponse *arg1) {
+            }];
+            return;
+        }
+    }];
+    [v0 setPendingTransitionContext:0];
 }
 
 
@@ -634,10 +632,9 @@ FBLocalSynchronousSceneClientProvider *-[FBLocalSynchronousSceneClientProvider _
                         os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "LocalSynchronousSceneClientProvider received workspace creation.");
                     }
                     self->_callOutQueue_workspace = arg1;
-                    void *v53 = self;
-                    [self->_callOutQueue_workspace _registerSource:v53];
+                    [self->_callOutQueue_workspace _registerSource:self];
                     id v54 = [self->_pendingSceneCreatesBeforeFBSWorkspaceInitialization copy];
-                    for (id v13 in v54) {
+                    for (id v44 in v54) {
                         os_log_t oslog = FBLogCommon();
                         if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
                             id v48 = (!v44) ? nil : v44->field_16;
@@ -751,8 +748,7 @@ id -[FBLocalSynchronousSceneClientProvider fbsSceneWithIdentifier:](NSString *a1
         id identifier = [v8 identifier];
         if ([identifier isEqualToString:a1]) {
             v8 = [self->_localSceneInfoByIdentity objectForKey:v8];
-            id v5 = (!v8) ? nil : v8->field_16;
-            return v5;
+            return (!v8) ? nil : v8->field_16;
         }
     }
     return nil;
@@ -889,9 +885,8 @@ void -[FBLocalSynchronousSceneClientProvider host:didReceiveActions:forExtension
 }
 
 
-void -[FBLocalSynchronousSceneClientProvider host:sendInvocation:withReply:](id a1, id a2, id a3)
+void -[FBLocalSynchronousSceneClientProvider host:sendInvocation:withReply:](id a1, id a2, void (^a3)(long, long))
 {
-    void (^v2)(long, long) = a3;
     id callOutQueue = [self callOutQueue];
     [callOutQueue assertBarrierOnQueue];
     if (self->_invalidated == 1) {
@@ -919,12 +914,12 @@ void -[FBLocalSynchronousSceneClientProvider host:sendInvocation:withReply:](id 
     id v6 = [self->_localSceneInfoByIdentity objectForKey:identity];
     id v7 = (!v6) ? nil : v6->field_16;
     if (v7) {
-        [a2 invokeWithReceiver:v7 replyHandler:v2];
-    } else if (v2 != 0) {
+        [a2 invokeWithReceiver:v7 replyHandler:a3];
+    } else if (a3 != nil) {
         id v8 = [NSError bs_errorWithDomain:@"FBLocalSynchronousSceneClientProvider" code:1 configuration:^void(id<BSErrorConfiguring> arg1) {
             [arg1 setFailureDescription:@"No client scene exists"];
         }];
-        v2(0, v8);
+        a3(0, v8);
     }
 }
 
@@ -1078,7 +1073,7 @@ NSMutableSet *-[FBLocalSynchronousSceneClientProvider scenes](void)
 }
 
 
-void -[FBLocalSynchronousSceneClientProvider sendActions:toWorkspaceID:completion:](id a1, id a2, id a3)
+void -[FBLocalSynchronousSceneClientProvider sendActions:toWorkspaceID:completion:](id a1, id a2, void (^a3)(int, NSError *))
 {
     long v5;
     id callOutQueue = [self callOutQueue];
@@ -1102,13 +1097,12 @@ void -[FBLocalSynchronousSceneClientProvider sendActions:toWorkspaceID:completio
     FBWorkspaceSceneRequest *v8 = [[FBWorkspaceSceneRequest alloc] initWithTargetIdentifier:v5 actions:a1 completion:^void(FBScene *arg1, NSError *arg2) {
         if (!a3) {
             return;
-        } else if (!arg2) {
-            a3->field_16(a3, 1, arg2);
-            return;
-        } else {
-            a3->field_16(a3, 0, arg2);
+        }
+        if (!arg2) {
+            a3(1, arg2);
             return;
         }
+        a3(0, arg2);
     }];
     [self->_eventDispatcher handleLocalSceneRequest:v8];
 }
@@ -1256,9 +1250,9 @@ void -[FBLocalSynchronousSceneClientProvider activateSceneFuture:completion:](id
 }
 
 
-void -[FBLocalSynchronousSceneClientProvider requestSceneWithOptions:completion:](id a1, void (^a2)(long, long))
+void -[FBLocalSynchronousSceneClientProvider requestSceneWithOptions:completion:](id a1, void (^a2)(FBSScene *, NSError *))
 {
-    void (^v1)(long, long) = a2;
+    void (^v1)(FBSScene *, NSError *) = a2;
     id callOutQueue = [self callOutQueue];
     [callOutQueue assertBarrierOnQueue];
     if (self->_invalidated == 1) {
@@ -1293,28 +1287,27 @@ void -[FBLocalSynchronousSceneClientProvider requestSceneWithOptions:completion:
     id localIdentity = [FBSSceneClientIdentity localIdentity];
     FBWorkspaceSceneRequest *v10 = [[FBWorkspaceSceneRequest alloc] initWithClientIdentity:localIdentity targetIdentifier:workspaceIdentifier options:a1 completion:^void(FBScene *arg1, NSError *arg2) {
         BSDispatchMain(^void(void) {
-            long v26;
             if (arg1) {
-                v26 = [self fbsSceneForScene:arg1];
-                if (!v26) {
-                    NSString *v23 = [NSString stringWithFormat:@"no FBSScene for active FBScene"];
+                FBSScene *v21 = [self fbsSceneForScene:arg1];
+                if (!v21) {
+                    NSString *v24 = [NSString stringWithFormat:@"no FBSScene for active FBScene"];
                     if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                        NSString *v24 = NSStringFromSelector(_cmd);
-                        NSString *v25 = NSStringFromClass([self class]);
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v24, v25, self, @"FBLocalSynchronousSceneClientProvider.m", 507, v23);
+                        NSString *v25 = NSStringFromSelector(_cmd);
+                        NSString *v26 = NSStringFromClass([self class]);
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v25, v26, self, @"FBLocalSynchronousSceneClientProvider.m", 507, v24);
                     }
-                    _bs_set_crash_log_message([v23 UTF8String]);
+                    _bs_set_crash_log_message([v24 UTF8String]);
                     __break(0);
                 }
                 if (v1) {
-                    v1(v26, 0);
+                    v1(v21, nil);
                 }
             } else {
                 if (!v1) {
                     return;
                 }
-                v26 = FBSWorkspaceErrorCreate(arg2, 2, @"Scene was not created.");
-                v1(0, v26);
+                NSError *v28 = FBSWorkspaceErrorCreate(arg2, 2, @"Scene was not created.");
+                v1(nil, v28);
             }
         });
     }];

@@ -62,9 +62,9 @@ void -[FBProcessExecutionContext setCheckForLeaks:](bool a1)
 }
 
 
-void -[FBProcessExecutionContext setCompletion:](id a1)
+void -[FBProcessExecutionContext setCompletion:](void (^a1)(FBProcess *, NSError *))
 {
-    void (^v0)(long, id) = a1;
+    void (^v0)(FBProcess *, NSError *) = a1;
     if (!a1) {
         self->_completion = nil;
     } else {
@@ -77,10 +77,10 @@ void -[FBProcessExecutionContext setCompletion:](id a1)
             if (![v2 signal]) {
                 return;
             }
-            id v12 = [NSError bs_errorWithDomain:@"FBProcessExecutionContext" code:1 configuration:^void(id<BSErrorConfiguring> arg1) {
+            NSError *v12 = [NSError bs_errorWithDomain:@"FBProcessExecutionContext" code:1 configuration:^void(id<BSErrorConfiguring> arg1) {
                 [arg1 setFailureReason:@"No process execution was performed"];
             }];
-            v0(0, v12);
+            v0(nil, v12);
         }];
         self->_completion = [^void(FBProcess *arg1, NSError *arg2) {
             if ([v5 signal] != 0) {

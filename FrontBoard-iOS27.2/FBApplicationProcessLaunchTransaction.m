@@ -90,8 +90,7 @@ void -[FBApplicationProcessLaunchTransaction _queue_processWillLaunch:](FBProces
         [a1 _executeBlockAsCurrentProcess:^void(void) {
             [self _enumerateObserversWithBlock:^void(id<BSTransactionObserver> arg1) {
                 if ([arg1 respondsToSelector:@selector(transaction:willLaunchProcess:)]) {
-                    void *v8 = self;
-                    [arg1 transaction:v8 willLaunchProcess:self->_process];
+                    [arg1 transaction:self willLaunchProcess:self->_process];
                 }
             }];
         }];
@@ -112,8 +111,7 @@ void -[FBApplicationProcessLaunchTransaction _queue_finishProcessLaunch:](long a
     if (a1 != 0) {
         [self _enumerateObserversWithBlock:^void(id<BSTransactionObserver> arg1) {
             if ([arg1 respondsToSelector:@selector(transaction:didLaunchProcess:)]) {
-                void *v4 = self;
-                [arg1 transaction:v4 didLaunchProcess:self->_process];
+                [arg1 transaction:self didLaunchProcess:self->_process];
             }
         }];
         [self satisfyMilestone:@"processDidFinishLaunching"];

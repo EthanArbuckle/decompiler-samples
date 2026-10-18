@@ -90,8 +90,7 @@ id -[FBSceneWorkspace sceneWithIdentifier:](id a1)
     if (![NSThread isMainThread]) {
         __FB_REPORT_MAIN_THREAD_VIOLATION__(1, "-[FBSceneWorkspace sceneWithIdentifier:]");
     }
-    id v1 = (!a1) ? nil : [self->_allScenesByID objectForKey:a1];
-    return v1;
+    return (!a1) ? nil : [self->_allScenesByID objectForKey:a1];
 }
 
 
@@ -1122,8 +1121,7 @@ FBSceneWorkspace *-[FBSceneWorkspace _initWithProcessManager:identifier:](FBProc
     id v9 = [self->_processManager legacySceneManagerCreatingIfNecessary:0];
     id v12 = [v9 scenesPassingTest:^bool(FBScene *arg1, bool *arg2) {
         NSString *workspaceIdentifier = [arg1 workspaceIdentifier];
-        long v65 = BSEqualStrings(workspaceIdentifier, v2);
-        return v65;
+        return BSEqualStrings(workspaceIdentifier, v2);
     }];
     if ([v12 count] != 0) {
         NSString *v60 = [NSString stringWithFormat:@"legacy scene manager contains scene with workspaceID \"%@\"", v2];
@@ -1149,14 +1147,12 @@ FBSceneWorkspace *-[FBSceneWorkspace _initWithProcessManager:identifier:](FBProc
         NSString *v27 = [NSString stringWithFormat:@"FBSceneWorkspace minus scenes - %@", v16->_identifier];
         __weak FBSceneWorkspace *v14 = v16;
         v16->_stateCaptureAssertion = BSLogAddStateCaptureBlockForUserRequestsOnlyWithTitle(dispatch_get_main_queue(), v27, ^id(void) {
-            id succinctDescription = [v14 succinctDescription];
-            return succinctDescription;
+            return [v14 succinctDescription];
         });
         [__Workspaces setObject:v16 forKey:v16->_identifier];
     }
     os_unfair_lock_unlock(&__WorkspacesLock);
-    self = v16;
-    return self;
+    return v16;
 }
 
 

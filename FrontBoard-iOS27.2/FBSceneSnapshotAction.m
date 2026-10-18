@@ -26,7 +26,7 @@ void -[FBSceneSnapshotAction dealloc](void)
 }
 
 
-FBSceneSnapshotAction *-[FBSceneSnapshotAction initWithScene:requests:expirationInterval:responseHandler:](id a1, id a2, id a3, long a4)
+FBSceneSnapshotAction *-[FBSceneSnapshotAction initWithScene:requests:expirationInterval:responseHandler:](id a1, id a2, void (^a3)(BSActionResponse *), long a4)
 {
     long v19;
     struct objc_super v26;
@@ -71,7 +71,7 @@ FBSceneSnapshotAction *-[FBSceneSnapshotAction initWithScene:requests:expiration
         }
         [v11 invalidate];
         if (a3 != nil) {
-            a3->field_16(a3, arg1);
+            a3(arg1);
         }
     }, v19);
     if (v27 != nil) {

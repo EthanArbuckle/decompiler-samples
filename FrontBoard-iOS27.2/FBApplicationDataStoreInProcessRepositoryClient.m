@@ -126,9 +126,6 @@ bool -[FBApplicationDataStoreInProcessRepositoryClient prefetchedObjectIfAvailab
         }
         NSNull *null = [NSNull null];
         BOOL v18 = [v2 isEqual:null];
-        if (!v18) {
-            v2 = v2;
-        }
     });
     if (v3 != 1) {
         os_log_t oslog2 = FBLogAppDataStore();

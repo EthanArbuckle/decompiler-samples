@@ -22,8 +22,7 @@ unsigned long -[FBSystemShellInitializationContext lastExitReason](void)
     if (!lastExitContext) {
         return 0;
     }
-    unsigned long exitReason = [[[FBProcessExitContext alloc] initWithUnderlyingContext:lastExitContext] exitReason];
-    return exitReason;
+    return [[[FBProcessExitContext alloc] initWithUnderlyingContext:lastExitContext] exitReason];
 }
 
 

@@ -336,16 +336,16 @@ blk_1c4ed71dc:
                             self->_lock_bootstrapBlocks = nil;
                             os_unfair_recursive_lock_unlock(&self->_lock);
                             [self _executeBlockAsCurrentProcess:^void(void) {
-                                for (id v6 in v139) {
-                                    v143->field_16(v143, self, 0);
+                                for (id v144 in v139) {
+                                    v144->field_16(v144, self, 0);
                                 }
                                 if (![self isApplicationProcess]) {
                                     return;
                                 }
                                 self->_calloutQueue_sentAppWillLaunch = YES;
                                 id _observers = [self _observers];
-                                for (id v10 in _observers) {
-                                    [v142 applicationProcessWillLaunch:self];
+                                for (id v143 in _observers) {
+                                    [v143 applicationProcessWillLaunch:self];
                                 }
                             }];
                         });
@@ -360,20 +360,20 @@ blk_1c4ed71dc:
                             id<FBProcessDelegate> delegate = [self delegate];
                             [delegate noteProcessDidLaunch:self];
                             os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
-                            NSMutableArray *v146 = self->_lock_bootstrapBlocks;
+                            NSMutableArray *v147 = self->_lock_bootstrapBlocks;
                             self->_lock_bootstrapBlocks = nil;
                             os_unfair_recursive_lock_unlock(&self->_lock);
                             [self _executeBlockAsCurrentProcess:^void(void) {
-                                for (id v6 in v146) {
-                                    v150->field_16(v150, self, 0);
+                                for (id v152 in v147) {
+                                    v152->field_16(v152, self, 0);
                                 }
                                 if (![self isApplicationProcess]) {
                                     return;
                                 }
                                 self->_calloutQueue_sentAppWillLaunch = YES;
                                 id _observers = [self _observers];
-                                for (id v10 in _observers) {
-                                    [v149 applicationProcessWillLaunch:self];
+                                for (id v151 in _observers) {
+                                    [v151 applicationProcessWillLaunch:self];
                                 }
                             }];
                         });
@@ -389,20 +389,20 @@ blk_1c4ed71dc:
                                 id<FBProcessDelegate> delegate = [self delegate];
                                 [delegate noteProcessDidLaunch:self];
                                 os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
-                                NSMutableArray *v153 = self->_lock_bootstrapBlocks;
+                                NSMutableArray *v155 = self->_lock_bootstrapBlocks;
                                 self->_lock_bootstrapBlocks = nil;
                                 os_unfair_recursive_lock_unlock(&self->_lock);
                                 [self _executeBlockAsCurrentProcess:^void(void) {
-                                    for (id v6 in v153) {
-                                        v157->field_16(v157, self, 0);
+                                    for (id v160 in v155) {
+                                        v160->field_16(v160, self, 0);
                                     }
                                     if (![self isApplicationProcess]) {
                                         return;
                                     }
                                     self->_calloutQueue_sentAppWillLaunch = YES;
                                     id _observers = [self _observers];
-                                    for (id v10 in _observers) {
-                                        [v156 applicationProcessWillLaunch:self];
+                                    for (id v159 in _observers) {
+                                        [v159 applicationProcessWillLaunch:self];
                                     }
                                 }];
                             });
@@ -427,20 +427,20 @@ blk_1c4ed71dc:
                         id<FBProcessDelegate> delegate = [self delegate];
                         [delegate noteProcessDidLaunch:self];
                         os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
-                        NSMutableArray *v160 = self->_lock_bootstrapBlocks;
+                        NSMutableArray *v163 = self->_lock_bootstrapBlocks;
                         self->_lock_bootstrapBlocks = nil;
                         os_unfair_recursive_lock_unlock(&self->_lock);
                         [self _executeBlockAsCurrentProcess:^void(void) {
-                            for (id v6 in v160) {
-                                v164->field_16(v164, self, 0);
+                            for (id v168 in v163) {
+                                v168->field_16(v168, self, 0);
                             }
                             if (![self isApplicationProcess]) {
                                 return;
                             }
                             self->_calloutQueue_sentAppWillLaunch = YES;
                             id _observers = [self _observers];
-                            for (id v10 in _observers) {
-                                [v163 applicationProcessWillLaunch:self];
+                            for (id v167 in _observers) {
+                                [v167 applicationProcessWillLaunch:self];
                             }
                         }];
                     });
@@ -1000,7 +1000,7 @@ bool -[FBProcess _startWatchdogTimerForContext:](id a1)
 {
     bool v2;
     FBProcessWatchdog *v4;
-    long v1 = __getpid(a1);
+    long v1 = __getpid();
     if (self->_pid == v1) {
         return false;
     }
@@ -1099,8 +1099,7 @@ id -[FBProcess _watchdogProvider](void)
     os_unfair_lock_lock(&self->_watchdogProviderLock);
     id<FBProcessWatchdogProviding> v0 = self->_watchdogProvider;
     os_unfair_lock_unlock(&self->_watchdogProviderLock);
-    id v1 = (!v0) ? [self delegate] : v0;
-    return v1;
+    return (!v0) ? [self delegate] : v0;
 }
 
 
@@ -1138,15 +1137,14 @@ FBSApplicationInfo *-[FBProcess applicationInfo](void)
 
 long -[FBProcess addObserver:](id a1)
 {
-    NSObject<OS_dispatch_queue> *v3;
     if (a1 != nil) {
         FBProcessObserver *v2 = [[FBProcessObserver alloc] initWithObserver:a1];
         os_unfair_lock_lock(&self->_observerLock);
         if (v2 && ![self->_observerLock_observers containsObject:v2]) {
             [self->_observerLock_observers addObject:v2];
             os_unfair_lock_unlock(&self->_observerLock);
-            v3 = [FBProcess calloutQueue];
-            dispatch_async(v3, ^void(void) {
+            NSObject<OS_dispatch_queue> *calloutQueue = [FBProcess calloutQueue];
+            dispatch_async(calloutQueue, ^void(void) {
                 void *v0 = self;
                 if (v0->_calloutQueue_sentWillExit == 1) {
                     [v2 processWillExit:v0];
@@ -1165,11 +1163,10 @@ long -[FBProcess addObserver:](id a1)
                 }
                 [v2 applicationProcessDidLaunch:v0];
             });
-            return v3;
+            return calloutQueue;
         }
         os_unfair_lock_unlock(&self->_observerLock);
-        v3 = [v2 invalidate];
-        return v3;
+        return [v2 invalidate];
     }
     return self;
 }
@@ -1251,9 +1248,10 @@ void -[FBProcess _executeBlockAfterLaunchCompletes:](void (^a1)(bool))
 }
 
 
-void -[FBProcess _launchDidComplete:finalizeBlock:](bool a1, dispatch_block_t a2)
+void -[FBProcess _launchDidComplete:finalizeBlock:](bool a1, void (^a2)(void))
 {
     uint8_t v16[32];
+    void (^v0)(void) = a2;
     os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
     if (self->_lock_launchFinalized != 1) {
         self->_lock_launchFinalized = YES;
@@ -1340,17 +1338,17 @@ void -[FBProcess _launchDidComplete:finalizeBlock:](bool a1, dispatch_block_t a2
                     v39 = self;
                 }
                 os_unfair_recursive_lock_unlock(&v39->_lock);
-                if (!v16) {
+                if (!v0) {
                     return;
                 }
-                *(uint64_t *)&v16[16](v16);
+                v0();
             });
         });
     } else {
         os_unfair_recursive_lock_unlock(&self->_lock);
-        if (a2 != nil) {
+        if (v0 != nil) {
             NSObject<OS_dispatch_workloop> *queue2 = [FBProcess userInitiatedWorkloop];
-            dispatch_async(queue2, a2);
+            dispatch_async(queue2, v0);
         }
     }
 }
@@ -1610,68 +1608,68 @@ void -[FBProcess _processDidExitWithContext:](id a1)
     FBProcessExitContext *v0 = a1;
     [self _launchDidComplete:0 finalizeBlock:0];
     os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
-    if (self->_lock_didExit != 1) {
-        [self _notePendingExitForReason:@"process exited"];
-        if (!v0 && (!self->_bootstrapError || ![[FBProcessExitContext alloc] initWithLaunchError:self->_bootstrapError])) {
-            os_log_t oslog = FBLogProcess();
-            if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "No exit context obtained for %{public}@", self);
-            }
-            v0 = [[FBProcessExitContext alloc] initWithUnderlyingContext:[[RBSProcessExitContext alloc] init]];
-        }
-        [v0 setTerminationRequest:self->_lock_terminationRequest];
-        [v0 setWatchdogContext:self->_lock_terminationWatchdogContext];
-        [v0 setTerminationReason:self->_terminationReason];
-        [v0 setStateBeforeExiting:self->_lock_state];
-        self->_lock_exitContext = v0;
-        [self->_lock_watchdog invalidate];
-        [self->_lock_exitTimer invalidate];
-        self->_lock_exitTimer = nil;
-        [self->_lock_gracefulExitAssertion invalidate];
-        self->_lock_gracefulExitAssertion = nil;
-        os_log_t oslog2 = FBLogProcess();
-        if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
-            NSString *logProem = [self logProem];
-            FBProcessExitContext *v1 = self->_lock_exitContext;
-            os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "%{public}@ Process exited: %{public}@.", logProem, v1);
-        }
-        [self _updateStateWithBlock:^void(FBProcessState *arg1) {
-            [arg1 setTaskState:1];
-            [arg1 setVisibility:0];
-        }];
-        self->_lock_didExit = YES;
-        NSMutableArray *v7 = self->_lock_terminateRequestCompletionBlocks;
-        self->_lock_terminateRequestCompletionBlocks = nil;
-        NSObject<OS_dispatch_queue> *queue = [FBProcess calloutQueue];
-        dispatch_async(queue, ^void(void) {
-            id<FBProcessDelegate> delegate = [self delegate];
-            [delegate noteProcessDidExit:self];
-            os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
-            NSMutableArray *v15 = self->_lock_bootstrapBlocks;
-            self->_lock_bootstrapBlocks = nil;
-            os_unfair_recursive_lock_unlock(&self->_lock);
-            self->_calloutQueue_sentDidExit = YES;
-            [self _executeBlockAsCurrentProcess:^void(void) {
-                if ([v15 count] != 0) {
-                    id createError = [v0 createError];
-                    for (id v7 in v15) {
-                        v23->field_16(v23, self, createError);
-                    }
-                }
-                id _observers = [self _observers];
-                for (id v22 in _observers) {
-                    [v22 processDidExit:self];
-                }
-                for (id v20 in v7) {
-                    v20->field_16(v20, 1);
-                }
-            }];
-            FBAnalyticsLogHangTracerEvent(self, 3);
-        });
+    if (self->_lock_didExit == 1) {
         os_unfair_recursive_lock_unlock(&self->_lock);
-    } else {
-        os_unfair_recursive_lock_unlock(&self->_lock);
+        return;
     }
+    [self _notePendingExitForReason:@"process exited"];
+    if (!v0 && (!self->_bootstrapError || ![[FBProcessExitContext alloc] initWithLaunchError:self->_bootstrapError])) {
+        os_log_t oslog = FBLogProcess();
+        if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
+            os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "No exit context obtained for %{public}@", self);
+        }
+        v0 = [[FBProcessExitContext alloc] initWithUnderlyingContext:[[RBSProcessExitContext alloc] init]];
+    }
+    [v0 setTerminationRequest:self->_lock_terminationRequest];
+    [v0 setWatchdogContext:self->_lock_terminationWatchdogContext];
+    [v0 setTerminationReason:self->_terminationReason];
+    [v0 setStateBeforeExiting:self->_lock_state];
+    self->_lock_exitContext = v0;
+    [self->_lock_watchdog invalidate];
+    [self->_lock_exitTimer invalidate];
+    self->_lock_exitTimer = nil;
+    [self->_lock_gracefulExitAssertion invalidate];
+    self->_lock_gracefulExitAssertion = nil;
+    os_log_t oslog2 = FBLogProcess();
+    if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
+        NSString *logProem = [self logProem];
+        FBProcessExitContext *v1 = self->_lock_exitContext;
+        os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "%{public}@ Process exited: %{public}@.", logProem, v1);
+    }
+    [self _updateStateWithBlock:^void(FBProcessState *arg1) {
+        [arg1 setTaskState:1];
+        [arg1 setVisibility:0];
+    }];
+    self->_lock_didExit = YES;
+    NSMutableArray *v7 = self->_lock_terminateRequestCompletionBlocks;
+    self->_lock_terminateRequestCompletionBlocks = nil;
+    NSObject<OS_dispatch_queue> *queue = [FBProcess calloutQueue];
+    dispatch_async(queue, ^void(void) {
+        id<FBProcessDelegate> delegate = [self delegate];
+        [delegate noteProcessDidExit:self];
+        os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
+        NSMutableArray *v15 = self->_lock_bootstrapBlocks;
+        self->_lock_bootstrapBlocks = nil;
+        os_unfair_recursive_lock_unlock(&self->_lock);
+        self->_calloutQueue_sentDidExit = YES;
+        [self _executeBlockAsCurrentProcess:^void(void) {
+            if ([v15 count] != 0) {
+                id createError = [v0 createError];
+                for (id v23 in v15) {
+                    v23->field_16(v23, self, createError);
+                }
+            }
+            id _observers = [self _observers];
+            for (id v22 in _observers) {
+                [v22 processDidExit:self];
+            }
+            for (id v20 in v7) {
+                v20->field_16(v20, 1);
+            }
+        }];
+        FBAnalyticsLogHangTracerEvent(self, 3);
+    });
+    os_unfair_recursive_lock_unlock(&self->_lock);
 }
 
 
@@ -1902,27 +1900,26 @@ long -[FBProcess isPlatformBinary](void)
 }
 
 
-void -[FBProcess _executeBlockAfterBootstrap:](void (^a1)(id, id))
+void -[FBProcess _executeBlockAfterBootstrap:](void (^a1)(FBProcess *, NSError *))
 {
-    void (^v0)(id, id) = a1;
+    void (^v0)(FBProcess *, NSError *) = a1;
     if (a1 != nil) {
         os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
         if (!self->_lock_bootstrapBlocks) {
             NSObject<OS_dispatch_queue> *queue = [FBProcess calloutQueue];
             dispatch_async(queue, ^void(void) {
                 [self _executeBlockAsCurrentProcess:^void(void) {
-                    id v8 = self;
                     if (!self->_rbsHandle) {
-                        FBProcessExitContext *exitContext = [v8 exitContext];
-                        id createError = [exitContext createError];
-                        v0(v8, createError);
+                        FBProcessExitContext *exitContext = [self exitContext];
+                        NSError *createError = [exitContext createError];
+                        v0(self, createError);
                         return;
                     }
-                    v0(v8, nil);
+                    v0(self, nil);
                 }];
             });
         } else {
-            void (^aBlock)(id, id) = [v0 copy];
+            void (^aBlock)(FBProcess *, NSError *) = [v0 copy];
             id v5 = _Block_copy(aBlock);
             [self->_lock_bootstrapBlocks addObject:v5];
         }
@@ -2091,7 +2088,7 @@ void -[FBProcess _terminateWithRequest:completion:](id a1, void (^a2)(long))
 void -[FBProcess _killForReason:andReport:withDescription:completion:](long a1, int a2, id a3, id a4)
 {
     id v1 = a3;
-    long v3 = __getpid(a4);
+    long v3 = __getpid();
     if (self->_pid == v3) {
         id v4 = FBSApplicationTerminationReasonDescription(a1);
         NSString *v5 = [NSString stringWithFormat:@"The current requested its own termination (for reason \"%@\" with description \"%@\")", v4, v1];

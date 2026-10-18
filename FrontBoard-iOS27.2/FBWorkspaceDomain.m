@@ -252,71 +252,67 @@ NSArray *-[FBWorkspaceDomain selfAssertionAttributesForWorkspaceState:](int *a1)
 
 void -[FBWorkspaceDomain _didReceiveConnection:](id a1)
 {
-    os_log_t v12;
-    os_log_t v2;
+    os_log_t v3;
     id v0 = a1;
     if (self != 0) {
-        do {
-            id remoteToken = [v0 remoteToken];
-            if (remoteToken && ![remoteToken isInvalid]) {
-                id initiatingContext = [v0 initiatingContext];
-                if (![initiatingContext decodeBoolForKey:@"targetsClientEndpoint"]) {
-                    os_unfair_lock_lock(&self->_icdLock);
-                    if (!self->_icdLock_pendingIndirectConnectionBlocks) {
-                        id<FBWorkspaceDomainConnectionDelegate> v6 = self->_icdLock_indirectConnectionDelegate;
-                        os_unfair_lock_unlock(&self->_icdLock);
-                        if (!v6) {
-                            os_log_t oslog = FBLogCommon();
-                            if (os_log_type_enabled(oslog, OS_LOG_TYPE_INFO)) {
-                                os_log_with_type(oslog, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Invalidating defunct indirect connection %p with remoteToken=%{public}@", v0, remoteToken);
-                            }
-                            [v0 invalidate];
-                        } else {
-                            [v6 domain:self didReceiveConnection:v0];
-                        }
-                    } else {
-                        void (^v9)(id<FBWorkspaceDomainConnectionDelegate>) = ^void(id<FBWorkspaceDomainConnectionDelegate> arg1) {
-                            if (arg1 != nil) {
-                                [arg1 domain:self didReceiveConnection:v0];
-                                return;
-                            }
-                            os_log_t v16 = FBLogCommon();
-                            if (os_log_type_enabled(v16, OS_LOG_TYPE_INFO)) {
-                                os_log_with_type(v16, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Invalidating pended indirect connection %p with remoteToken=%{public}@", v0, remoteToken);
-                            }
-                            [v0 invalidate];
-                        };
-                        void (^aBlock)(id<FBWorkspaceDomainConnectionDelegate>) = [v9 copy];
-                        id v11 = _Block_copy(aBlock);
-                        [self->_icdLock_pendingIndirectConnectionBlocks addObject:v11];
-                        os_unfair_lock_unlock(&self->_icdLock);
-                    }
-                    os_unfair_lock_assert_not_owner(&self->_icdLock);
-                    return;
-                }
-                if (self->_allowsDirectConnections) {
-                    v12 = FBLogCommon();
-                    if (os_log_type_enabled(v12, OS_LOG_TYPE_INFO)) {
-                        os_log_with_type(v12, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Enqueuing new direct workspace connection %p with remoteToken=%{public}@", v0, remoteToken);
-                    }
-                    [self->_coupler _enqueueClientConnectionBlock:^void(FBSWorkspace *arg1) {
+        long v1 = 0;
+        id remoteToken = [v0 remoteToken];
+        if (!remoteToken || [remoteToken isInvalid] != 0) {
+            v3 = FBLogCommon();
+            if (os_log_type_enabled(v3, OS_LOG_TYPE_ERROR)) {
+                os_log_with_type(v3, OS_LOG_TYPE_ERROR, "FBWorkspaceDomain: Unable to validate new incoming connection because the remote was unknown : connection=%@", v0);
+            }
+            v1 = 1;
+        } else {
+            id initiatingContext = [v0 initiatingContext];
+            if (![initiatingContext decodeBoolForKey:@"targetsClientEndpoint"]) {
+                os_unfair_lock_lock(&self->_icdLock);
+                if (self->_icdLock_pendingIndirectConnectionBlocks != nil) {
+                    void (^v10)(id<FBWorkspaceDomainConnectionDelegate>) = ^void(id<FBWorkspaceDomainConnectionDelegate> arg1) {
                         if (arg1 != nil) {
-                            [arg1 _registerSourcePeer:v0];
+                            [arg1 domain:self didReceiveConnection:v0];
                             return;
                         }
                         os_log_t v17 = FBLogCommon();
                         if (os_log_type_enabled(v17, OS_LOG_TYPE_INFO)) {
-                            os_log_with_type(v17, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Invalidating enqueued direct connection %p with remoteToken=%{public}@", v0, remoteToken);
+                            os_log_with_type(v17, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Invalidating pended indirect connection %p with remoteToken=%{public}@", v0, remoteToken);
                         }
-                    }];
-                    return;
+                        [v0 invalidate];
+                    };
+                    void (^aBlock)(id<FBWorkspaceDomainConnectionDelegate>) = [v10 copy];
+                    id v12 = _Block_copy(aBlock);
+                    [self->_icdLock_pendingIndirectConnectionBlocks addObject:v12];
+                    os_unfair_lock_unlock(&self->_icdLock);
+                } else {
+                    id<FBWorkspaceDomainConnectionDelegate> v7 = self->_icdLock_indirectConnectionDelegate;
+                    os_unfair_lock_unlock(&self->_icdLock);
+                    if (v7 != nil) {
+                        [v7 domain:self didReceiveConnection:v0];
+                    } else {
+                        os_log_t oslog2 = FBLogCommon();
+                        if (os_log_type_enabled(oslog2, OS_LOG_TYPE_INFO)) {
+                            os_log_with_type(oslog2, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Invalidating defunct indirect connection %p with remoteToken=%{public}@", v0, remoteToken);
+                        }
+                        [v0 invalidate];
+                    }
                 }
-                int pid = [remoteToken pid];
-                long v15 = __getpid(pid);
-                if (pid == v15) {
-                    v12 = FBLogCommon();
-                    if (os_log_type_enabled(v12, OS_LOG_TYPE_INFO)) {
-                        os_log_with_type(v12, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Enqueuing new direct workspace connection %p with remoteToken=%{public}@", v0, remoteToken);
+                os_unfair_lock_assert_not_owner(&self->_icdLock);
+            } else {
+                if (!self->_allowsDirectConnections) {
+                    int pid = [remoteToken pid];
+                    long v16 = __getpid(pid);
+                    if (pid != v16) {
+                        v3 = FBLogCommon();
+                        if (os_log_type_enabled(v3, OS_LOG_TYPE_ERROR)) {
+                            os_log_with_type(v3, OS_LOG_TYPE_ERROR, "FBWorkspaceDomain: Unable to register new direct connection with remoteToken=%{public}@ because the service doesn't declare support for direct connections", remoteToken);
+                        }
+                        v1 = 1;
+                    }
+                }
+                if (!v1) {
+                    os_log_t oslog = FBLogCommon();
+                    if (os_log_type_enabled(oslog, OS_LOG_TYPE_INFO)) {
+                        os_log_with_type(oslog, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Enqueuing new direct workspace connection %p with remoteToken=%{public}@", v0, remoteToken);
                     }
                     [self->_coupler _enqueueClientConnectionBlock:^void(FBSWorkspace *arg1) {
                         if (arg1 != nil) {
@@ -328,21 +324,12 @@ void -[FBWorkspaceDomain _didReceiveConnection:](id a1)
                             os_log_with_type(v18, OS_LOG_TYPE_INFO, "FBWorkspaceDomain: Invalidating enqueued direct connection %p with remoteToken=%{public}@", v0, remoteToken);
                         }
                     }];
-                    return;
                 }
-                v2 = FBLogCommon();
-                if (os_log_type_enabled(v2, OS_LOG_TYPE_ERROR)) {
-                    os_log_with_type(v2, OS_LOG_TYPE_ERROR, "FBWorkspaceDomain: Unable to register new direct connection with remoteToken=%{public}@ because the service doesn't declare support for direct connections", remoteToken);
-                    break;
-                }
-                break;
             }
-            v2 = FBLogCommon();
-            if (os_log_type_enabled(v2, OS_LOG_TYPE_ERROR)) {
-                os_log_with_type(v2, OS_LOG_TYPE_ERROR, "FBWorkspaceDomain: Unable to validate new incoming connection because the remote was unknown : connection=%@", v0);
-            }
-        } while (0);
-        [v0 invalidate];
+        }
+        if (v1) {
+            [v0 invalidate];
+        }
     }
 }
 

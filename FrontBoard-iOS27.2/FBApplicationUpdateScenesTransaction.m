@@ -75,8 +75,7 @@ FBApplicationUpdateScenesTransaction *-[FBApplicationUpdateScenesTransaction ini
         }
         id firstObject = [v32 firstObject];
         FBSSceneSettings *settings = [firstObject settings];
-        FBProcessExecutionContext *v8 = [v34 copyOrUpdateForSceneActivationWithSettings:settings];
-        return v8;
+        return [v34 copyOrUpdateForSceneActivationWithSettings:settings];
     }];
     return v3;
 }
@@ -371,33 +370,25 @@ FBApplicationUpdateScenesTransaction *-[FBApplicationUpdateScenesTransaction _ex
 }
 
 
-FBApplicationUpdateScenesTransaction *-[FBApplicationUpdateScenesTransaction _executeSceneUpdatesIfAppropriate](void)
+void -[FBApplicationUpdateScenesTransaction _executeSceneUpdatesIfAppropriate](void)
 {
-    long v5;
-    if (self->_processLaunched != 1) {
-        return self;
+    FBProcess *v0;
+    if (self->_processLaunched != 1 || !(v0 = [self->_processLaunchTransaction process])) {
+        return;
     }
-    FBProcess *process = [self->_processLaunchTransaction process];
-    self = process;
-    if (process == nil) {
-        return self;
+    if (![self->_pendingUpdateTransactions count]) {
+        return;
     }
-    NSUInteger count = [self->_pendingUpdateTransactions count];
-    self = count;
-    if (count != 0) {
-        if ([self isAuditHistoryEnabled] != 0) {
-            [self _addAuditHistoryItem:@"Beginning scene updates."];
-        }
-        id v3 = [self->_pendingUpdateTransactions copy];
-        [self->_pendingUpdateTransactions removeAllObjects];
-        for (FBUpdateSceneTransaction *v9 in v3) {
-            [v9 addObserver:self];
-            [v9 setWaitsForSceneCommit:self->_waitsForSceneCommits];
-            [self addSynchronizedTransaction:v9];
-        }
-        self = v5;
+    if ([self isAuditHistoryEnabled] != 0) {
+        [self _addAuditHistoryItem:@"Beginning scene updates."];
     }
-    return self;
+    id v3 = [self->_pendingUpdateTransactions copy];
+    [self->_pendingUpdateTransactions removeAllObjects];
+    for (FBUpdateSceneTransaction *v9 in v3) {
+        [v9 addObserver:self];
+        [v9 setWaitsForSceneCommit:self->_waitsForSceneCommits];
+        [self addSynchronizedTransaction:v9];
+    }
 }
 
 

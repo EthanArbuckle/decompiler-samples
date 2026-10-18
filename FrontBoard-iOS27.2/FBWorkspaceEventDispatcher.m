@@ -200,8 +200,7 @@ void -[FBWorkspaceEventDispatcher _callOutQueue_dispatchHandshakeFromSource:toTa
             id identity = [definition identity];
             id internalWorkspaceIdentifier = [identity internalWorkspaceIdentifier];
             NSString *workspaceIdentifier = [v1 workspaceIdentifier];
-            BOOL v13 = [internalWorkspaceIdentifier isEqualToString:workspaceIdentifier];
-            return v13;
+            return [internalWorkspaceIdentifier isEqualToString:workspaceIdentifier];
         }];
         if (v5 != nil) {
             FBSceneClientHandshake *v6 = [FBSceneClientHandshake alloc];

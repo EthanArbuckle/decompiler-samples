@@ -224,9 +224,9 @@ FBProcessExitContext *-[FBProcessExitContext initWithLaunchError:](NSError *a1)
     if (!a1) {
         NSString *v12 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"error != ((void *)0)"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-            NSString *v13 = NSStringFromSelector(_cmd);
-            NSString *v14 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v13, v14, self, @"FBProcessExitContext.m", 68, v12);
+            NSString *v2 = NSStringFromSelector(_cmd);
+            NSString *v13 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v2, v13, self, @"FBProcessExitContext.m", 68, v12);
         }
         _bs_set_crash_log_message([v12 UTF8String]);
         __break(0);

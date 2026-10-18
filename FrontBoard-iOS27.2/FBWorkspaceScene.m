@@ -54,17 +54,27 @@ void -[FBWorkspaceScene _workspaceQueue_updateAssertion](void)
     int v16;
     long v22;
     long v23;
+    unsigned int v30;
+    unsigned int v34;
     unsigned int v26;
+    bool condition1;
     os_unfair_lock_lock(&self->_lock);
     if (self->_lock_invalidated != 1) {
         FBSSceneSettings *v0 = self->_lock_settings;
         FBWorkspaceConnection *v1 = self->_lock_connection;
         os_unfair_lock_unlock(&self->_lock);
         long activityMode = [v0 activityMode];
-        int v8 = (activityMode > 0) ? 10 : (!activityMode) ? 0 : (activityMode > -11) ? 246 : (activityMode > -21) ? 236 : (activityMode < -50) ? -128 : -50;
+        int v4 = (activityMode < -50) ? -128 : -50;
+        int v5 = (activityMode > -21) ? 236 : v4;
+        int v6 = (activityMode > -11) ? 246 : v5;
+        int v7 = (!activityMode) ? 0 : v6;
+        int v8 = (activityMode > 0) ? 10 : v7;
         long jetsamPriority = [v0 jetsamPriority];
         long v10 = FBSSceneJetsamPriorityGetJetsamMode(jetsamPriority);
-        int v14 = (v10 > 0) ? 10 : (!v10) ? 0 : (v10 > -11) ? 246 : (v10 < -20) ? -128 : -20;
+        int v11 = (v10 < -20) ? -128 : -20;
+        int v12 = (v10 > -11) ? 246 : v11;
+        int v13 = (!v10) ? 0 : v12;
+        int v14 = (v10 > 0) ? 10 : v13;
         long v15 = FBSSceneJetsamPriorityGetResourceElevation(jetsamPriority);
         if ((v8 & 255) == 128) {
             v17 = 0;
@@ -94,10 +104,11 @@ blk_1c4edfc50:
                         v17 = v16;
                     } else if (v20 == 236) {
 blk_1c4edfbf0:
+                        int v24 = v16 - 1;
                         if ((unsigned int)((v16 - 1) & 255) >= 3) {
                             goto blk_1c4edfc58;
                         }
-                        v22 = ((v16 - 1) & 31) * 8;
+                        v22 = (v24 & 31) * 8;
                         v23 = 131585;
                         goto blk_1c4edfc50;
                     }
@@ -136,12 +147,24 @@ blk_1c4edfb74:
         int v25 = v14 & 255;
         if ((v14 & 255) <= 235) {
             int v35 = (v17 & 255) * 8;
-            v26 = (!v25) ? 0x645a2800 >> v35 : (v25 == 10) ? 0x655a2800 >> v35 : 0;
+            v30 = 0x645a2800 >> v35;
+            unsigned int v36 = 0x655a2800 >> v35;
+            v34 = (v25 == 10) ? v36 : 0;
+            condition1 = !v25;
+            v26 = (condition1 == 1) ? v30 : v34;
         } else if (v25 == 246) {
             v26 = 0x5a501e00 >> (v17 & 255) * 8;
         } else if (v25 == 236) {
             int v27 = v17 & 255;
-            v26 = (v27 == 3) ? (v15 < 3) ? 30 : (v15 == 3) ? 33 : (v15 != 4) ? 35 : 34 : (v27 == 2) ? (v15 < 3) ? 30 : 33 : (v27 != 1) ? 0 : (v15 < 3) ? 20 : 30;
+            int v28 = (v15 != 4) ? 35 : 34;
+            int v29 = (v15 == 3) ? 33 : v28;
+            v30 = (v15 < 3) ? 30 : v29;
+            int v31 = (v15 < 3) ? 30 : 33;
+            int v32 = (v15 < 3) ? 20 : 30;
+            int v33 = (v27 != 1) ? 0 : v32;
+            v34 = (v27 == 2) ? v31 : v33;
+            condition1 = v27 == 3;
+            v26 = (condition1 == 1) ? v30 : v34;
         } else {
             v26 = 0;
         }
@@ -223,7 +246,7 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
         v23 = nil;
     }
     os_unfair_lock_unlock(&self->_lock);
-    __block void *v25 = 0;
+    __block void (^v25)(long, id) = nil;
     if (!self->_hostAgent) {
         [self _workspaceQueue_incrementInFlightUpdatesForAction:v10 allowThrottling:allowCPUThrottling externallyManaged:isClientLifecycleExternallyManaged];
         if (v18 != v7) {
@@ -235,12 +258,12 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
             if (v4 != nil) {
                 v4(arg1, arg2);
             }
-            if (v25 != 0) {
+            if (v25 != nil) {
                 if (!arg1) {
                     id v48 = [NSError sceneMessageErrorWithCode:2];
-                    v25->field_16(v25, 0, v48);
+                    v25(0, v48);
                 } else {
-                    v25->field_16(v25, 0, 0);
+                    v25(0, nil);
                 }
             }
             if (v32 != nil) {
@@ -252,7 +275,6 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
         } else {
             v38 = v6 * 0x80008001 >> 47;
             [self _workspaceQueue_sendMessageToClient:^void(id<FBSWorkspaceServiceServerInterface> arg1) {
-                uint8_t v52[48];
                 if (!arg1) {
                     FBProcessExitContext *exitContext = [process exitContext];
                     id createError = [exitContext createError];
@@ -265,16 +287,8 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
                     if (os_log_type_enabled(v62, type)) {
                         id v61 = _FBSceneActionToString(v10);
                         id _policyDesc = [v58 _policyDesc];
-                        *(uint32_t *)&v52[0] = 0x8420502;
-                        *(uint16_t *)&v52[12] = 2114;
-                        *(uint64_t *)&v52[14] = v61;
-                        *(uint16_t *)&v52[22] = 0x400;
-                        *(uint32_t *)&v52[24] = v6 + (v38 - (v38 << 16));
-                        *(uint16_t *)&v52[28] = 0x800;
-                        *(uint64_t *)&v52[30] = process;
-                        *(uint16_t *)&v52[38] = 2114;
-                        *(uint64_t *)&v52[40] = (!_policyDesc) ? @"none" : _policyDesc;
-                        _os_log_impl(&_mh_dylib_header, v62, type, "[%{public}@] Sending scene action [%{public}@][%#04x] to process %p (watchdog: %{public}@)", v52, 48);
+                        NSString *v63 = self->_logProem;
+                        os_log_with_type(v62, type, "[%{public}@] Sending scene action [%{public}@][%#04x] to process %p (watchdog: %{public}@)", v63, v61, v6 + (v38 - (v38 << 16)), process, (!_policyDesc) ? @"none" : _policyDesc);
                     }
                     void (^v54)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
                         os_log_t oslog = FBLogProcessScene();
@@ -325,12 +339,12 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
             if (v4 != nil) {
                 v4(arg1, arg2);
             }
-            if (v25 != 0) {
+            if (v25 != nil) {
                 if (!arg1) {
                     id v74 = [NSError sceneMessageErrorWithCode:2];
-                    v25->field_16(v25, 0, v74);
+                    v25(0, v74);
                 } else {
-                    v25->field_16(v25, 0, 0);
+                    v25(0, nil);
                 }
             }
             if (v32 != nil) {
@@ -342,7 +356,6 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
         } else {
             v38 = v6 * 0x80008001 >> 47;
             [self _workspaceQueue_sendMessageToClient:^void(id<FBSWorkspaceServiceServerInterface> arg1) {
-                uint8_t v78[48];
                 if (!arg1) {
                     FBProcessExitContext *exitContext = [process exitContext];
                     id createError = [exitContext createError];
@@ -355,16 +368,8 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
                     if (os_log_type_enabled(v88, type)) {
                         id v87 = _FBSceneActionToString(v10);
                         id _policyDesc = [v84 _policyDesc];
-                        *(uint32_t *)&v78[0] = 0x8420502;
-                        *(uint16_t *)&v78[12] = 2114;
-                        *(uint64_t *)&v78[14] = v87;
-                        *(uint16_t *)&v78[22] = 0x400;
-                        *(uint32_t *)&v78[24] = v6 + (v38 - (v38 << 16));
-                        *(uint16_t *)&v78[28] = 0x800;
-                        *(uint64_t *)&v78[30] = process;
-                        *(uint16_t *)&v78[38] = 2114;
-                        *(uint64_t *)&v78[40] = (!_policyDesc) ? @"none" : _policyDesc;
-                        _os_log_impl(&_mh_dylib_header, v88, type, "[%{public}@] Sending scene action [%{public}@][%#04x] to process %p (watchdog: %{public}@)", v78, 48);
+                        NSString *v89 = self->_logProem;
+                        os_log_with_type(v88, type, "[%{public}@] Sending scene action [%{public}@][%#04x] to process %p (watchdog: %{public}@)", v89, v87, v6 + (v38 - (v38 << 16)), process, (!_policyDesc) ? @"none" : _policyDesc);
                     }
                     void (^v80)(bool, NSError *) = ^void(bool arg1, NSError *arg2) {
                         os_log_t oslog = FBLogProcessScene();
@@ -521,9 +526,8 @@ void -[FBWorkspaceScene workspace:handleUpdatedClientSettings:transitionContext:
 }
 
 
-void -[FBWorkspaceScene _workspaceQueue_sendSceneCreateToClient:parameters:transitionContext:completion:](id a1, id a2, id a3, id a4)
+void -[FBWorkspaceScene _workspaceQueue_sendSceneCreateToClient:parameters:transitionContext:completion:](id a1, id a2, id a3, void (^a4)(bool, NSError *))
 {
-    long v1 = a2;
     if (!a1) {
         NSString *v9 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"client != nil"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
@@ -535,7 +539,7 @@ void -[FBWorkspaceScene _workspaceQueue_sendSceneCreateToClient:parameters:trans
         __break(0);
     }
     void (^v5)(NSError *) = ^void(NSError *arg1) {
-        id v20;
+        NSError *v20;
         NSString *v21;
         id v19 = arg1;
         if (!arg1) {
@@ -557,12 +561,12 @@ void -[FBWorkspaceScene _workspaceQueue_sendSceneCreateToClient:parameters:trans
         os_unfair_lock_lock(&self->_lock);
         self->_lock_sceneCreatedBlocks = nil;
         os_unfair_lock_unlock(&self->_lock);
-        NSMutableArray *v25 = self->_lock_sceneCreatedBlocks;
-        for (id v15 in v25) {
+        NSMutableArray *v26 = self->_lock_sceneCreatedBlocks;
+        for (id v15 in v26) {
             v15->field_16(v15, !v19, v20);
         }
         v19 = !v19;
-        a4->field_16(a4, v19, v20);
+        a4(v19, v20);
     };
     os_log_t log = FBLogProcessScene();
     bool v7 = os_log_type_enabled(log, OS_LOG_TYPE_DEFAULT);
@@ -571,13 +575,13 @@ void -[FBWorkspaceScene _workspaceQueue_sendSceneCreateToClient:parameters:trans
             NSString *v3 = self->_logProem;
             os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@] Sending scene create.", v3);
         }
-        [a1 createSceneWithIdentity:self->_identity parameters:v1 transitionContext:a3 completion:v5];
+        [a1 createSceneWithIdentity:self->_identity parameters:a2 transitionContext:a3 completion:v5];
     } else {
         if (v7) {
             NSString *v6 = self->_logProem;
             os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "[%{public}@] Sending scene reconnect.", v6);
         }
-        [a1 reconnectSceneWithIdentity:self->_identity parameters:v1 transitionContext:a3 completion:v5];
+        [a1 reconnectSceneWithIdentity:self->_identity parameters:a2 transitionContext:a3 completion:v5];
     }
 }
 
@@ -619,17 +623,16 @@ void -[FBWorkspaceScene _workspaceQueue_sendSceneUpdateToClient:settingsDiff:tra
 
 long -[FBWorkspaceScene _workspaceQueue_incrementInFlightUpdatesForAction:allowThrottling:externallyManaged:](int a1, int a2, int a3)
 {
-    if (!a1) {
-        return [self _workspaceQueue_updateAssertion];
-    }
-    self->_queue_inFlightUpdateEvents = self->_queue_inFlightUpdateEvents + 1;
-    long *v0 = (a2 != 0) ? &self->_queue_inFlightUpdateAllowsThrottling : &self->_queue_inFlightUpdateDisallowsThrottling;
-    *(v0) = *(v0) + 1;
-    if (a1 == 3) {
-        self->_queue_inFlightDeactivationEvents = self->_queue_inFlightDeactivationEvents + 1;
-    }
-    if (a3 != 0) {
-        self->_queue_inFlightExternallyManagedEvents = self->_queue_inFlightExternallyManagedEvents + 1;
+    if (a1 != 0) {
+        self->_queue_inFlightUpdateEvents = self->_queue_inFlightUpdateEvents + 1;
+        long *v0 = (a2 != 0) ? &self->_queue_inFlightUpdateAllowsThrottling : &self->_queue_inFlightUpdateDisallowsThrottling;
+        *(v0) = *(v0) + 1;
+        if (a1 == 3) {
+            self->_queue_inFlightDeactivationEvents = self->_queue_inFlightDeactivationEvents + 1;
+        }
+        if (a3 != 0) {
+            self->_queue_inFlightExternallyManagedEvents = self->_queue_inFlightExternallyManagedEvents + 1;
+        }
     }
     return [self _workspaceQueue_updateAssertion];
 }
@@ -777,7 +780,7 @@ struct FBWorkspaceScene *-[FBWorkspaceScene _workspaceQueue_decrementInFlightUpd
     }
     BSAtomicSignal *v3 = [BSAtomicSignal new];
     self->_queue_eventsCompleteSignal = v3;
-    self = [self->_workspaceQueue performAfter:0.1 withBlock:^void(void) {
+    return [self->_workspaceQueue performAfter:0.1 withBlock:^void(void) {
         if (self->_queue_inFlightUpdateEvents != 0) {
             return;
         }
@@ -787,7 +790,6 @@ struct FBWorkspaceScene *-[FBWorkspaceScene _workspaceQueue_decrementInFlightUpd
         }
         [signal->field_32 _workspaceQueue_updateAssertion];
     }];
-    return self;
 }
 
 
@@ -991,12 +993,11 @@ void -[FBWorkspaceScene workspace:sendActions:toExtension:](long a1, NSDictionar
                     [arg1 sceneID:self->_identity sendActions:v2 toExtension:v20 completion:^void(NSError *arg1) {
                         v19();
                     }];
-                    id v21 = self;
                     [self->_workspaceQueue performAfter:5.0 withBlock:^void(void) {
                         if (([v1 hasBeenSignalled] & 1) == 0) {
                             os_log_t oslog = FBLogProcessScene();
                             if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                                id v2 = v21->_logProem;
+                                NSString *v2 = self->_logProem;
                                 os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "[%{public}@] Send action timed out.", v2);
                             }
                         }
@@ -1042,12 +1043,11 @@ void -[FBWorkspaceScene workspace:sendActions:toExtension:](long a1, NSDictionar
                     [arg1 sceneID:self->_identity sendActions:actions toExtension:v28 completion:^void(NSError *arg1) {
                         v27();
                     }];
-                    id v29 = self;
                     [self->_workspaceQueue performAfter:5.0 withBlock:^void(void) {
                         if (([v1 hasBeenSignalled] & 1) == 0) {
                             os_log_t oslog = FBLogProcessScene();
                             if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                                id v2 = v29->_logProem;
+                                NSString *v2 = self->_logProem;
                                 os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "[%{public}@] Send action timed out.", v2);
                             }
                         }
@@ -1180,9 +1180,8 @@ blk_1c4f243bc:
 blk_1c4f24318:
         id v11 = [FBProcessWatchdogEventContext contextForEvent:((a2 & 254) != 4) ? 3 : 2 settings:a3 transitionContext:a4];
         id v13 = [a1 _newWatchdogForContext:v11 completion:^void(FBProcessWatchdog *arg1) {
-            void *v31 = self;
             [self->_workspaceQueue performAsync:^void(void) {
-                [v31 _workspaceQueue_cancelWatchdogTimer:arg1];
+                [self _workspaceQueue_cancelWatchdogTimer:arg1];
             }];
         }];
         if (!v13) {
@@ -1415,12 +1414,11 @@ void -[FBWorkspaceScene workspace:sendInvocation:withReply:](id a1, void (^a2)(F
                     v7();
                     v1(arg1, arg2);
                 }];
-                id v10 = self;
                 [self->_workspaceQueue performAfter:5.0 withBlock:^void(void) {
                     if (([v6 hasBeenSignalled] & 1) == 0) {
                         os_log_t oslog = FBLogProcessScene();
                         if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                            id v1 = v10->_logProem;
+                            NSString *v1 = self->_logProem;
                             os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "[%{public}@] Send invocations timed out.", v1);
                         }
                     }

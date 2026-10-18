@@ -21,7 +21,6 @@ FBSystemShell *+[FBSystemShell sharedInstance](void)
 
 void -[FBSystemShell _setSystemIdleSleepDisabled:forReason:](int a1, id a2)
 {
-    void *dso;
     uint8_t v5;
     Class v2 = NSClassFromString(@"NSString");
     if (!a2) {
@@ -29,7 +28,7 @@ void -[FBSystemShell _setSystemIdleSleepDisabled:forReason:](int a1, id a2)
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSStringFromSelector(_cmd);
             NSString *v23 = NSStringFromClass([self class]);
-            dso = OUTLINED_FUNCTION_2(v23, 6.8450148e-316);
+            void *dso = OUTLINED_FUNCTION_2(v23, 6.8450148e-316);
             _os_log_error_impl(dso, dso.word1, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", &v5, 58);
         }
         _bs_set_crash_log_message([v21 UTF8String]);
@@ -41,7 +40,7 @@ void -[FBSystemShell _setSystemIdleSleepDisabled:forReason:](int a1, id a2)
             NSStringFromSelector(_cmd);
             NSString *v27 = NSStringFromClass([self class]);
             void *v24 = OUTLINED_FUNCTION_2(v27, 6.8450148e-316);
-            _os_log_error_impl(v24, dso.word1, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", &v5, 58);
+            _os_log_error_impl(v24, v24.word1, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", &v5, 58);
         }
         _bs_set_crash_log_message([v25 UTF8String]);
         __break(0);
@@ -275,7 +274,6 @@ id -[FBSystemShell descriptionBuilderWithMultilinePrefix:](long a1)
 
 id -[FBSystemShell _setState:](long a1)
 {
-    id self;
     unsigned long v1 = self->_state;
     if (self->_state != a1) {
         if (a1 != 1) {
@@ -307,8 +305,7 @@ id -[FBSystemShell _setState:](long a1)
             for (id v9 in v2) {
                 v9->field_16(v9);
             }
-            self = nil;
-            return self;
+            return nil;
         }
         if (v1 != 0) {
             NSString *v16 = [NSString stringWithFormat:@"Cannot move FBSystemShell to `Initialized` unless we're `Uninitialized`."];

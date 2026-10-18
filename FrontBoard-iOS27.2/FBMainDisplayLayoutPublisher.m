@@ -119,7 +119,7 @@ FBMainDisplayLayoutPublisher *-[FBMainDisplayLayoutPublisher _initWithPublisher:
                 if (!v15) {
                     ^void(void) {
                         BacklightServicesLibrary();
-                        Class v11 = objc_getClass("BLSRuntime");
+                        v11 = objc_getClass("BLSRuntime");
                         if (!v11) {
                             NSAssertionHandler *currentHandler = [NSAssertionHandler currentHandler];
                             NSString *v24 = [NSString stringWithUTF8String:"Class getBLSRuntimeClass(void)_block_invoke"];

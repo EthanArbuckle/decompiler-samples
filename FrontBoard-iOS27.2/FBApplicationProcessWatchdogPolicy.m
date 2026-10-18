@@ -186,7 +186,7 @@ long +[FBApplicationProcessWatchdogPolicy _scaleForGestaltKey:](long a1)
     if (!v0) {
         return v0;
     }
-    id v1 = MGCopyAnswer(a1);
+    id v1 = MGCopyAnswer(a1, 0);
     id v2 = v1;
     if (v1 != nil) {
         [v1 doubleValue];
@@ -253,8 +253,9 @@ void -[FBApplicationProcessWatchdogPolicy _queue_watchdogScalingFactorForAppInfo
 
 void -[FBApplicationProcessWatchdogPolicy dealloc](void)
 {
+    int v0 = self->_daNotificationToken;
     dispatch_sync(self->_queue, ^void(void) {
-        notify_cancel(self->_daNotificationToken);
+        notify_cancel(v0);
     });
     [super dealloc];
 }

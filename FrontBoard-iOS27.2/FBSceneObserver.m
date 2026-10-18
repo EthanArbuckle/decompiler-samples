@@ -170,18 +170,15 @@ void *-[FBSceneObserver sceneWillActivate:](id a1)
 
 bool -[FBSceneObserver isEqual:](id a1)
 {
-    bool v1;
     if (self == a1) {
         return true;
     }
     if ([a1 isKindOfClass:[self class]] && a1->field_16 == self->_observerAddress && a1->field_24 == self->_observerClass) {
         id v2 = objc_loadWeakRetained(a1 + 8);
         id<FBSceneObserver> v3 = self->_observer;
-        v1 = v2 == v3;
-        return v1;
+        return v2 == v3;
     }
-    v1 = false;
-    return v1;
+    return false;
 }
 
 
@@ -431,8 +428,7 @@ id -[FBSceneObserver scene:didReceiveActions:](id a1, id a2)
 
 id -[FBSceneObserver scene:handlePrivateActions:](id a1, id a2)
 {
-    id v3 = (!self->_component || self->_componentFlags.handlePrivateActions != 1) ? [self scene:a1 handleActions:a2] : [self->_component handlePrivateActions:a2];
-    return v3;
+    return (!self->_component || self->_componentFlags.handlePrivateActions != 1) ? [self scene:a1 handleActions:a2] : [self->_component handlePrivateActions:a2];
 }
 
 

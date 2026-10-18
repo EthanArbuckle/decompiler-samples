@@ -50,8 +50,8 @@ void -[FBSystemAppProxyServiceServer _handleGetPasscodeLockedOrBlockedStatus:for
     BSServiceDispatchQueue *queue = [sharedInstance queue];
     [queue performAsync:^void(void) {
         [sharedInstance isPasscodeLockedOrBlockedWithResult:^void(bool arg1) {
-            [a1 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1) {
-                xpc_dictionary_set_bool(arg1, FBSSystemServiceMessageKeyBoolResult, arg1);
+            [a1 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1_2) {
+                xpc_dictionary_set_bool(arg1_2, FBSSystemServiceMessageKeyBoolResult, arg1);
             }];
         }];
     }];
@@ -113,11 +113,11 @@ void -[FBSystemAppProxyServiceServer _handleActions:forClient:](id a1, id a2)
     [queue performAsync:^void(void) {
         NSSet *v9 = [NSSet setWithArray:v3];
         [sharedInstance handleActions:v9 source:auditToken withResult:^void(long arg1) {
-            [v0 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1) {
+            [v0 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1_2) {
                 if (!arg1) {
                     return;
                 } else {
-                    xpc_dictionary_set_int64(arg1, FBSSystemServiceMessageKeyIntResult, arg1);
+                    xpc_dictionary_set_int64(arg1_2, FBSSystemServiceMessageKeyIntResult, arg1);
                     return;
                 }
             }];
@@ -160,10 +160,10 @@ void -[FBSystemAppProxyServiceServer _handleTerminateApplication:forClient:](id 
             }
             id sharedInstance = [FBSystemService sharedInstance];
             [sharedInstance terminateApplication:v7 forReason:(int32_t)v8 andReport:v9 withDescription:v10 completion:^void(bool arg1) {
-                [v0 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1) {
-                    xpc_dictionary_set_int64(arg1, FBSSystemServiceMessageKeyIntResult, (arg1 != 0) ? 0 : 3);
-                    if ((arg1 & 1) == 0) {
-                        xpc_dictionary_set_string(arg1, FBSSystemServiceMessageKeyReason, "found nothing to terminate");
+                [v0 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1_2) {
+                    xpc_dictionary_set_int64(arg1_2, FBSSystemServiceMessageKeyIntResult, (arg1) ? 0 : 3);
+                    if (!arg1) {
+                        xpc_dictionary_set_string(arg1_2, FBSSystemServiceMessageKeyReason, "found nothing to terminate");
                     }
                 }];
             }];
@@ -205,10 +205,10 @@ void -[FBSystemAppProxyServiceServer _handleTerminateApplicationGroup:forClient:
         }
         id sharedInstance = [FBSystemService sharedInstance];
         [sharedInstance terminateApplicationGroup:v12 forReason:(int32_t)v8 andReport:v9 withDescription:v10 completion:^void(bool arg1) {
-            [v0 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1) {
-                xpc_dictionary_set_int64(arg1, FBSSystemServiceMessageKeyIntResult, (arg1 != 0) ? 0 : 3);
-                if ((arg1 & 1) == 0) {
-                    xpc_dictionary_set_string(arg1, FBSSystemServiceMessageKeyReason, "found nothing to terminate");
+            [v0 sendReplyMessageWithPacker:^void(NSObject<OS_xpc_object> *arg1_2) {
+                xpc_dictionary_set_int64(arg1_2, FBSSystemServiceMessageKeyIntResult, (arg1) ? 0 : 3);
+                if (!arg1) {
+                    xpc_dictionary_set_string(arg1_2, FBSSystemServiceMessageKeyReason, "found nothing to terminate");
                 }
             }];
         }];

@@ -11,74 +11,82 @@ struct FBSceneSynchronizer {
 FBSceneSynchronizer *-[FBSceneSynchronizer _initWithIdentifier:workspaceQueue:dispatcher:](id a1, BSServiceDispatchQueue *a2, FBWorkspaceEventDispatcher *a3)
 {
     FBSceneSynchronizer *self;
-    if (!self) {
-        return self;
-    }
-    Class aClass = [NSString class];
-    if (a1 != nil) {
-        if (![a1 isKindOfClass:aClass]) {
-            NSArray *v0 = OUTLINED_FUNCTION_28(a1);
-            __builtin_return_address(0);
-            Class v19 = [v0 classForCoder];
-            if (!v19) {
-                v19 = [v0 class];
-            }
-            NSString *v20 = NSStringFromClass(v19);
-            NSString *v4 = NSStringFromClass([NSString class]);
-            NSString *v21 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"identifier", v20, v4];
+    if (self != nil) {
+        Class aClass = [NSString class];
+        if (!a1) {
+            NSString *v8 = NSStringFromClass(aClass);
+            NSString *v9 = [NSString stringWithFormat:@"Value for '%@' was unexpectedly nil. Expected %@.", @"identifier", v8];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v6 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
-                NSString *v22 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v6, v22, self, @"FBSceneSynchronizer.m", 38, v21);
+                NSString *v0 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
+                NSString *v19 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v0, v19, self, @"FBSceneSynchronizer.m", 38, v9);
             }
-            _bs_set_crash_log_message([v21 UTF8String]);
+            _bs_set_crash_log_message([v9 UTF8String]);
             __break(0);
         }
-        if (!a2) {
-            NSString *v1 = NSStringFromClass([BSServiceDispatchQueue class]);
-            NSString *v24 = [NSString stringWithFormat:@"Value for '%@' was unexpectedly nil. Expected %@.", @"workspaceQueue", v1];
+        if (![a1 isKindOfClass:aClass]) {
+            NSArray *v21 = OUTLINED_FUNCTION_28(a1);
+            __builtin_return_address(0);
+            Class v22 = [v21 classForCoder];
+            if (!v22) {
+                v22 = [v21 class];
+            }
+            NSString *v23 = NSStringFromClass(v22);
+            NSString *v4 = NSStringFromClass([NSString class]);
+            NSString *v24 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"identifier", v23, v4];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                 NSString *v25 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
                 NSString *v26 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v25, v26, self, @"FBSceneSynchronizer.m", 39, v24);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v25, v26, self, @"FBSceneSynchronizer.m", 38, v24);
             }
             _bs_set_crash_log_message([v24 UTF8String]);
             __break(0);
         }
-        if (![a2 isKindOfClass:[BSServiceDispatchQueue class]]) {
-            NSArray *v28 = OUTLINED_FUNCTION_28(a2);
-            __builtin_return_address(0);
-            Class v29 = [v28 classForCoder];
-            if (!v29) {
-                v29 = [v28 class];
-            }
-            NSString *v30 = NSStringFromClass(v29);
-            NSString *v31 = NSStringFromClass([BSServiceDispatchQueue class]);
-            NSString *v32 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"workspaceQueue", v30, v31];
+        if (!a2) {
+            NSString *v28 = NSStringFromClass([BSServiceDispatchQueue class]);
+            NSString *v29 = [NSString stringWithFormat:@"Value for '%@' was unexpectedly nil. Expected %@.", @"workspaceQueue", v28];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v33 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
-                NSString *v34 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v33, v34, self, @"FBSceneSynchronizer.m", 39, v32);
+                NSString *v30 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
+                NSString *v31 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v30, v31, self, @"FBSceneSynchronizer.m", 39, v29);
             }
-            _bs_set_crash_log_message([v32 UTF8String]);
+            _bs_set_crash_log_message([v29 UTF8String]);
+            __break(0);
+        }
+        if (![a2 isKindOfClass:[BSServiceDispatchQueue class]]) {
+            NSArray *v33 = OUTLINED_FUNCTION_28(a2);
+            __builtin_return_address(0);
+            Class v34 = [v33 classForCoder];
+            if (!v34) {
+                v34 = [v33 class];
+            }
+            NSString *v35 = NSStringFromClass(v34);
+            NSString *v36 = NSStringFromClass([BSServiceDispatchQueue class]);
+            NSString *v37 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"workspaceQueue", v35, v36];
+            if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
+                NSString *v38 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
+                NSString *v39 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v38, v39, self, @"FBSceneSynchronizer.m", 39, v37);
+            }
+            _bs_set_crash_log_message([v37 UTF8String]);
             __break(0);
         }
         if (a3 != nil && ![a3 isKindOfClass:[FBWorkspaceEventDispatcher class]]) {
-            NSArray *v36 = OUTLINED_FUNCTION_28(a3);
+            NSArray *v41 = OUTLINED_FUNCTION_28(a3);
             __builtin_return_address(0);
-            Class v37 = [v36 classForCoder];
-            if (!v37) {
-                v37 = [v36 class];
+            Class v42 = [v41 classForCoder];
+            if (!v42) {
+                v42 = [v41 class];
             }
-            NSString *v38 = NSStringFromClass(v37);
-            NSString *v39 = NSStringFromClass([FBWorkspaceEventDispatcher class]);
-            NSString *v40 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"dispatcher", v38, v39];
+            NSString *v43 = NSStringFromClass(v42);
+            NSString *v44 = NSStringFromClass([FBWorkspaceEventDispatcher class]);
+            NSString *v45 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"dispatcher", v43, v44];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-                NSString *v41 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
-                NSString *v42 = NSStringFromClass([self class]);
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v41, v42, self, @"FBSceneSynchronizer.m", 40, v40);
+                NSString *v46 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
+                NSString *v47 = NSStringFromClass([self class]);
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v46, v47, self, @"FBSceneSynchronizer.m", 40, v45);
             }
-            _bs_set_crash_log_message([v40 UTF8String]);
+            _bs_set_crash_log_message([v45 UTF8String]);
             __break(0);
         }
         self = [super init];
@@ -92,17 +100,8 @@ FBSceneSynchronizer *-[FBSceneSynchronizer _initWithIdentifier:workspaceQueue:di
             memset(&self->_lock, 0, 4);
             self->_lock_waitingForConnect = NO;
         }
-        return self;
     }
-    NSString *v17 = NSStringFromClass(aClass);
-    NSString *v18 = [NSString stringWithFormat:@"Value for '%@' was unexpectedly nil. Expected %@.", @"identifier", v17];
-    if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
-        NSString *v44 = NSStringFromSelector(@selector(_initWithIdentifier:workspaceQueue:dispatcher:));
-        NSString *v45 = NSStringFromClass([self class]);
-        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v44, v45, self, @"FBSceneSynchronizer.m", 38, v18);
-    }
-    _bs_set_crash_log_message([v18 UTF8String]);
-    __break(0);
+    return self;
 }
 
 
@@ -254,14 +253,13 @@ id +[FBSceneSynchronizer synchronizerWithAuditToken:](struct AnonymousStruct_11 
 
 FBSceneSynchronizer *+[FBSceneSynchronizer _synchronizerWithMonitorableHandle:](id a1)
 {
-    id v0 = objc_opt_self(self);
     if (!a1) {
         NSString *v1 = NSStringFromClass([RBSProcessHandle class]);
         NSString *v11 = [NSString stringWithFormat:@"Value for '%@' was unexpectedly nil. Expected %@.", @"handle", v1];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSString *v12 = NSStringFromSelector(@selector(_synchronizerWithMonitorableHandle:));
-            NSString *v13 = NSStringFromClass([v0 class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v12, v13, v0, @"FBSceneSynchronizer.m", 90, v11);
+            NSString *v13 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v12, v13, self, @"FBSceneSynchronizer.m", 90, v11);
         }
         _bs_set_crash_log_message([v11 UTF8String]);
         __break(0);
@@ -278,8 +276,8 @@ FBSceneSynchronizer *+[FBSceneSynchronizer _synchronizerWithMonitorableHandle:](
         NSString *v19 = [NSString stringWithFormat:@"Value for '%@' was of unexpected class %@. Expected %@.", @"handle", v17, v18];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSString *v20 = NSStringFromSelector(@selector(_synchronizerWithMonitorableHandle:));
-            NSString *v21 = NSStringFromClass([v0 class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v20, v21, v0, @"FBSceneSynchronizer.m", 90, v19);
+            NSString *v21 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v20, v21, self, @"FBSceneSynchronizer.m", 90, v19);
         }
         _bs_set_crash_log_message([v19 UTF8String]);
         __break(0);
