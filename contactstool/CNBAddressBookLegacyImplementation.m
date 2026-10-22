@@ -62,8 +62,7 @@ instancetype -[CNBAddressBookLegacyImplementation init](void)
     } else {
         CNBAddressBookLegacyImplementation *v3 = [self initWithAddressBook:v2];
         CFRelease(v2);
-        self = v3;
-        v2 = self;
+        v2 = v3;
     }
     return v2;
 }

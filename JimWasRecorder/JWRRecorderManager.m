@@ -513,7 +513,7 @@ bool -[JWRRecorderManager prepareSession:](bool a1)
             [self setMovieOutput:v32];
             CMTime v33 = CMTimeMakeWithSeconds(2.0, 600);
             AVCaptureMovieFileOutput *movieOutput = [self movieOutput];
-            [movieOutput setMovieFragmentInterval:v33];
+            [movieOutput setMovieFragmentInterval:v33.value];
             AVCaptureMovieFileOutput *movieOutput2 = [self movieOutput];
             if ([obj canAddOutput:movieOutput2]) {
                 AVCaptureMovieFileOutput *movieOutput3 = [self movieOutput];
@@ -1322,6 +1322,7 @@ void -[JWRRecorderManager finishAudioVideoConversionAtURL:audioURL:success:error
 void -[JWRRecorderManager createVideoCopyForAudioURL:](NSURL *a1)
 {
     CMTime v72;
+    CMTimeRange v8;
     AVURLAsset *v24;
     CMTime v71;
     NSURL *v0 = a1;
@@ -1337,10 +1338,16 @@ void -[JWRRecorderManager createVideoCopyForAudioURL:](NSURL *a1)
     } else {
         v72 = (CMTime){0};
     }
-    if (!firstObject2 || (v72.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) != kCMTimeFlags_Valid || CMTimeGetSeconds(v72) <= 0.01) {
+    if (!firstObject2 || (v72.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) != kCMTimeFlags_Valid) {
+blk_a978:
         NSError *v6 = [self audioVideoError:@"The audio recording has no readable audio track."];
         [self finishAudioVideoConversionAtURL:nil audioURL:v0 success:NO error:v6];
     } else {
+        v8.start = v72;
+        Float64 v9 = CMTimeGetSeconds(&v8);
+        if (v9 <= 0.01) {
+            goto blk_a978;
+        }
         NSString *inProgressDirectory = [self inProgressDirectory];
         NSFileManager *defaultManager = [NSFileManager defaultManager];
         NSError *error = nil;
@@ -1379,13 +1386,14 @@ void -[JWRRecorderManager createVideoCopyForAudioURL:](NSURL *a1)
                 v71 = (CMTime){0};
             }
             if (firstObject != nil && (v71.flags & (kCMTimeFlags_Valid | kCMTimeFlags_PositiveInfinity | kCMTimeFlags_NegativeInfinity | kCMTimeFlags_Indefinite)) == kCMTimeFlags_Valid) {
-                Float64 v32 = CMTimeGetSeconds(v71);
+                v8.start = v71;
+                Float64 v32 = CMTimeGetSeconds(&v8);
                 if (v32 > 0.01) {
                     AVMutableComposition *composition = [AVMutableComposition composition];
                     AVMutableCompositionTrack *v33 = [composition addMutableTrackWithMediaType:v2 preferredTrackID:kCMPersistentTrackID_Invalid];
                     AVMutableCompositionTrack *v34 = [composition addMutableTrackWithMediaType:v25 preferredTrackID:kCMPersistentTrackID_Invalid];
                     CMTime v37 = kCMTimeZero;
-                    CMTimeRange v8 = CMTimeRangeMake(v37, v72);
+                    v8 = CMTimeRangeMake(v37, v72);
                     NSError *v40 = nil;
                     v37 = kCMTimeZero;
                     BOOL v41 = [v33 insertTimeRange:v8 ofTrack:firstObject2 atTime:v37 error:&v40];
@@ -1434,7 +1442,8 @@ blk_b1b4:
                     [v48 setMetadata:v61];
                     NSString *path2 = [v0 path];
                     NSString *path3 = [v18 path];
-                    JWRLog(@"audio video passthrough export started audio=%@ staged=%@ duration=%.3f", path2, path3, CMTimeGetSeconds(v72));
+                    v8.start = v72;
+                    JWRLog(@"audio video passthrough export started audio=%@ staged=%@ duration=%.3f", path2, path3, CMTimeGetSeconds(&v8));
                     void (^v64)(void) = ^void(void) {
                         AVAssetExportSessionStatus status = [v48 status];
                         NSError *error = [v48 error];
