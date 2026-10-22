@@ -439,7 +439,6 @@ FBWorkspaceConnectionsStateStore *-[FBWorkspaceConnectionsStateStore _initWithId
 {
     long v4;
     long v8;
-    FBWorkspaceConnectionsStateStore *self;
     if (self != nil) {
         id v1 = a1;
         if (a1 != nil && ![v1 isKindOfClass:[NSString class]]) {

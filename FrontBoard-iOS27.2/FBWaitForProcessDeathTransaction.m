@@ -24,7 +24,7 @@ FBWaitForProcessDeathTransaction *-[FBWaitForProcessDeathTransaction initWithPro
 
 struct FBWaitForProcessDeathTransaction *-[FBWaitForProcessDeathTransaction _begin](void)
 {
-    struct FBWaitForProcessDeathTransaction *self;
+    struct FBWaitForProcessDeathTransaction *v9;
     if (!self->_process) {
         return self;
     }
@@ -39,13 +39,14 @@ struct FBWaitForProcessDeathTransaction *-[FBWaitForProcessDeathTransaction _beg
             id queue = [self queue];
             objc_msgSend$scheduleWithFireInterval:leewayInterval:queue:handler:(self->_timer, queue, ^void(BSAbsoluteMachTimer *arg1) {
                 [self _failForTimeoutWithDescription:@"process didn't exit in time"];
-            }, 1.591496843e-314, 1.0);
+            }, self->_timeout, 1.0);
         }
         self = [super _begin];
+        v9 = self;
     } else {
-        self = [sharedInstance removeObserver:self];
+        v9 = [sharedInstance removeObserver:self];
     }
-    return self;
+    return v9;
 }
 
 

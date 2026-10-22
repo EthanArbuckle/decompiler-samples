@@ -1201,13 +1201,12 @@ void -[FBSystemService shutdownWithOptions:origin:](id a1, id a2)
     __block long v19;
     int v11;
     id v0 = a1;
-    long v1 = a2;
     long rebootType = [v0 rebootType];
     long isReboot = [v0 isReboot];
     [self setPendingExit:1];
     if (![v0 isShutdown]) {
         objc_msgSend$startTaskWithName:timeout:workItem:(FBAsynchronousShutdownTask, @"NotifyNearField", ^void(NSObject<OS_dispatch_queue> *arg1, void (^arg2)(NSError *)) {
-            long v25 = getNFHardwareManagerClass();
+            id v25 = getNFHardwareManagerClass();
             id sharedHardwareManager = [v25 sharedHardwareManager];
             [sharedHardwareManager actOnUserInitiatedSystemShutDown:4 completion:^void(void) {
                 arg2(nil);
@@ -1227,7 +1226,7 @@ void -[FBSystemService shutdownWithOptions:origin:](id a1, id a2)
         }
         if ((v14 & 1) == 0) {
             objc_msgSend$startTaskWithName:timeout:workItem:(FBAsynchronousShutdownTask, @"NotifyNearField", ^void(NSObject<OS_dispatch_queue> *arg1, void (^arg2)(NSError *)) {
-                long v28 = getNFHardwareManagerClass();
+                id v28 = getNFHardwareManagerClass();
                 id sharedHardwareManager = [v28 sharedHardwareManager];
                 [sharedHardwareManager actOnUserInitiatedSystemShutDown:2 completion:^void(void) {
                     arg2(nil);
@@ -1281,7 +1280,7 @@ void -[FBSystemService shutdownWithOptions:origin:](id a1, id a2)
     }
     id<FBSystemServiceDelegate> delegate = [self delegate];
     if ([delegate respondsToSelector:@selector(systemService:prepareForShutdownWithOptions:origin:)]) {
-        [delegate systemService:self prepareForShutdownWithOptions:v0 origin:v1];
+        [delegate systemService:self prepareForShutdownWithOptions:v0 origin:a2];
     } else if ([delegate respondsToSelector:@selector(systemServicePrepareForShutdown:withOptions:)]) {
         long v6 = [self _mapShutdownOptionsToOptions:v0];
         [delegate systemServicePrepareForShutdown:self withOptions:v6];
@@ -1296,7 +1295,7 @@ void -[FBSystemService shutdownWithOptions:origin:](id a1, id a2)
     if (!isReboot) {
         if (v9) {
             _os_log_impl(&_mh_dylib_header, log, OS_LOG_TYPE_DEFAULT, "Shutting Down... options:%@", ^void(void) {
-                long v38 = NearbyInteractionLibrary();
+                void *v38 = NearbyInteractionLibrary();
                 v19->field_8->field_24 = dlsym(v38, "kNISystemShutdownCompletionTimeoutSeconds");
                 getkNISystemShutdownCompletionTimeoutSecondsSymbolLoc.ptr = v19->field_8->field_24;
             }, 12);
@@ -1378,7 +1377,7 @@ bool -[FBSystemService exitAndRelaunch:withOptions:](int a1, int a2)
     }
     v0 = [self _performExitTasksForRelaunch:a1];
     if ((a1 & 1) == 0) {
-        v0 = BKSHIDServicesSetBacklightFactorWithFadeDuration(1);
+        v0 = BKSHIDServicesSetBacklightFactorWithFadeDuration(1, 1.0, 0.0);
     }
     if ((a2 & 2) == 0) {
         exit(0);
@@ -1537,12 +1536,12 @@ blk_1c4f1a1a8:
 }
 
 
-void -[FBSystemService canOpenApplication:completion:](id a1, void (^a2)(long))
+void -[FBSystemService canOpenApplication:completion:](id a1, void (^a2)(id))
 {
     long v4;
     long v8;
     id v0 = a1;
-    void (^v1)(long) = a2;
+    void (^v1)(id) = a2;
     if (a2 != nil) {
         id currentContext = [BSServiceConnection currentContext];
         id remoteProcess = [currentContext remoteProcess];

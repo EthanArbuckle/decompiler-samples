@@ -8,20 +8,17 @@ struct FBSceneSnapshot {
 NSMutableOrderedSet *-[FBSceneSnapshot _collectLayersToSnapshotFromScene:withSnapshotConfig:rootConfig:](id a1, id a2, id a3)
 {
     CATransform3D v5;
-    CGFloat v4;
-    CGAffineTransform v6;
+    long v4;
     if (!self) {
         return nil;
     }
     NSMutableOrderedSet *orderedSet = [NSMutableOrderedSet orderedSet];
     [self _baseTransformForSnapshotConfig:a2 rootConfig:a3, &v4];
     _memset(&v5, 0, 128);
-    v6.a = v4;
-    v6.c = v4.field_16;
-    v6.tx = v4.field_32;
+    CGAffineTransform v6 = v4;
     v5 = CATransform3DMakeAffineTransform(v6);
     FBSceneLayer *backgroundLayer = [a2 backgroundLayer];
-    if (backgroundLayer != nil) {
+    if (backgroundLayer) {
         unsigned int contextID2 = [backgroundLayer contextID];
         if (contextID2 != 0) {
             _FBSSnapshotLayer *v10 = [_FBSSnapshotLayer alloc];
@@ -38,23 +35,23 @@ NSMutableOrderedSet *-[FBSceneSnapshot _collectLayersToSnapshotFromScene:withSna
     NSSet *layersToExclude = [a2 layersToExclude];
     [v14 minusSet:layersToExclude];
     id keyboardScene = [FBSceneManager keyboardScene];
-    for (FBSceneLayer *v23 in v14) {
-        unsigned int contextID = [v23 contextID];
+    for (FBSceneLayer *v22 in v14) {
+        unsigned int contextID = [v22 contextID];
         if (contextID != 0) {
-            _FBSSnapshotLayer *v25 = [_FBSSnapshotLayer alloc];
+            _FBSSnapshotLayer *v24 = [_FBSSnapshotLayer alloc];
             memmove(&v6, &v5, 128);
-            _FBSSnapshotLayer *v26 = [v25 initWithContextID:contextID baseTransform:&v6];
-            if (v26 != nil) {
-                [orderedSet addObject:v26];
+            _FBSSnapshotLayer *v25 = [v24 initWithContextID:contextID baseTransform:&v6];
+            if (v25 != nil) {
+                [orderedSet addObject:v25];
             }
-        } else if ([v23 isKeyboardLayer]) {
+        } else if ([v22 isKeyboardLayer]) {
             if (a1 == keyboardScene) {
                 NSOrderedSet *other = [self _collectLayersToSnapshotFromScene:keyboardScene withSnapshotConfig:[[FBSceneSnapshotContext alloc] initWithScene:keyboardScene configurator:nil] rootConfig:a3];
                 [orderedSet unionOrderedSet:other];
             }
-        } else if ([v23 isKeyboardProxyLayer]) {
+        } else if ([v22 isKeyboardProxyLayer]) {
             FBSSceneIdentityToken *identityToken = [keyboardScene identityToken];
-            FBSSceneIdentityToken *proxiedKeyboardOwner = [v23 proxiedKeyboardOwner];
+            FBSSceneIdentityToken *proxiedKeyboardOwner = [v22 proxiedKeyboardOwner];
             if ([identityToken isEqual:proxiedKeyboardOwner]) {
                 NSOrderedSet *other2 = [self _collectLayersToSnapshotFromScene:keyboardScene withSnapshotConfig:[[FBSceneSnapshotContext alloc] initWithScene:keyboardScene configurator:nil] rootConfig:a3];
                 [orderedSet unionOrderedSet:other2];
@@ -91,15 +88,17 @@ FBSceneSnapshot *-[FBSceneSnapshot _initWithScene:configuration:](FBScene *a1, i
     [v6 setAllowsProtectedContent:clientAllowsProtectedContent];
     CGRect frame = [a2 frame];
     long v11 = frame.size.width;
-    CGFloat sizeheight = frame.size.height;
+    long v12 = frame.size.height;
     if (![a2 orientation]) {
         FBSSceneSettings *settings = [a2 settings];
         long v14 = BSInterfaceOrientationIsLandscape([settings interfaceOrientation]);
+        long v15 = (v14 != 0) ? v11 : v12;
         if (v14 != 0) {
-            v11 = sizeheight;
+            v11 = v12;
         }
+        v12 = v15;
     }
-    [v6 setSnapshotSize:v11, sizeheight];
+    [v6 setSnapshotSize:v11, v12];
     self->_snapshot = [[_FBSSnapshot alloc] initWithSnapshotContext:v6];
     return self;
 }
@@ -117,23 +116,23 @@ FBSceneSnapshot *-[FBSceneSnapshot initWithScene:context:](long a1, FBSceneSnaps
 
 void -[FBSceneSnapshot _baseTransformForSnapshotConfig:rootConfig:](id a1, id a2, void *a3)
 {
-    long v17;
-    CGFloat v19;
-    CGFloat v20;
-    CGAffineTransform v22;
-    CGAffineTransform v24;
-    CGAffineTransform v23;
-    CGFloat v33;
-    CGFloat v26;
-    double v30;
-    CGAffineTransform v28;
+    long v20;
+    CGAffineTransform v31;
+    CGAffineTransform v33;
+    CGAffineTransform v32;
+    CGFloat v42;
+    CGAffineTransform v38;
+    CGFloat v35;
+    double v39;
+    CGAffineTransform v37;
     if (!self) {
         a3->field_16 = 0;
         a3->field_32 = 0;
         *(a3) = 0;
         return;
     }
-    *(__uint128_t *)a3 = *(__uint128_t *)&CGAffineTransformIdentity;
+    __uint128_t v3 = *(__uint128_t *)&CGAffineTransformIdentity;
+    *(a3) = v3;
     *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&CGAffineTransformIdentity + 16);
     *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&CGAffineTransformIdentity + 32);
     FBSSceneSettings *settings3 = [a1 settings];
@@ -144,138 +143,140 @@ void -[FBSceneSnapshot _baseTransformForSnapshotConfig:rootConfig:](id a1, id a2
     long v11 = BSInterfaceOrientationIsValid(interfaceOrientation);
     FBSSceneSettings *settings = [self->_scene settings];
     id displayConfiguration = [settings displayConfiguration];
-    [displayConfiguration bounds];
+    CGRect bounds = [displayConfiguration bounds];
+    CGFloat sizewidth = bounds.size.width;
+    CGFloat sizeheight = bounds.size.height;
     CGRect frame = [a2 frame];
-    CGFloat v15 = frame.origin.x;
-    CGFloat originy = frame.origin.y;
+    CGFloat v18 = frame.origin.x;
+    CGFloat v19 = frame.origin.y;
     if (![a2 orientation]) {
-        v17 = (v11 != 0) ? interfaceOrientation : 1;
-        long v18 = BSInterfaceOrientationIsLandscape(v17);
-        v19 = (v18 != 0) ? v15 : originy;
-        v20 = (v18 != 0) ? originy : v15;
-        v15 = v19;
+        v20 = (v11 != 0) ? interfaceOrientation : 1;
+        long v21 = BSInterfaceOrientationIsLandscape(v20);
+        CGFloat v22 = (v21 != 0) ? v18 : v19;
+        if (v21 != 0) {
+            v18 = v19;
+        }
+        v19 = v22;
     } else {
-        v17 = 1;
-        v20 = v15;
-        v19 = originy;
+        v20 = 1;
     }
-    if (v8 == v17) {
-        _memset(v22 + 16, 0, 32);
-        v22 = CGAffineTransformMakeTranslation(-v20, -v19);
-        v24.a = *(a3);
-        *(__uint128_t *)(&v24 + 16) = *(__uint128_t *)(a3 + 16);
-        *(__uint128_t *)(&v24 + 32) = *(__uint128_t *)(a3 + 32);
-        v23 = CGAffineTransformConcat(v24, v22);
-        *(a3) = v23.a;
-        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v23 + 16);
-        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v23 + 32);
-        v33 = [a2 scale];
-        _memset(&v23, 0, 48);
-        v23 = CGAffineTransformMakeScale(v33);
-        *(__uint128_t *)&v28 = *(__uint128_t *)a3;
-        *(__uint128_t *)(&v28 + 16) = *(__uint128_t *)(a3 + 16);
-        *(__uint128_t *)(&v28 + 32) = *(__uint128_t *)(a3 + 32);
-        v24 = CGAffineTransformConcat(v28, v23);
-        *(a3) = v24.a;
-        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v24 + 16);
-        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v24 + 32);
+    if (v8 == v20) {
+        v31 = CGAffineTransformMakeTranslation(-v18, -v19);
+        v33.a = *(a3);
+        *(__uint128_t *)(&v33 + 16) = *(__uint128_t *)(a3 + 16);
+        *(__uint128_t *)(&v33 + 32) = *(__uint128_t *)(a3 + 32);
+        v32 = CGAffineTransformConcat(v33, v31);
+        *(__uint128_t *)a3 = *(__uint128_t *)&v32;
+        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v32 + 16);
+        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v32 + 32);
+        v42 = [a2 scale];
+        _memset(&v32, 0, 48);
+        v32 = CGAffineTransformMakeScale(v42);
+        *(__uint128_t *)&v37 = *(__uint128_t *)a3;
+        *(__uint128_t *)(&v37 + 16) = *(__uint128_t *)(a3 + 16);
+        *(__uint128_t *)(&v37 + 32) = *(__uint128_t *)(a3 + 32);
+        v38 = v32;
+        v33 = CGAffineTransformConcat(v37, v38);
+        *(__uint128_t *)a3 = *(__uint128_t *)&v33;
+        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v33 + 16);
+        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v33 + 32);
         return;
     }
     FBSSceneSettings *settings2 = [a1 settings];
-    [settings2 frame];
+    CGRect frame2 = [settings2 frame];
+    CGFloat originx = frame2.origin.x;
+    CGFloat originy = frame2.origin.y;
+    CGFloat sizewidth2 = frame2.size.width;
+    CGFloat sizeheight2 = frame2.size.height;
     if (v8 != 1) {
-        BSConvertRectFromOrientationToOrientation(1, v8);
+        BSConvertRectFromOrientationToOrientation(1, v8, originx, originy, sizewidth2, sizeheight2, sizewidth, sizeheight);
     }
     BSRectGetCenter();
-    v22.c = 0;
-    v22.tx = 0;
-    v22 = CGAffineTransformMakeTranslation(v15, originy);
-    v23 = CGAffineTransformIdentity;
-    v24 = v22;
-    int *v25 = &v23;
-    CGAffineTransformConcat(v23, v24, a3);
+    v31 = CGAffineTransformMakeTranslation(originx, originy);
+    v32 = CGAffineTransformIdentity;
+    v33 = v31;
+    int *v34 = &v32;
+    CGAffineTransformConcat(v32, v33, a3);
     if (v8 != 1) {
         switch (v8) {
             case 3:
-                v26 = 1.5707963267948966;
+                v35 = 1.5707963267948966;
                 break;
             case 4:
-                v26 = -1.5707963267948966;
+                v35 = -1.5707963267948966;
                 break;
             default:
-                v26 = (v8 == 2) ? 3.141592653589793 : 0.0;
+                v35 = (v8 == 2) ? 3.141592653589793 : 0.0;
                 break;
         }
-        _memset(&v23, 0, 48);
-        v24 = CGAffineTransformMakeRotation(v26);
-        BSIntegralTransform(&v24, &v23);
-        *(__uint128_t *)&v28 = *(__uint128_t *)a3;
-        *(__uint128_t *)(&v28 + 16) = *(__uint128_t *)(a3 + 16);
-        *(__uint128_t *)(&v28 + 32) = *(__uint128_t *)(a3 + 32);
-        v25 = &v28;
-        v24 = CGAffineTransformConcat(v28, v23);
-        *(a3) = v24.a;
-        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v24 + 16);
-        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v24 + 32);
+        _memset(&v32, 0, 48);
+        v33 = CGAffineTransformMakeRotation(v35);
+        BSIntegralTransform(&v33, &v32);
+        *(__uint128_t *)&v37 = *(__uint128_t *)a3;
+        *(__uint128_t *)(&v37 + 16) = *(__uint128_t *)(a3 + 16);
+        *(__uint128_t *)(&v37 + 32) = *(__uint128_t *)(a3 + 32);
+        v38 = v32;
+        v34 = &v37;
+        v33 = CGAffineTransformConcat(v37, v38);
+        *(__uint128_t *)a3 = *(__uint128_t *)&v33;
+        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v33 + 16);
+        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v33 + 32);
     }
-    if (v17 != 1) {
-        switch (v17) {
+    if (v20 != 1) {
+        switch (v20) {
             case 3:
-                v30 = 1.5707963267948966;
+                v39 = 1.5707963267948966;
                 break;
             case 4:
-                v30 = -1.5707963267948966;
+                v39 = -1.5707963267948966;
                 break;
             default:
-                v30 = (v17 == 2) ? 3.141592653589793 : 0.0;
+                v39 = (v20 == 2) ? 3.141592653589793 : 0.0;
                 break;
         }
-        _memset(&v23, 0, 48);
-        v24 = CGAffineTransformMakeRotation(-v30);
-        BSIntegralTransform(&v24, &v23);
-        *(__uint128_t *)&v28 = *(__uint128_t *)a3;
-        *(__uint128_t *)(&v28 + 16) = *(__uint128_t *)(a3 + 16);
-        *(__uint128_t *)(&v28 + 32) = *(__uint128_t *)(a3 + 32);
-        v24 = CGAffineTransformConcat(v28, v23);
-        *(a3) = v24.a;
-        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v24 + 16);
-        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v24 + 32);
-        v25 = BSConvertRectFromOrientationToOrientation(1, v17);
+        _memset(&v32, 0, 48);
+        v33 = CGAffineTransformMakeRotation(-v39);
+        BSIntegralTransform(&v33, &v32);
+        *(__uint128_t *)&v37 = *(__uint128_t *)a3;
+        *(__uint128_t *)(&v37 + 16) = *(__uint128_t *)(a3 + 16);
+        *(__uint128_t *)(&v37 + 32) = *(__uint128_t *)(a3 + 32);
+        v38 = v32;
+        v33 = CGAffineTransformConcat(v37, v38);
+        *(__uint128_t *)a3 = *(__uint128_t *)&v33;
+        *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v33 + 16);
+        *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v33 + 32);
+        v34 = BSConvertRectFromOrientationToOrientation(1, v20, originx, originy, sizewidth2, sizeheight2, sizewidth, sizeheight);
     }
-    CGFloat tx = BSRectGetCenter(v25);
-    v23.c = 0;
-    v23.tx = 0;
-    v23.a = 0;
-    v23 = CGAffineTransformMakeTranslation(tx);
-    *(__uint128_t *)&v28 = *(__uint128_t *)a3;
-    *(__uint128_t *)(&v28 + 16) = *(__uint128_t *)(a3 + 16);
-    *(__uint128_t *)(&v28 + 32) = *(__uint128_t *)(a3 + 32);
-    v24 = CGAffineTransformConcat(v28, v23);
-    *(a3) = v24.a;
-    *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v24 + 16);
-    *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v24 + 32);
-    v22.c = 0;
-    v22.tx = 0;
-    v22 = CGAffineTransformMakeTranslation(-v20, -v19);
-    v24.a = *(a3);
-    *(__uint128_t *)(&v24 + 16) = *(__uint128_t *)(a3 + 16);
-    *(__uint128_t *)(&v24 + 32) = *(__uint128_t *)(a3 + 32);
-    v23 = CGAffineTransformConcat(v24, v22);
-    *(a3) = v23.a;
-    *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v23 + 16);
-    *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v23 + 32);
-    v33 = [a2 scale];
-    v23.c = 0;
-    v23.tx = 0;
-    v23.a = 0;
-    v23 = CGAffineTransformMakeScale(v33);
-    *(__uint128_t *)&v28 = *(__uint128_t *)a3;
-    *(__uint128_t *)(&v28 + 16) = *(__uint128_t *)(a3 + 16);
-    *(__uint128_t *)(&v28 + 32) = *(__uint128_t *)(a3 + 32);
-    v24 = CGAffineTransformConcat(v28, v23);
-    *(a3) = v24.a;
-    *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v24 + 16);
-    *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v24 + 32);
+    CGFloat tx = BSRectGetCenter(v34);
+    v32 = (CGAffineTransform){0};
+    v32 = CGAffineTransformMakeTranslation(tx);
+    *(__uint128_t *)&v37 = *(__uint128_t *)a3;
+    *(__uint128_t *)(&v37 + 16) = *(__uint128_t *)(a3 + 16);
+    *(__uint128_t *)(&v37 + 32) = *(__uint128_t *)(a3 + 32);
+    v38 = v32;
+    v33 = CGAffineTransformConcat(v37, v38);
+    *(__uint128_t *)a3 = *(__uint128_t *)&v33;
+    *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v33 + 16);
+    *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v33 + 32);
+    v31 = CGAffineTransformMakeTranslation(-v18, -v19);
+    v33.a = *(a3);
+    *(__uint128_t *)(&v33 + 16) = *(__uint128_t *)(a3 + 16);
+    *(__uint128_t *)(&v33 + 32) = *(__uint128_t *)(a3 + 32);
+    v32 = CGAffineTransformConcat(v33, v31);
+    *(__uint128_t *)a3 = *(__uint128_t *)&v32;
+    *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v32 + 16);
+    *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v32 + 32);
+    v42 = [a2 scale];
+    v32 = (CGAffineTransform){0};
+    v32 = CGAffineTransformMakeScale(v42);
+    *(__uint128_t *)&v37 = *(__uint128_t *)a3;
+    *(__uint128_t *)(&v37 + 16) = *(__uint128_t *)(a3 + 16);
+    *(__uint128_t *)(&v37 + 32) = *(__uint128_t *)(a3 + 32);
+    v38 = v32;
+    v33 = CGAffineTransformConcat(v37, v38);
+    *(__uint128_t *)a3 = *(__uint128_t *)&v33;
+    *(__uint128_t *)(a3 + 16) = *(__uint128_t *)(&v33 + 16);
+    *(__uint128_t *)(a3 + 32) = *(__uint128_t *)(&v33 + 32);
 }
 
 

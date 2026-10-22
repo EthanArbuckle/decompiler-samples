@@ -42,14 +42,14 @@ void -[FBSceneObserver scene:willUpdateSettings:](id a1, id a2)
 
 id<FBSceneObserver> -[FBSceneObserver delegate](void)
 {
-    id<FBSceneObserver> self;
+    id<FBSceneObserver> v0 = nil;
     if (self != nil) {
         if (self->_isDelegate != 1) {
             return nil;
         }
-        self = self->_observer;
+        v0 = self->_observer;
     }
-    return self;
+    return v0;
 }
 
 
@@ -66,41 +66,41 @@ void -[FBSceneObserver scene:willUpdateSettings:withTransitionContext:](id a1, i
 
 FBSceneObserver *-[FBSceneObserver initWithComponent:extension:](id<FBSceneComponent> a1, Class a2)
 {
-    FBSceneObserver *self;
+    FBSceneObserver *v1 = nil;
     if (self != nil) {
-        self = [self _initWithObserver:a1];
-        if (self != nil) {
-            self->_extension = a2;
-            self->_component = a1;
-            self->_componentFlags.willUpdateSettingsLEGACY = [a1 respondsToSelector:@selector(scene:willUpdateSettings:withTransitionContext:)];
-            self->_componentFlags.willUpdateSettings = [a1 respondsToSelector:@selector(scene:willUpdateSettings:)];
-            self->_componentFlags.handlePrivateActions = [a1 respondsToSelector:@selector(handlePrivateActions:)];
-            self->_componentFlags.willInvalidate = [a1 respondsToSelector:@selector(componentWillInvalidate:)];
-            self->_componentFlags.invalidate = [a1 respondsToSelector:@selector(invalidate)];
+        v1 = [self _initWithObserver:a1];
+        if (v1 != nil) {
+            v1->_extension = a2;
+            v1->_component = a1;
+            v1->_componentFlags.willUpdateSettingsLEGACY = [a1 respondsToSelector:@selector(scene:willUpdateSettings:withTransitionContext:)];
+            v1->_componentFlags.willUpdateSettings = [a1 respondsToSelector:@selector(scene:willUpdateSettings:)];
+            v1->_componentFlags.handlePrivateActions = [a1 respondsToSelector:@selector(handlePrivateActions:)];
+            v1->_componentFlags.willInvalidate = [a1 respondsToSelector:@selector(componentWillInvalidate:)];
+            v1->_componentFlags.invalidate = [a1 respondsToSelector:@selector(invalidate)];
         }
     }
-    return self;
+    return v1;
 }
 
 
 id<FBSceneComponent> -[FBSceneObserver component](void)
 {
-    id<FBSceneComponent> self;
+    id<FBSceneComponent> v0 = nil;
     if (self != nil) {
-        self = self->_component;
+        v0 = self->_component;
     }
-    return self;
+    return v0;
 }
 
 
 bool -[FBSceneObserver receiverWantsInactiveUpdates](void)
 {
-    void *self;
-    if (self != 0) {
+    long v1 = 0;
+    if (self != nil) {
         id<FBSceneObserver> v0 = self->_observer;
-        self = (!v0) ? 0 : self->_observerFlags.wantsInactiveUpdates;
+        v1 = (!v0) ? 0 : self->_observerFlags.wantsInactiveUpdates;
     }
-    return self & 1;
+    return v1 & 1;
 }
 
 
@@ -116,19 +116,19 @@ id -[FBSceneObserver initWithObserver:](long a1)
 
 FBSceneObserver *-[FBSceneObserver initWithDelegate:](id a1)
 {
-    FBSceneObserver *self;
+    FBSceneObserver *v1 = nil;
     if (self != nil) {
-        self = [self _initWithObserver:a1];
-        if (self != nil) {
-            self->_isDelegate = YES;
-            self->_delegateFlags.willUpdateSettingsLEGACY = [a1 respondsToSelector:@selector(scene:willUpdateSettings:withTransitionContext:)];
-            self->_delegateFlags.willUpdateSettings = [a1 respondsToSelector:@selector(scene:willUpdateSettings:)];
-            self->_delegateFlags.didReceiveActions = [a1 respondsToSelector:@selector(scene:didReceiveActions:)];
-            self->_delegateFlags.didDeactivateWithError = [a1 respondsToSelector:@selector(sceneDidDeactivate:withError:)];
-            self->_delegateFlags.didDeactivateWithContext = [a1 respondsToSelector:@selector(sceneDidDeactivate:withContext:)];
+        v1 = [self _initWithObserver:a1];
+        if (v1 != nil) {
+            v1->_isDelegate = YES;
+            v1->_delegateFlags.willUpdateSettingsLEGACY = [a1 respondsToSelector:@selector(scene:willUpdateSettings:withTransitionContext:)];
+            v1->_delegateFlags.willUpdateSettings = [a1 respondsToSelector:@selector(scene:willUpdateSettings:)];
+            v1->_delegateFlags.didReceiveActions = [a1 respondsToSelector:@selector(scene:didReceiveActions:)];
+            v1->_delegateFlags.didDeactivateWithError = [a1 respondsToSelector:@selector(sceneDidDeactivate:withError:)];
+            v1->_delegateFlags.didDeactivateWithContext = [a1 respondsToSelector:@selector(sceneDidDeactivate:withContext:)];
         }
     }
-    return self;
+    return v1;
 }
 
 
@@ -257,11 +257,11 @@ void *-[FBSceneObserver sceneContentStateDidChange:](id a1)
 
 id<FBSceneObserver> -[FBSceneObserver observer](void)
 {
-    id<FBSceneObserver> self;
+    id<FBSceneObserver> v0 = nil;
     if (self != nil) {
-        self = self->_observer;
+        v0 = self->_observer;
     }
-    return self;
+    return v0;
 }
 
 
@@ -315,19 +315,19 @@ bool -[FBSceneObserver delegateReceivesActions](void)
         return false;
     }
     id<FBSceneObserver> v0 = self->_observer;
-    self = (!v0) ? 0 : self->_delegateFlags.didReceiveActions;
-    return self & 1;
+    long v1 = (!v0) ? 0 : self->_delegateFlags.didReceiveActions;
+    return v1 & 1;
 }
 
 
 bool -[FBSceneObserver observerHandlesActions](void)
 {
-    void *self;
-    if (self != 0) {
+    long v1 = 0;
+    if (self != nil) {
         id<FBSceneObserver> v0 = self->_observer;
-        self = (!v0) ? 0 : self->_observerFlags.handleActions;
+        v1 = (!v0) ? 0 : self->_observerFlags.handleActions;
     }
-    return self & 1;
+    return v1 & 1;
 }
 
 

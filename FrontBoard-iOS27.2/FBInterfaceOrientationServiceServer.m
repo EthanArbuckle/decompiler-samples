@@ -9,7 +9,7 @@ struct FBInterfaceOrientationServiceServer {
     FBSActiveInterfaceOrientationStateUpdate *_lock_latestUpdate; // +0x40
 };
 
-void -[FBInterfaceOrientationServiceServer activeInterfaceOrientationStateUpdateWithCompletion:](void (^a1)(long, long))
+void -[FBInterfaceOrientationServiceServer activeInterfaceOrientationStateUpdateWithCompletion:](void (^a1)(id, long))
 {
     id activeInterfaceOrientationStateUpdate = [self activeInterfaceOrientationStateUpdate];
     a1(activeInterfaceOrientationStateUpdate, 0);

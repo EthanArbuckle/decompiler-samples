@@ -14,7 +14,7 @@ void -[FBApplicationDataStoreRepositoryManager objectChangedForKeys:application:
             if (!v13) {
                 v13 = [NSNull null];
             }
-            NSDictionary *aUserInfo = @{@"FBApplicationStoreRepositoryChangeKey": v8, @"FBApplicationStoreRepositoryChangeApp": a2, @"FBApplicationStoreRepositoryChangeValue": v13};
+            NSDictionary<NSString *, id> *aUserInfo = @{@"FBApplicationStoreRepositoryChangeKey": v8, @"FBApplicationStoreRepositoryChangeApp": a2, @"FBApplicationStoreRepositoryChangeValue": v13};
             [defaultCenter postNotificationName:@"FBApplicationStoreRepositoryChangeNotification" object:nil userInfo:aUserInfo];
         }
     }
@@ -36,7 +36,7 @@ FBApplicationDataStoreRepositoryManager *-[FBApplicationDataStoreRepositoryManag
 }
 
 
-FBApplicationDataStoreRepositoryManager *-[FBApplicationDataStoreRepositoryManager _initWithDataStore:lsEnumerator:](id a1, LSEnumerator *a2)
+FBApplicationDataStoreRepositoryManager *-[FBApplicationDataStoreRepositoryManager _initWithDataStore:lsEnumerator:](id<FBApplicationDataStoreRepository> a1, LSEnumerator *a2)
 {
     FBApplicationDataStoreRepositoryManager *observer = [super init];
     if (observer != nil) {

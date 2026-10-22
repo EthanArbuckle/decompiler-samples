@@ -10,7 +10,6 @@ struct FBSceneSynchronizer {
 
 FBSceneSynchronizer *-[FBSceneSynchronizer _initWithIdentifier:workspaceQueue:dispatcher:](id a1, BSServiceDispatchQueue *a2, FBWorkspaceEventDispatcher *a3)
 {
-    FBSceneSynchronizer *self;
     if (self != nil) {
         Class aClass = [NSString class];
         if (!a1) {
@@ -107,11 +106,11 @@ FBSceneSynchronizer *-[FBSceneSynchronizer _initWithIdentifier:workspaceQueue:di
 
 FBWorkspaceEventDispatcher *-[FBSceneSynchronizer _dispatcher](void)
 {
-    FBWorkspaceEventDispatcher *self;
+    FBWorkspaceEventDispatcher *v0 = nil;
     if (self != nil) {
-        self = self->_dispatcher;
+        v0 = self->_dispatcher;
     }
-    return self;
+    return v0;
 }
 
 
@@ -186,11 +185,11 @@ blk_1c4edc030:
 
 BSServiceDispatchQueue *-[FBSceneSynchronizer _workspaceQueue](void)
 {
-    BSServiceDispatchQueue *self;
+    BSServiceDispatchQueue *v0 = nil;
     if (self != nil) {
-        self = self->_workspaceQueue;
+        v0 = self->_workspaceQueue;
     }
-    return self;
+    return v0;
 }
 
 

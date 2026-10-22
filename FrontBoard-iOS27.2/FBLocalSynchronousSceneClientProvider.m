@@ -196,7 +196,6 @@ void -[FBLocalSynchronousSceneClientProvider _sendToSceneWithInfo:updatedSetting
 
 void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClientSettings:fromRemnant:error:](SEL a1, id a2, FBSSceneSettings *a3, FBSSceneClientSettings *a4, id a5)
 {
-    NSString *v1 = a2;
     id callOutQueue = [self callOutQueue];
     [callOutQueue assertBarrierOnQueue];
     if (a5 != nil) {
@@ -209,7 +208,7 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
         _bs_set_crash_log_message([v46 UTF8String]);
         __break(0);
     }
-    FBSSceneIdentityToken *identityToken = [v1 identityToken];
+    FBSSceneIdentityToken *identityToken = [a2 identityToken];
     Class v4 = NSClassFromString(@"FBSSceneIdentityToken");
     if (!identityToken) {
         NSString *v50 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
@@ -231,7 +230,7 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
         _bs_set_crash_log_message([v54 UTF8String]);
         __break(0);
     }
-    id definition = [v1 definition];
+    id definition = [a2 definition];
     id<NSCopying> identity = [definition identity];
     Class v7 = NSClassFromString(@"FBSSceneIdentity");
     if (!identity) {
@@ -254,7 +253,7 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
         _bs_set_crash_log_message([v62 UTF8String]);
         __break(0);
     }
-    FBSSceneSpecification *specification = [v1 specification];
+    FBSSceneSpecification *specification = [a2 specification];
     Class v9 = NSClassFromString(@"FBSSceneSpecification");
     if (!specification) {
         NSString *v66 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
@@ -357,13 +356,13 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
             [v20 setSettings:a3];
             [v20 setClientSettings:a4];
             FBSScene *v19 = [[FBSScene alloc] _initWithUpdater:self identityToken:identityToken identity:identity parameters:v20 hostHandle:[FBSSceneHostHandle localHandle]];
-            _FBLocalSceneInfo *v124 = [[_FBLocalSceneInfo alloc] initWithScene:v19];
-            [self->_localSceneInfoByIdentity setObject:v124 forKey:identity];
-            [self->_hostsByIdentity setObject:v1 forKey:identity];
+            _FBLocalSceneInfo *v125 = [[_FBLocalSceneInfo alloc] initWithScene:v19];
+            [self->_localSceneInfoByIdentity setObject:v125 forKey:identity];
+            [self->_hostsByIdentity setObject:a2 forKey:identity];
         } else {
-            id v125 = v18->field_16;
+            id v126 = v18->field_16;
             if (![self->_pendingScenes containsObject:v18->field_16]) {
-                NSString *v43 = [NSString stringWithFormat:@"already registered scene for %@ is not in the pending set: %@", identity, v125];
+                NSString *v43 = [NSString stringWithFormat:@"already registered scene for %@ is not in the pending set: %@", identity, v126];
                 if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                     NSString *v0 = NSStringFromSelector(a1);
                     NSString *v102 = NSStringFromClass([self class]);
@@ -372,9 +371,9 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
                 _bs_set_crash_log_message([v43 UTF8String]);
                 __break(0);
             }
-            [self->_pendingScenes removeObject:v125];
+            [self->_pendingScenes removeObject:v126];
             if ((v18->field_9 & 1) == 0) {
-                NSString *v104 = [NSString stringWithFormat:@"must have already sent the scene create: %@", v125];
+                NSString *v104 = [NSString stringWithFormat:@"must have already sent the scene create: %@", v126];
                 if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                     NSString *v105 = NSStringFromSelector(a1);
                     NSString *v106 = NSStringFromClass([self class]);
@@ -383,38 +382,38 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
                 _bs_set_crash_log_message([v104 UTF8String]);
                 __break(0);
             }
-            [self->_hostsByIdentity setObject:v1 forKey:identity];
+            [self->_hostsByIdentity setObject:a2 forKey:identity];
             if (!self->_clientFutureHostsBeingSynchronized) {
-                self->_clientFutureHostsBeingSynchronized = [NSMutableSet setWithObject:v1];
+                self->_clientFutureHostsBeingSynchronized = [NSMutableSet setWithObject:a2];
             } else {
-                if ([self->_clientFutureHostsBeingSynchronized containsObject:v1]) {
-                    v1 = [NSString stringWithFormat:@"somehow already initializing this host? host=%@ : beingInitialized=%@", v1, self->_clientFutureHostsBeingSynchronized];
+                if ([self->_clientFutureHostsBeingSynchronized containsObject:a2]) {
+                    NSString *v124 = [NSString stringWithFormat:@"somehow already initializing this host? host=%@ : beingInitialized=%@", a2, self->_clientFutureHostsBeingSynchronized];
                     if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                         NSString *v108 = NSStringFromSelector(a1);
                         NSString *v109 = NSStringFromClass([self class]);
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v108, v109, self, @"FBLocalSynchronousSceneClientProvider.m", 201, v1);
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v108, v109, self, @"FBLocalSynchronousSceneClientProvider.m", 201, v124);
                     }
-                    _bs_set_crash_log_message([v1 UTF8String]);
+                    _bs_set_crash_log_message([v124 UTF8String]);
                     __break(0);
                 }
-                [self->_clientFutureHostsBeingSynchronized addObject:v1];
+                [self->_clientFutureHostsBeingSynchronized addObject:a2];
             }
             if (self->_clientFutureScenesBeingSynchronized != nil) {
-                if ([self->_clientFutureScenesBeingSynchronized containsObject:v125]) {
-                    NSString *v126 = [NSString stringWithFormat:@"somehow already initializing this scene? scene=%@ : beingInitialized=%@", v125, self->_clientFutureScenesBeingSynchronized];
+                if ([self->_clientFutureScenesBeingSynchronized containsObject:v126]) {
+                    NSString *v127 = [NSString stringWithFormat:@"somehow already initializing this scene? scene=%@ : beingInitialized=%@", v126, self->_clientFutureScenesBeingSynchronized];
                     if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                         NSString *v111 = NSStringFromSelector(a1);
                         NSString *v112 = NSStringFromClass([self class]);
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v111, v112, self, @"FBLocalSynchronousSceneClientProvider.m", 207, v126);
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v111, v112, self, @"FBLocalSynchronousSceneClientProvider.m", 207, v127);
                     }
-                    _bs_set_crash_log_message([v126 UTF8String]);
+                    _bs_set_crash_log_message([v127 UTF8String]);
                     __break(0);
                 }
-                [self->_clientFutureScenesBeingSynchronized addObject:v125];
+                [self->_clientFutureScenesBeingSynchronized addObject:v126];
             } else {
-                self->_clientFutureScenesBeingSynchronized = [NSMutableSet setWithObject:v125];
+                self->_clientFutureScenesBeingSynchronized = [NSMutableSet setWithObject:v126];
             }
-            FBSSceneClientSettings *clientSettings = [v125 clientSettings];
+            FBSSceneClientSettings *clientSettings = [v126 clientSettings];
             if ((BSEqualObjects(a4, clientSettings) & 1) == 0) {
                 id v30 = [FBSSceneClientSettingsDiff diffFromSettings:a4 toSettings:clientSettings];
                 if (v30 != nil) {
@@ -422,10 +421,10 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
                     if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
                         os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "Local scene future %{public}@ has out-of-date clientSettings : %@", identity, v30);
                     }
-                    [self _sendToHost:v1 updatedClientSettings:clientSettings withDiff:v30 transitionContext:0];
+                    [self _sendToHost:a2 updatedClientSettings:clientSettings withDiff:v30 transitionContext:0];
                 }
             }
-            FBSSceneSettings *settings = [v125 settings];
+            FBSSceneSettings *settings = [v126 settings];
             if ((BSEqualObjects(settings, a3) & 1) == 0) {
                 id v35 = [FBSSceneSettingsDiff diffFromSettings:settings toSettings:a3];
                 if (v35 != nil) {
@@ -436,8 +435,8 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
                     [self _sendToSceneWithInfo:v18 updatedSettings:a3 withDiff:v35 transitionContext:nil completion:nil];
                 }
             }
-            if (![self->_clientFutureHostsBeingSynchronized containsObject:v1]) {
-                NSString *v44 = [NSString stringWithFormat:@"something bad happened that removed the host prematurely from the initializing set : host=%@ beingInitialized=%@", v1, self->_clientFutureHostsBeingSynchronized];
+            if (![self->_clientFutureHostsBeingSynchronized containsObject:a2]) {
+                NSString *v44 = [NSString stringWithFormat:@"something bad happened that removed the host prematurely from the initializing set : host=%@ beingInitialized=%@", a2, self->_clientFutureHostsBeingSynchronized];
                 if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                     NSString *v116 = NSStringFromSelector(a1);
                     NSString *v117 = NSStringFromClass([self class]);
@@ -449,12 +448,12 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
             NSUInteger count = [self->_clientFutureHostsBeingSynchronized count];
             NSMutableSet *v38 = self->_clientFutureHostsBeingSynchronized;
             if (count != 1) {
-                [v38 removeObject:v1];
+                [v38 removeObject:a2];
             } else {
                 self->_clientFutureHostsBeingSynchronized = nil;
             }
-            if (![self->_clientFutureScenesBeingSynchronized containsObject:v125]) {
-                NSString *v45 = [NSString stringWithFormat:@"something bad happened that removed the scene prematurely from the initializing set : scene=%@ beingInitialized=%@", v125, self->_clientFutureScenesBeingSynchronized];
+            if (![self->_clientFutureScenesBeingSynchronized containsObject:v126]) {
+                NSString *v45 = [NSString stringWithFormat:@"something bad happened that removed the scene prematurely from the initializing set : scene=%@ beingInitialized=%@", v126, self->_clientFutureScenesBeingSynchronized];
                 if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
                     NSString *v119 = NSStringFromSelector(a1);
                     NSString *v120 = NSStringFromClass([self class]);
@@ -466,7 +465,7 @@ void -[FBLocalSynchronousSceneClientProvider registerHost:settings:initialClient
             NSUInteger count2 = [self->_clientFutureScenesBeingSynchronized count];
             NSMutableSet *v40 = self->_clientFutureScenesBeingSynchronized;
             if (count2 != 1) {
-                [v40 removeObject:v125];
+                [v40 removeObject:v126];
             } else {
                 self->_clientFutureScenesBeingSynchronized = nil;
             }
@@ -533,7 +532,6 @@ void -[FBLocalSynchronousSceneClientProvider _sendSceneCreateFBSWorkspaceDelegat
 
 FBLocalSynchronousSceneClientProvider *-[FBLocalSynchronousSceneClientProvider _initWithWorkspaceCoupler:currentProcess:eventDispatcher:](FBSWorkspaceCoupler *a1, id<FBSProcess> a2, FBWorkspaceEventDispatcher *a3)
 {
-    FBLocalSynchronousSceneClientProvider *self;
     if (self != nil) {
         if (!a1) {
             NSString *v17 = NSStringFromClass([FBSWorkspaceCoupler class]);
@@ -885,7 +883,7 @@ void -[FBLocalSynchronousSceneClientProvider host:didReceiveActions:forExtension
 }
 
 
-void -[FBLocalSynchronousSceneClientProvider host:sendInvocation:withReply:](id a1, id a2, void (^a3)(long, long))
+void -[FBLocalSynchronousSceneClientProvider host:sendInvocation:withReply:](id a1, id a2, void (^a3)(long, id))
 {
     id callOutQueue = [self callOutQueue];
     [callOutQueue assertBarrierOnQueue];
@@ -1075,7 +1073,7 @@ NSMutableSet *-[FBLocalSynchronousSceneClientProvider scenes](void)
 
 void -[FBLocalSynchronousSceneClientProvider sendActions:toWorkspaceID:completion:](id a1, id a2, void (^a3)(int, NSError *))
 {
-    long v5;
+    id v5;
     id callOutQueue = [self callOutQueue];
     [callOutQueue assertBarrierOnQueue];
     if (self->_invalidated == 1) {

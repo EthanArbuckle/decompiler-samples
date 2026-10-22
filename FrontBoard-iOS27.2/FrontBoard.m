@@ -1044,7 +1044,6 @@ id FBSystemAppBundleID(void)
 
 void FBOpenAppSystemServiceExecuteCallOut(id a1, void (^a2)(void))
 {
-    void (^v0)(void) = a2;
     if (a1 != nil && ![a1 isKindOfClass:[NSString class]]) {
         Class v8 = [a1 classForCoder];
         if (!v8) {
@@ -1084,12 +1083,12 @@ void FBOpenAppSystemServiceExecuteCallOut(id a1, void (^a2)(void))
     }
     if (!a1) {
         @autoreleasepool {
-            v0();
+            a2();
         }
     } else {
         [threadDictionary setObject:a1 forKey:@"FBOpenAppSystemServiceInstance"];
         @autoreleasepool {
-            v0();
+            a2();
         }
         [threadDictionary removeObjectForKey:@"FBOpenAppSystemServiceInstance"];
     }
@@ -1875,7 +1874,7 @@ long getCBControllerClass(void)
 
 void *__getCBControllerLowPowerModeCompletionTimeoutSecondsSymbolLoc_block_invoke(void *a1)
 {
-    long v0 = CoreBluetoothLibrary();
+    void *v0 = CoreBluetoothLibrary();
     void *v1 = dlsym(v0, "CBControllerLowPowerModeCompletionTimeoutSeconds");
     a1->field_32->field_8->field_24 = v1;
     getCBControllerLowPowerModeCompletionTimeoutSecondsSymbolLoc.ptr = a1->field_32->field_8->field_24;
@@ -2045,7 +2044,7 @@ long __NearbyInteractionLibraryCore_block_invoke(void *a1)
 
 void *__getNINotifySystemShutdownWithReasonSymbolLoc_block_invoke(void *a1)
 {
-    long v0 = NearbyInteractionLibrary();
+    void *v0 = NearbyInteractionLibrary();
     void *v1 = dlsym(v0, "NINotifySystemShutdownWithReason");
     a1->field_32->field_8->field_24 = v1;
     getNINotifySystemShutdownWithReasonSymbolLoc.ptr = a1->field_32->field_8->field_24;
@@ -2415,7 +2414,7 @@ id FBSystemShellInitialize(void (^a1)(long))
     @autoreleasepool {
         id extendAutomaticBootstrapCompletion = [BSServicesConfiguration extendAutomaticBootstrapCompletion];
         FBMutableSystemShellInitializationOptions *v9 = [[FBMutableSystemShellInitializationOptions alloc] init];
-        if (v0 != 0) {
+        if (v0 != nil) {
             v0(v9);
         }
         kdebug_trace(0x2b850030, 0, 0, 0, 0);
@@ -2435,7 +2434,7 @@ id FBSystemShellInitialize(void (^a1)(long))
         [FBSystemAppProxyServiceServer sharedInstance];
         [FBInterfaceOrientationService sharedInstance];
         void (^registerAdditionalServicesBlock)(void) = [v9 registerAdditionalServicesBlock];
-        if (registerAdditionalServicesBlock != 0) {
+        if (registerAdditionalServicesBlock != nil) {
             registerAdditionalServicesBlock();
         }
         id sharedInstance = [FBServiceFacilityServer sharedInstance];

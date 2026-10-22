@@ -190,7 +190,7 @@ id -[FBSystemShell assertWatchdogEnabledForLimitedDurationForReason:](id a1)
 {
     os_unfair_lock_lock(&self->_lock);
     if (!self->_lock_temporaryWatchdogAssertion) {
-        __weak id v1 = self;
+        __weak FBSystemShell *v1 = self;
         self->_lock_temporaryWatchdogAssertion = [BSCompoundAssertion assertionWithIdentifier:@"FBSystemShell temporary watchdog" stateDidChangeHandler:^void(id<BSCompoundAssertionState> arg1) {
             if (v1 != nil) {
                 BOOL isActive = [arg1 isActive];
@@ -216,7 +216,7 @@ void -[FBSystemShell _addBlockToExecuteWhenReady:](void (^a1)(void))
         os_unfair_lock_unlock(&self->_lock);
         a1();
     } else {
-        id v2 = _Block_copy(a1);
+        void (^v2)(void) = _Block_copy(a1);
         [self->_lock_blocksToRunWhenReady addObject:v2];
         os_unfair_lock_unlock(&self->_lock);
     }

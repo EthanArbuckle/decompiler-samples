@@ -27,7 +27,6 @@ static long FBAssertionDomain;
 FBWorkspace *-[FBWorkspace _initWithDispatcher:process:](id a1, FBProcess *a2)
 {
     NSString *v9;
-    FBWorkspace *self;
     if (self != nil) {
         if (!a1) {
             NSString *v34 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"dispatcher"];
@@ -912,7 +911,7 @@ void -[FBWorkspace state](void)
 void -[FBWorkspace _consumeIncomingConnection:](id a1)
 {
     id v0 = a1;
-    if (self != 0) {
+    if (self != nil) {
         os_unfair_lock_lock(&self->_lock);
         FBProcess *v1 = self->_weak_process;
         os_unfair_lock_assert_owner(&self->_lock);
@@ -957,14 +956,13 @@ void -[FBWorkspace handshakeWithRemnants:](id a1)
     os_log_t v15;
     long v16;
     os_log_t v18;
-    void *v20;
+    FBWorkspace *v20;
     BOOL v41;
     BSSimpleAssertion *v44;
     id v66;
     NSMutableSet *set;
     NSFastEnumerationState v55;
     id v58;
-    struct FBWorkspace *self;
     id _workspaceQueue = [self->_synchronizer _workspaceQueue];
     [_workspaceQueue assertBarrierOnQueue];
     FBProcess *process = [self process];
@@ -1120,10 +1118,10 @@ blk_1c4eec8e0:
         NSMutableDictionary *v52 = v20->_lock_identityToRemnantsMap;
         if (!count2) {
             v20->_lock_identityToRemnantsMap = nil;
-            self = v20;
-            v66 = [self->_synchronizer _dispatcher];
-            [v66 noteHandshakeFromSource:self->_lock_eventDispatcherSource withRemnants:set];
-            os_unfair_lock_unlock(&self->_lock);
+            FBWorkspace *v78 = v20;
+            v66 = [v78->_synchronizer _dispatcher];
+            [v66 noteHandshakeFromSource:v78->_lock_eventDispatcherSource withRemnants:set];
+            os_unfair_lock_unlock(&v78->_lock);
             return;
         }
         if (!v52) {
@@ -1359,13 +1357,13 @@ void -[FBWorkspace _handleSceneRequest:](id a1)
 }
 
 
-void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, long))
+void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(FBSSceneIdentity *, NSError *))
 {
-    long v3;
+    NSError *v3;
     Class v5;
     Class v6;
     id v11;
-    void (^v1)(long, long) = a2;
+    void (^v1)(FBSSceneIdentity *, NSError *) = a2;
     id currentWorkspaceConnection = [FBWorkspaceConnection currentWorkspaceConnection];
     if (currentWorkspaceConnection) {
         v5 = [currentWorkspaceConnection class];
@@ -1384,10 +1382,10 @@ void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, 
                 v11 = workspaceIdentifier;
             }
             RBSProcessHandle *processHandle = [self->_synchronizer processHandle];
-            long identity = [processHandle identity];
-            long v14 = [FBSSceneClientIdentity identityForInjectedEndpointToProcessIdentity:identity];
+            id identity = [processHandle identity];
+            id v14 = [FBSSceneClientIdentity identityForInjectedEndpointToProcessIdentity:identity];
             [self _handleSceneRequest:[[FBWorkspaceSceneRequest alloc] initWithClientIdentity:v14 targetIdentifier:v11 options:a1 completion:^void(FBScene *arg1, NSError *arg2) {
-                long v24;
+                NSError *v24;
                 if (!arg1) {
                     if (v1 != nil) {
                         v1(nil, arg2);
@@ -1401,7 +1399,7 @@ void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, 
                     id host = [v23 host];
                     if (host == arg1) {
                         [v23 _enqueueSceneCreateCompletionBlock:^void(bool arg1, NSError *arg2) {
-                            long v28;
+                            NSError *v28;
                             if (!arg1) {
                                 v28 = FBSWorkspaceErrorCreate(arg2, 1, @"scene invalidated before create completion");
                                 v1(nil, v28);
@@ -1432,7 +1430,7 @@ void -[FBWorkspace requestSceneWithOptions:completion:](id a1, void (^a2)(long, 
         v3 = FBSWorkspaceErrorCreate(0, 2, @"failed to identify the connection");
     }
     if ((!currentWorkspaceConnection && v1 != nil) || (currentWorkspaceConnection && v5 == v6 && v1 != nil)) {
-        v1(0, v3);
+        v1(nil, v3);
     }
 }
 
@@ -1955,10 +1953,10 @@ void -[FBWorkspace host:sendInvocation:withReply:](long a1, id a2, void (^a3)(lo
 }
 
 
-void -[FBWorkspace workspaceID:sendActions:completion:](id a1, id a2, void (^a3)(long))
+void -[FBWorkspace workspaceID:sendActions:completion:](id a1, id a2, void (^a3)(NSError *))
 {
     id v11;
-    void (^v2)(long) = a3;
+    void (^v2)(NSError *) = a3;
     if ([a2 count]) {
         FBProcess *v3 = self->_weak_process;
         os_log_t oslog = FBLogProcessWorkspace();
@@ -1978,23 +1976,23 @@ void -[FBWorkspace workspaceID:sendActions:completion:](id a1, id a2, void (^a3)
             if (!v2) {
                 return;
             } else {
-                v2(arg2, arg2);
+                v2(arg2);
                 return;
             }
         }]];
     } else if (v2 != nil) {
-        v2(0);
+        v2(nil);
     }
 }
 
 
-void -[FBWorkspace createSceneWithOptions:completion:](id a1, void (^a2)(long))
+void -[FBWorkspace createSceneWithOptions:completion:](id a1, void (^a2)(NSError *))
 {
-    long v3;
+    NSError *v3;
     Class v5;
     Class v6;
     id v11;
-    void (^v1)(long) = a2;
+    void (^v1)(NSError *) = a2;
     id currentWorkspaceConnection = [FBWorkspaceConnection currentWorkspaceConnection];
     if (currentWorkspaceConnection) {
         v5 = [currentWorkspaceConnection class];
@@ -2019,7 +2017,7 @@ void -[FBWorkspace createSceneWithOptions:completion:](id a1, void (^a2)(long))
                 if (!v1) {
                     return;
                 } else {
-                    v1(arg2, arg2);
+                    v1(arg2);
                     return;
                 }
             }]];

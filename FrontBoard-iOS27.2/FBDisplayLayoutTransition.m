@@ -106,7 +106,7 @@ id -[FBDisplayLayoutTransition beginTransition](void)
     v0 = [v0 transitionAssertionWithReason:self->_transitionReason];
     self->_transition = v0;
     if (self->_interfaceOrientation != 0) {
-        v0 = [self->_publisher setInterfaceOrientation:self->_interfaceOrientation];
+        [self->_publisher setInterfaceOrientation:self->_interfaceOrientation];
     }
     if (self->_backlightLevel == -1) {
         return v0;

@@ -87,7 +87,7 @@ blk_1c4ee82c4:
                 NSArray *v30 = @[v29];
                 v27 = [FBSProcessWatchdogPolicy policyWithProvisions:v30];
             } else {
-                FBSProcessResourceAllowanceMakeWithScheduledTimeInterval(v29, &v28);
+                FBSProcessResourceAllowanceMakeWithScheduledTimeInterval(&v28, v18);
                 id v31 = [FBSProcessResourceProvision provisionWithAllowance:&v28];
                 NSArray *v33 = @[v29, v31];
                 v27 = [FBSProcessWatchdogPolicy policyWithProvisions:v33];
@@ -180,18 +180,20 @@ NSUserDefaults *+[FBApplicationProcessWatchdogPolicy _defaultLaunchScale](void)
 }
 
 
-long +[FBApplicationProcessWatchdogPolicy _scaleForGestaltKey:](long a1)
+double +[FBApplicationProcessWatchdogPolicy _scaleForGestaltKey:](long a1)
 {
     long v0 = BSSystemHasCapability(@"LaunchTimeLimitScaleSupported");
+    double v1 = 1.0;
     if (!v0) {
-        return v0;
+        return v1;
     }
-    id v1 = MGCopyAnswer(a1, 0);
-    id v2 = v1;
-    if (v1 != nil) {
-        [v1 doubleValue];
+    id v2 = MGCopyAnswer(a1, 0);
+    id v3 = v2;
+    if (v2 != nil) {
+        v1 = [v2 doubleValue];
     }
-    return fbs_release(&v2);
+    fbs_release(&v3);
+    return v1;
 }
 
 
@@ -263,17 +265,14 @@ void -[FBApplicationProcessWatchdogPolicy dealloc](void)
 
 void -[FBApplicationProcessWatchdogPolicy _queue_reloadDefaultSettings](void)
 {
-    Class v0 = [self class];
-    self->_deviceLaunchScale = [v0 _defaultLaunchScale];
-    Class v1 = [self class];
-    self->_deviceResumeScale = [v1 _defaultResumeScale];
-    Class v2 = [self class];
-    self->_additionalFirstPartyScale = [v2 _defaultFirstPartyAdditionalScale];
+    self->_deviceLaunchScale = [[self class] _defaultLaunchScale];
+    self->_deviceResumeScale = [[self class] _defaultResumeScale];
+    self->_additionalFirstPartyScale = [[self class] _defaultFirstPartyAdditionalScale];
     NSUserDefaults *standardUserDefaults = [NSUserDefaults standardUserDefaults];
     self->_enableThirdPartyPre9 = [standardUserDefaults boolForKey:@"FBLaunchWatchdogEnableThirdPartyPre9"];
     NSUserDefaults *standardUserDefaults2 = [NSUserDefaults standardUserDefaults];
-    NSDictionary<NSString *, id> *v5 = [standardUserDefaults2 dictionaryForKey:@"FBLaunchWatchdogExceptions"];
-    self->_watchdogPolicyExceptions = [v5 copy];
+    NSDictionary<NSString *, id> *v2 = [standardUserDefaults2 dictionaryForKey:@"FBLaunchWatchdogExceptions"];
+    self->_watchdogPolicyExceptions = [v2 copy];
 }
 
 

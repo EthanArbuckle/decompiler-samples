@@ -246,7 +246,7 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
         v23 = nil;
     }
     os_unfair_lock_unlock(&self->_lock);
-    __block void (^v25)(long, id) = nil;
+    __block void (^v25)(FBSSceneMessage *, NSError *) = nil;
     if (!self->_hostAgent) {
         [self _workspaceQueue_incrementInFlightUpdatesForAction:v10 allowThrottling:allowCPUThrottling externallyManaged:isClientLifecycleExternallyManaged];
         if (v18 != v7) {
@@ -260,10 +260,10 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
             }
             if (v25 != nil) {
                 if (!arg1) {
-                    id v48 = [NSError sceneMessageErrorWithCode:2];
-                    v25(0, v48);
+                    NSError *v48 = [NSError sceneMessageErrorWithCode:2];
+                    v25(nil, v48);
                 } else {
-                    v25(0, nil);
+                    v25(nil, nil);
                 }
             }
             if (v32 != nil) {
@@ -341,10 +341,10 @@ void -[FBWorkspaceScene workspace:sendUpdatedSettings:withDiff:transitionContext
             }
             if (v25 != nil) {
                 if (!arg1) {
-                    id v74 = [NSError sceneMessageErrorWithCode:2];
-                    v25(0, v74);
+                    NSError *v74 = [NSError sceneMessageErrorWithCode:2];
+                    v25(nil, v74);
                 } else {
-                    v25(0, nil);
+                    v25(nil, nil);
                 }
             }
             if (v32 != nil) {
@@ -1370,7 +1370,7 @@ void -[FBWorkspaceScene agent:registerMessageHandler:](long a1, long a2)
 }
 
 
-void -[FBWorkspaceScene agent:sendMessage:withResponse:](long a1, long a2, void (^a3)(long, long))
+void -[FBWorkspaceScene agent:sendMessage:withResponse:](long a1, long a2, void (^a3)(long, id))
 {
     os_log_t oslog = FBLogProcessScene();
     if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
@@ -1430,9 +1430,9 @@ void -[FBWorkspaceScene workspace:sendInvocation:withReply:](id a1, void (^a2)(F
 }
 
 
-void -[FBWorkspaceScene workspace:handleInvocation:fromConnection:withReply:](long a1, id a2, id a3, id a4)
+void -[FBWorkspaceScene workspace:handleInvocation:fromConnection:withReply:](id a1, id a2, id a3, id a4)
 {
-    if (self != 0) {
+    if (self != nil) {
         [self->_workspaceQueue assertBarrierOnQueue];
         os_unfair_lock_lock(&self->_lock);
         if (self->_lock_connection == a3) {

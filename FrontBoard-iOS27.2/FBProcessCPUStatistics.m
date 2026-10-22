@@ -23,7 +23,6 @@ FBProcessCPUStatistics *-[FBProcessCPUStatistics initWithProcessHandle:](RBSProc
 {
     FBProcessCPUStatistics *v6;
     FBProcessCPUStatistics *v5;
-    FBProcessCPUStatistics *self;
     Class v1 = NSClassFromString(@"RBSProcessHandle");
     if (!a1) {
         NSString *v7 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
@@ -64,8 +63,7 @@ FBProcessCPUStatistics *-[FBProcessCPUStatistics initWithProcessHandle:](RBSProc
             v5->_handle = a1;
             [v5 reset];
         }
-        self = v5;
-        v6 = self;
+        v6 = v5;
     }
     return v6;
 }

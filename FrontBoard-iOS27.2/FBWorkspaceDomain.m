@@ -27,21 +27,21 @@ struct FBWorkspaceDomain {
 
 FBSWorkspaceCoupler *-[FBWorkspaceDomain coupler](void)
 {
-    FBSWorkspaceCoupler *self;
+    FBSWorkspaceCoupler *v0 = nil;
     if (self != nil) {
-        self = self->_coupler;
+        v0 = self->_coupler;
     }
-    return self;
+    return v0;
 }
 
 
 FBWorkspaceEndpointPromise *-[FBWorkspaceDomain endpointPromise](void)
 {
-    FBWorkspaceEndpointPromise *self;
+    FBWorkspaceEndpointPromise *v0 = nil;
     if (self != nil) {
-        self = self->_endpointPromise;
+        v0 = self->_endpointPromise;
     }
-    return self;
+    return v0;
 }
 
 
@@ -163,19 +163,19 @@ bool -[FBWorkspaceDomain monitorAllSuspendableProcesses](void)
 }
 
 
-void *-[FBWorkspaceDomain selfAssertRuntime](void)
+int -[FBWorkspaceDomain selfAssertRuntime](void)
 {
-    void *self;
-    if (self != 0) {
-        self = self->_selfAssertRuntime & 3;
+    int v0 = 0;
+    if (self != nil) {
+        v0 = self->_selfAssertRuntime & 3;
     }
-    return self;
+    return v0;
 }
 
 
 BSServiceConnectionListener *-[FBWorkspaceDomain _lock_listener](void)
 {
-    BSServiceConnectionListener *self;
+    BSServiceConnectionListener *v14 = nil;
     if (self != nil) {
         os_unfair_lock_assert_owner(&self->_lock);
         if (!self->_lock_invalidated && !self->_lock_listener) {
@@ -196,25 +196,25 @@ BSServiceConnectionListener *-[FBWorkspaceDomain _lock_listener](void)
                 self->_lock_activation = [BSServicesConfiguration activateManualDomain:_domainIdentifier];
             }
         }
-        self = self->_lock_listener;
+        v14 = self->_lock_listener;
     }
-    return self;
+    return v14;
 }
 
 
 NSSet *-[FBWorkspaceDomain reconnectableWorkspaces](void)
 {
-    NSSet *self;
+    NSSet *v0 = nil;
     if (self != nil) {
-        self = self->_reconnectableWorkspaces;
+        v0 = self->_reconnectableWorkspaces;
     }
-    return self;
+    return v0;
 }
 
 
 NSArray *-[FBWorkspaceDomain selfAssertionAttributesForWorkspaceState:](int *a1)
 {
-    NSArray *self;
+    NSArray *v9 = nil;
     if (self != nil) {
         if (!a1) {
             NSString *v6 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"inoutState != ((void *)0)"];
@@ -232,21 +232,21 @@ NSArray *-[FBWorkspaceDomain selfAssertionAttributesForWorkspaceState:](int *a1)
                 bool v2 = FBWorkspaceStateGetActivity(*(a1)) > 1;
                 int *v3 = &FBWorkspaceStateNone;
                 id sharedAttributes = [FBWorkspaceAssertionAttributes sharedAttributes];
-                self = [sharedAttributes selfAssertionAttributesWithForeground:v2 outWorkspaceState:&v3];
+                v9 = [sharedAttributes selfAssertionAttributesWithForeground:v2 outWorkspaceState:&v3];
                 *(a1) = v3;
             } else if (v1 != 0) {
                 *(a1) = FBWorkspaceStateCreate(1, 1, 40);
                 id v5 = [RBSDomainAttribute attributeWithDomain:@"com.apple.common" name:@"FinishTaskInterruptable"];
-                self = @[v5];
+                v9 = @[v5];
             } else {
-                self = nil;
+                v9 = nil;
                 *(a1) = &FBWorkspaceStateNone;
             }
         } else {
-            self = nil;
+            v9 = nil;
         }
     }
-    return self;
+    return v9;
 }
 
 
@@ -254,7 +254,7 @@ void -[FBWorkspaceDomain _didReceiveConnection:](id a1)
 {
     os_log_t v3;
     id v0 = a1;
-    if (self != 0) {
+    if (self != nil) {
         long v1 = 0;
         id remoteToken = [v0 remoteToken];
         if (!remoteToken || [remoteToken isInvalid] != 0) {
@@ -280,7 +280,7 @@ void -[FBWorkspaceDomain _didReceiveConnection:](id a1)
                         [v0 invalidate];
                     };
                     void (^aBlock)(id<FBWorkspaceDomainConnectionDelegate>) = [v10 copy];
-                    id v12 = _Block_copy(aBlock);
+                    void (^v12)(id<FBWorkspaceDomainConnectionDelegate>) = _Block_copy(aBlock);
                     [self->_icdLock_pendingIndirectConnectionBlocks addObject:v12];
                     os_unfair_lock_unlock(&self->_icdLock);
                 } else {
@@ -368,7 +368,6 @@ FBWorkspaceDomain *-[FBWorkspaceDomain _initWithCoupler:specification:](FBSWorks
     NSMutableDictionary *dictionary;
     NSFastEnumerationState v37;
     long v40;
-    FBWorkspaceDomain *self;
     if (self != nil) {
         self = [super init];
         if (self != nil) {
@@ -625,33 +624,33 @@ blk_1c4ef6820:
 }
 
 
-void *-[FBWorkspaceDomain defaultSceneInterruptionPolicy](void)
+long -[FBWorkspaceDomain defaultSceneInterruptionPolicy](void)
 {
-    void *self;
-    if (self != 0) {
-        self = (self->_usesDefaultShellEndpoint) ? 3 : 1;
+    long v0 = 0;
+    if (self != nil) {
+        v0 = (self->_usesDefaultShellEndpoint) ? 3 : 1;
     }
-    return self;
+    return v0;
 }
 
 
 NSString *-[FBWorkspaceDomain reconnectShmemIdentifier](void)
 {
-    NSString *self;
+    NSString *v0 = nil;
     if (self != nil) {
-        self = self->_reconnectShmemIdentifier;
+        v0 = self->_reconnectShmemIdentifier;
     }
-    return self;
+    return v0;
 }
 
 
 NSDictionary *-[FBWorkspaceDomain preregisteredWorkspaces](void)
 {
-    NSDictionary *self;
+    NSDictionary *v0 = nil;
     if (self != nil) {
-        self = self->_preregisteredWorkspaces;
+        v0 = self->_preregisteredWorkspaces;
     }
-    return self;
+    return v0;
 }
 
 
@@ -707,11 +706,11 @@ void -[FBWorkspaceDomain setIndirectConnectionDelegate:](id<FBWorkspaceDomainCon
 
 BSServiceDomainSpecification *-[FBWorkspaceDomain specification](void)
 {
-    BSServiceDomainSpecification *self;
+    BSServiceDomainSpecification *v0 = nil;
     if (self != nil) {
-        self = self->_specification;
+        v0 = self->_specification;
     }
-    return self;
+    return v0;
 }
 
 
@@ -873,11 +872,11 @@ bool -[FBWorkspaceDomain allowsTerminatingOnWatchdogViolations](void)
 
 NSString *-[FBWorkspaceDomain defaultWorkspace](void)
 {
-    NSString *self;
+    NSString *v0 = nil;
     if (self != nil) {
-        self = self->_defaultWorkspace;
+        v0 = self->_defaultWorkspace;
     }
-    return self;
+    return v0;
 }
 
 

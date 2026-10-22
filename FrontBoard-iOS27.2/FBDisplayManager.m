@@ -24,7 +24,7 @@ id +[FBDisplayManager sharedInstance](void)
         if (!UIKitLibraryCore(0)) {
             v5 = 0;
         } else {
-            long v7 = getUIApplicationClass();
+            id v7 = getUIApplicationClass();
             if (!v7) {
                 v5 = 0;
             } else {

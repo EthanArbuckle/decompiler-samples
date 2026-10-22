@@ -454,7 +454,7 @@ void -[FBApplicationDataStoreInProcessRepositoryClient removeAllObjectsForApplic
 }
 
 
-void -[FBApplicationDataStoreInProcessRepositoryClient objectForKey:forApplication:withResult:](id a1, id a2, void (^a3)(long, long))
+void -[FBApplicationDataStoreInProcessRepositoryClient objectForKey:forApplication:withResult:](id a1, id a2, void (^a3)(id, long))
 {
     os_log_t v8;
     void (^v2)(id, long) = a3;

@@ -343,8 +343,7 @@ void -[FBScene _joinUpdate:block:completion:](int a1, void (^a2)(FBSMutableScene
 
 FBSSceneUpdate *-[FBScene _beginUpdate](void)
 {
-    FBSSceneUpdate *v1;
-    FBSSceneUpdate *self;
+    FBSSceneUpdate *v18 = nil;
     if (self != nil) {
         if (![NSThread isMainThread]) {
             __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene _beginUpdate]");
@@ -382,14 +381,15 @@ FBSSceneUpdate *-[FBScene _beginUpdate](void)
         self->_midUpdate = YES;
         self->_updateSuspendIdleWork = [FBSceneEventQueue suspendIdleWorkForReason:@"sceneUpdate"];
         FBSSceneUpdate *v15 = [FBSSceneUpdate new];
+        FBSSceneUpdate *v1 = v15;
         self->_settingsUpdate = v15;
         v15->_settings = self->_settings;
         id v17 = *((!self->_transactionID) ? &self->_settingsAtDeactivation : &v15->_settings);
         v15 = &v15->_previousSettings;
         v15->_previousSettings = v17;
-        self = v1;
+        v18 = v1;
     }
-    return self;
+    return v18;
 }
 
 
@@ -411,11 +411,11 @@ void -[FBScene _finalizeSettingsUpdate](void)
 }
 
 
-void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
+void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(bool, NSError *))
 {
     id v4;
     FBSSceneSettings *v15;
-    void (^v0)(int, id) = a1;
+    void (^v0)(bool, NSError *) = a1;
     if (self != nil) {
         if (![NSThread isMainThread]) {
             __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene _applySettingsUpdateWithCompletion:]");
@@ -570,7 +570,7 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
                             os_log_t oslog4 = FBLogScene();
                             if (os_log_type_enabled(oslog4, OS_LOG_TYPE_DEBUG)) {
                                 id loggingIdentifier4 = [self loggingIdentifier];
-                                long component = [v40 component];
+                                id component = [v40 component];
                                 id v52 = [BSDescriptionBuilder succinctDescriptionForObject:component];
                                 id v53 = [FBSSettingsDiff diffFromSettings:settings3 toSettings:v4->_mutableSettings];
                                 os_log_with_type(oslog4, OS_LOG_TYPE_DEBUG, "[%@] component %@ mutated settings: %@", loggingIdentifier4, v52, v53);
@@ -667,8 +667,8 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
                             os_log_with_type(oslog, OS_LOG_TYPE_DEFAULT, "[%{public}@] Sending action(s) in update: %{public}@", loggingIdentifier2, fbs_singleLineDescriptionOfBSActions);
                         }
                     }
-                    long animationFence = [v15 animationFence];
-                    if (animationFence != 0) {
+                    id animationFence = [v15 animationFence];
+                    if (animationFence != nil) {
                         id v116 = FBGetFencingProvider();
                         [v116 synchronizeDrawingWithFence:animationFence];
                     }
@@ -762,7 +762,7 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
                     [self _resetUpdateState];
                     if (v0 != nil) {
                         [self _dispatchClientMessageWithBlock:^void(void) {
-                            v0(1, 0);
+                            v0(YES, nil);
                         }];
                     }
                 }
@@ -780,7 +780,7 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
                 if (!v0) {
                     return;
                 } else {
-                    v0(0, v123);
+                    v0(NO, v123);
                     return;
                 }
             };
@@ -792,15 +792,15 @@ void -[FBScene _applySettingsUpdateWithCompletion:](void (^a1)(int, long))
 
 id -[FBScene _allComponentProxies](void)
 {
-    id self;
+    id v1 = nil;
     if (self != nil) {
         if (![NSThread isMainThread]) {
             __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene _allComponentProxies]");
         }
         id v0 = [self->_orderedComponents copy];
-        self = (!v0) ? @[] : v0;
+        v1 = (!v0) ? @[] : v0;
     }
-    return self;
+    return v1;
 }
 
 
@@ -851,7 +851,7 @@ unsigned long -[FBScene _beginTransaction](void)
 void -[FBScene _dispatchClientMessageWithBlock:](id a1)
 {
     id v0 = a1;
-    if (self != 0) {
+    if (self != nil) {
         if (![NSThread isMainThread]) {
             id callOutQueue = [FBWorkspaceEventDispatcher callOutQueue];
             [callOutQueue performAsync:^void(void) {
@@ -868,11 +868,11 @@ void -[FBScene _dispatchClientMessageWithBlock:](id a1)
 
 FBSceneObserver *-[FBScene delegateProxy](void)
 {
-    FBSceneObserver *self;
+    FBSceneObserver *v0 = nil;
     if (self != nil) {
-        self = self->_delegateProxy;
+        v0 = self->_delegateProxy;
     }
-    return self;
+    return v0;
 }
 
 
@@ -1486,7 +1486,7 @@ void -[FBScene activateWithTransitionContext:completion:](id a1, void (^a2)(bool
 }
 
 
-struct FBScene *-[FBScene _activateWithTransitionContext:error:](id a1, id *a2)
+bool -[FBScene _activateWithTransitionContext:error:](id a1, id *a2)
 {
     NSError *v7;
     uint8_t v16;
@@ -1497,7 +1497,7 @@ struct FBScene *-[FBScene _activateWithTransitionContext:error:](id a1, id *a2)
     os_log_t v45;
     int v46;
     id v47;
-    struct FBScene *self;
+    bool v117 = false;
     if (self) {
         if (![NSThread isMainThread]) {
             __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBScene _activateWithTransitionContext:error:]");
@@ -1552,7 +1552,7 @@ struct FBScene *-[FBScene _activateWithTransitionContext:error:](id a1, id *a2)
                         self->_clientProcess = [domain4 currentProcess];
                     } else {
                         FBProcess *process2 = [self->_client process];
-                        FBProcess *v117 = self->_clientProcess;
+                        FBProcess *v118 = self->_clientProcess;
                         self->_clientProcess = process2;
                     }
                     self->_clientHandle = [FBSceneClientHandle handleForScene:self clientProcess:self->_clientProcess];
@@ -1794,22 +1794,22 @@ blk_1c4ee5b70:
                 if (a2 != 0) {
                     *(a2) = v47;
                 }
-                self = v46;
+                v117 = v46;
             } else if (!a2) {
-                self = 0;
+                v117 = false;
             } else {
                 NSError *v61 = FBSceneErrorCreate(2, @"Cannot activate an invalidated scene.", 0);
-                self = 0;
+                v117 = false;
                 *(a2) = v61;
             }
         } else {
             if (a2 != 0) {
                 *(a2) = nil;
             }
-            self = 1;
+            v117 = true;
         }
     }
-    return self;
+    return v117;
 }
 
 
@@ -2223,7 +2223,7 @@ void -[FBScene dealloc](void)
 }
 
 
-void -[FBScene activate:](void (^a1)(long))
+void -[FBScene activate:](void (^a1)(id))
 {
     id v0;
     if (!a1) {
@@ -2799,7 +2799,7 @@ id -[FBScene succinctDescriptionBuilder](void)
 }
 
 
-void -[FBScene invalidate:](void (^a1)(long))
+void -[FBScene invalidate:](void (^a1)(id))
 {
     id v0;
     if (!a1) {
@@ -3040,7 +3040,7 @@ long -[FBScene remove:](id a1)
 }
 
 
-void -[FBScene deactivate:](void (^a1)(long))
+void -[FBScene deactivate:](void (^a1)(id))
 {
     id v0;
     if (!a1) {

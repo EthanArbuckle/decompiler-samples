@@ -71,7 +71,7 @@ id -[FBWorkspaceEventDispatcher registerSourceWithProcessHandle:](id a1)
     os_unfair_lock_lock(&self->_lock);
     id v2 = [self->_lock_sourcesByPidNumber objectForKey:v6];
     if (!v2) {
-        __weak id v8 = self;
+        __weak FBWorkspaceEventDispatcher *v8 = self;
         v2 = [[FBWorkspaceEventDispatcherSource alloc] _initWithProcessHandle:a1 invalidationBlock:^void(FBWorkspaceEventDispatcherSource *arg1) {
             [v8 _noteSourceDidInvalidate:arg1 withPIDNumber:v6];
         }];
@@ -190,7 +190,7 @@ id -[FBWorkspaceEventDispatcher _callOutQueue_noteHandshakeFromSource:withRemnan
 void -[FBWorkspaceEventDispatcher _callOutQueue_dispatchHandshakeFromSource:toTarget:](id a1, id a2)
 {
     id v1 = a2;
-    if (self != 0) {
+    if (self != nil) {
         objc_opt_self(FBWorkspaceEventDispatcher);
         id mainQueue = [BSServiceDispatchQueue mainQueue];
         [mainQueue assertBarrierOnQueue];
@@ -316,7 +316,7 @@ void -[FBWorkspaceEventDispatcher noteHandshakeFromSource:withRemnants:](id a1, 
 
 void -[FBWorkspaceEventDispatcher _callOutQueue_dispatchSceneRequestsFromSource:toTarget:](id a1, id a2)
 {
-    if (self != 0) {
+    if (self != nil) {
         objc_opt_self(FBWorkspaceEventDispatcher);
         id mainQueue = [BSServiceDispatchQueue mainQueue];
         [mainQueue assertBarrierOnQueue];
@@ -376,9 +376,9 @@ void -[FBWorkspaceEventDispatcher _callOutQueue_handleSceneRequest:fromSource:](
 }
 
 
-struct FBWorkspaceEventDispatcher *-[FBWorkspaceEventDispatcher handleSceneRequest:fromSource:](id a1, id a2)
+int -[FBWorkspaceEventDispatcher handleSceneRequest:fromSource:](id a1, id a2)
 {
-    struct FBWorkspaceEventDispatcher *self;
+    int v33 = 0;
     if (self) {
         id v3 = a1;
         if (!a1) {
@@ -443,29 +443,29 @@ struct FBWorkspaceEventDispatcher *-[FBWorkspaceEventDispatcher handleSceneReque
         NSString *targetIdentifier = [v3 targetIdentifier];
         id v6 = [self->_preregisteredWorkspaces objectForKey:targetIdentifier];
         if (!targetIdentifier) {
-            self = 0;
+            v33 = 0;
         } else if (v6 != nil || ([v3 requiresTargetPreregistration] & 1) == 0) {
             objc_opt_self(FBWorkspaceEventDispatcher);
             id mainQueue = [BSServiceDispatchQueue mainQueue];
             [mainQueue performAsync:^void(void) {
                 [self _callOutQueue_handleSceneRequest:v3 fromSource:v4];
             }];
-            self = 1;
+            v33 = 1;
         } else {
-            self = 0;
+            v33 = 0;
         }
     }
-    return self;
+    return v33;
 }
 
 
 FBWorkspaceEventDispatcher *-[FBWorkspaceEventDispatcher _initWithDomain:](id a1)
 {
-    FBWorkspaceEventDispatcher *self;
+    FBWorkspaceEventDispatcher *v1 = nil;
     if (self != nil) {
-        self = [self _initWithDomain:a1 connectionStore:[[FBWorkspaceConnectionsStateStore alloc] _initWithIdentifier:[a1 reconnectShmemIdentifier]] preregisteredWorkspaces:[a1 preregisteredWorkspaces]];
+        v1 = [self _initWithDomain:a1 connectionStore:[[FBWorkspaceConnectionsStateStore alloc] _initWithIdentifier:[a1 reconnectShmemIdentifier]] preregisteredWorkspaces:[a1 preregisteredWorkspaces]];
     }
-    return self;
+    return v1;
 }
 
 
@@ -819,7 +819,7 @@ void -[FBWorkspaceEventDispatcher init](void)
 void -[FBWorkspaceEventDispatcher _noteReceivedInvalidationHandlerForAssertion:](id a1)
 {
     id v0 = a1;
-    if (self != 0) {
+    if (self != nil) {
         os_unfair_lock_lock(&self->_lock);
         if (self->_lock_sourcesByPidNumber != nil) {
             NSSet<NSNumber *> *v2 = [self->_lock_restartAssertionsByPidNumber keysOfEntriesPassingTest:^bool(NSNumber *arg1, RBSAssertion *arg2, bool *arg3) {

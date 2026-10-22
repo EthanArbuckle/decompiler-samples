@@ -58,12 +58,12 @@ id -[FBSceneWorkspace sceneIdentityTokenForIdentifier:](id a1)
 
 id -[FBSceneWorkspace _legacyWorkspace](void)
 {
-    id self;
+    id v1 = nil;
     if (self != nil) {
         id v0 = [self->_processManager legacySceneManagerCreatingIfNecessary:0];
-        self = (![v0 _isSameAsWorkspace:self]) ? nil : v0;
+        v1 = (![v0 _isSameAsWorkspace:self]) ? nil : v0;
     }
-    return self;
+    return v1;
 }
 
 
@@ -162,7 +162,7 @@ void -[FBSceneWorkspace scene:didPrepareUpdate:](id a1, id a2)
 
 void -[FBSceneWorkspace _iterateObservers:](void (^a1)(FBSceneManagerObserver *))
 {
-    if (self != 0) {
+    if (self != nil) {
         FBSceneManagerObserver *v1 = self->_delegate;
         if (self->_delegate != nil) {
             a1(v1);
@@ -382,7 +382,6 @@ FBScene *-[FBSceneWorkspace _createSceneWithDefinition:settings:initialClientSet
         _bs_set_crash_log_message([v63 UTF8String]);
         __break(0);
     }
-    long v17 = a5;
     if (a4 != nil) {
         if (![a4 isKindOfClass:NSClassFromString(@"FBSceneRemnant")]) {
             NSString *v67 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object isKindOfClass:FBSceneRemnantClass]"];
@@ -409,7 +408,6 @@ FBScene *-[FBSceneWorkspace _createSceneWithDefinition:settings:initialClientSet
             __break(0);
         }
         bool _hasBeenInvalidated = [a4 _hasBeenInvalidated];
-        v17 = a5;
         if (_hasBeenInvalidated) {
             NSString *v75 = [NSString stringWithFormat:@"cannot create a scene from an invalidated remnant"];
             if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
@@ -431,8 +429,8 @@ FBScene *-[FBSceneWorkspace _createSceneWithDefinition:settings:initialClientSet
         _bs_set_crash_log_message([v79 UTF8String]);
         __break(0);
     }
-    id v25 = v17;
-    if (v17 != 0 && ![v25 conformsToProtocol:_OBJC_PROTOCOL_REFERENCE_$_FBSceneClientProvider]) {
+    id v25 = a5;
+    if (a5 != nil && ![v25 conformsToProtocol:_OBJC_PROTOCOL_REFERENCE_$_FBSceneClientProvider]) {
         NSString *v83 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"[_bs_assert_object conformsToProtocol:@protocol(FBSceneClientProvider)]"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSString *v84 = NSStringFromSelector(@selector(_createSceneWithDefinition:settings:initialClientSettings:transitionContext:fromRemnant:usingClientProvider:completion:));
@@ -1449,7 +1447,7 @@ void -[FBSceneWorkspace .cxx_destruct](void)
 
 void -[FBSceneWorkspace _setSuppressConnectionHandshakes:](bool a1)
 {
-    if (self != 0) {
+    if (self != nil) {
         self->_suppressConnectionHandshakes = a1;
     }
 }

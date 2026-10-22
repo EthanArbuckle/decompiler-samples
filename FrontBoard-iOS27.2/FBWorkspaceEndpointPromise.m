@@ -39,7 +39,6 @@ id -[FBWorkspaceEndpointPromise initWithEndpoint:](long a1)
 
 FBWorkspaceEndpointPromise *-[FBWorkspaceEndpointPromise _initWithDomain:identifier:endpoint:](FBWorkspaceDomain *a1, id a2, BSServiceConnectionEndpoint *a3)
 {
-    FBWorkspaceEndpointPromise *self;
     if (self != nil) {
         self = [super init];
         if (self != nil) {
@@ -55,7 +54,7 @@ FBWorkspaceEndpointPromise *-[FBWorkspaceEndpointPromise _initWithDomain:identif
 
 NSString *-[FBWorkspaceEndpointPromise _domainIdentifier](void)
 {
-    NSString *self;
+    NSString *v4 = nil;
     if (self != nil) {
         if (!self->_domainIdentifier) {
             NSString *v1 = [NSString stringWithFormat:@"never nil if created by FBWorkspaceDomain"];
@@ -67,9 +66,9 @@ NSString *-[FBWorkspaceEndpointPromise _domainIdentifier](void)
             _bs_set_crash_log_message([v1 UTF8String]);
             __break(0);
         }
-        self = self->_domainIdentifier;
+        v4 = self->_domainIdentifier;
     }
-    return self;
+    return v4;
 }
 
 

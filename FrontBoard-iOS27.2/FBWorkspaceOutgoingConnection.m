@@ -133,9 +133,9 @@ FBWorkspaceOutgoingConnection *-[FBWorkspaceOutgoingConnection initWithWorkspace
     if (!self) {
         return self;
     }
-    self = [self _initWithWorkspace:a1];
-    if (self != nil) {
-        self->_queue_verified = NO;
+    FBWorkspaceOutgoingConnection *v0 = [self _initWithWorkspace:a1];
+    if (v0 != nil) {
+        v0->_queue_verified = NO;
     }
-    return self;
+    return v0;
 }

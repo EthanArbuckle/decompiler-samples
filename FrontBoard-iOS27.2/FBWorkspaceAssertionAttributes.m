@@ -71,7 +71,7 @@ id -[FBWorkspaceAssertionAttributes assertionAttributesForLaunchIntent:assertsVi
     unsigned long v2;
     unsigned long v3;
     long v4;
-    id self;
+    id v14 = nil;
     if (self != nil) {
         if (!a3) {
             NSString *v7 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"outWorkspaceState != ((void *)0)"];
@@ -108,9 +108,9 @@ id -[FBWorkspaceAssertionAttributes assertionAttributesForLaunchIntent:assertsVi
         int v6 = FBWorkspaceStateCreate(v1 & 255, v2 & 255, v3 & 255);
         *(a3) = v6;
         *(a4) = v4;
-        self = [self assertionAttributesForWorkspaceState:v6 assertsVisibility:a2 isBootstrapping:1];
+        v14 = [self assertionAttributesForWorkspaceState:v6 assertsVisibility:a2 isBootstrapping:1];
     }
-    return self;
+    return v14;
 }
 
 
@@ -120,7 +120,7 @@ NSArray *-[FBWorkspaceAssertionAttributes assertionAttributesForWorkspaceState:a
     long *v9;
     RBSAttribute *v12;
     uint8_t v6[48];
-    NSArray *self;
+    NSArray *v16 = nil;
     if (self != nil) {
         if ((FBWorkspaceStateEqual(a1, &FBWorkspaceStateNone) & 1) == 0) {
             int v1 = FBWorkspaceStateGetActivity(a1);
@@ -262,9 +262,9 @@ blk_1c4ed80c8:
             v9 = &self->_jetsamPriorityUtility;
             goto blk_1c4ed7ffc;
         }
-        self = nil;
+        v16 = nil;
     }
-    return self;
+    return v16;
 }
 
 
@@ -272,7 +272,7 @@ NSArray *-[FBWorkspaceAssertionAttributes selfAssertionAttributesWithForeground:
 {
     int v5;
     int v6;
-    NSArray *self;
+    NSArray *v7 = nil;
     if (self != nil) {
         if (!a2) {
             NSString *v1 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"outWorkspaceState != ((void *)0)"];
@@ -293,9 +293,9 @@ NSArray *-[FBWorkspaceAssertionAttributes selfAssertionAttributesWithForeground:
         }
         *(a2) = v5;
         NSArray *v0 = [NSArray arrayWithObject:*(v6)];
-        self = v0;
+        v7 = v0;
     }
-    return self;
+    return v7;
 }
 
 

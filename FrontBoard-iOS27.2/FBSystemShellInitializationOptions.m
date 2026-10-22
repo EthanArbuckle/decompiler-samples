@@ -56,13 +56,10 @@ int -[FBSystemShellInitializationOptions isEqual:](id a1)
     if (self == a1) {
         return 1;
     }
-    if ([a1 isKindOfClass:[self class]] && BSEqualBools(self->_initializeReadyForInteraction, a1->field_8) && BSEqualBools(self->_resetDarkBootState, a1->field_10) != 0 && BSEqualBools(self->_shouldWaitForMigrator, a1->field_9) != 0) {
-        long v3 = BSEqualBools(self->_initializeDisplayManager, a1->field_11);
-        if (v3 != 0 && BSFloatEqualToFloat(v3) != 0) {
-            id v4 = _Block_copy(self->_registerServicesBlock);
-            id v5 = _Block_copy(a1->field_32);
-            return (!BSEqualObjects(v4, v5)) ? 0 : BSEqualObjects(self->_independentWatchdogPortName, a1->field_16);
-        }
+    if ([a1 isKindOfClass:[self class]] && BSEqualBools(self->_initializeReadyForInteraction, a1->field_8) && BSEqualBools(self->_resetDarkBootState, a1->field_10) != 0 && BSEqualBools(self->_shouldWaitForMigrator, a1->field_9) != 0 && BSEqualBools(self->_initializeDisplayManager, a1->field_11) != 0 && BSFloatEqualToFloat(self->_systemSleepInterval, a1->field_24) != 0) {
+        id v3 = _Block_copy(self->_registerServicesBlock);
+        id v4 = _Block_copy(a1->field_32);
+        return (!BSEqualObjects(v3, v4)) ? 0 : BSEqualObjects(self->_independentWatchdogPortName, a1->field_16);
     }
     return 0;
 }

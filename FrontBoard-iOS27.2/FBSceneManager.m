@@ -166,7 +166,7 @@ void +[FBSceneManager(Keyboard) setKeyboardScene:](id a1)
 }
 
 
-BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:](void (^a1)(long))
+BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:](void (^a1)(id))
 {
     BSSimpleAssertion *v2;
     if (!a1) {
@@ -188,7 +188,7 @@ BSSimpleAssertion *+[FBSceneManager(Keyboard) observeKeyboardSceneAvailability:]
         v2 = [[BSSimpleAssertion alloc] initWithIdentifier:@"keyboardAvailableObserverToken" forReason:@"observation" queue:dispatch_get_main_queue() invalidationBlock:^void(BSSimpleAssertion *arg1) {
             [__availabilityObserverMap removeObjectForKey:arg1];
         }];
-        id v3 = _Block_copy(a1);
+        void (^v3)(id) = _Block_copy(a1);
         [__availabilityObserverMap setObject:v3 forKey:v2];
     } else {
         a1(v1);
@@ -358,8 +358,6 @@ long -[FBSceneManager createSceneFromRemnant:withSettings:transitionContext:](lo
 
 id -[FBSceneManager createLegacySceneFromRemnant:withSettings:transitionContext:](id a1, id a2, id a3)
 {
-    long v0 = a2;
-    long v1 = a3;
     Class v3 = NSClassFromString(@"FBSceneRemnant");
     if (!a1) {
         NSString *v11 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"_bs_assert_object != nil"];
@@ -399,7 +397,7 @@ id -[FBSceneManager createLegacySceneFromRemnant:withSettings:transitionContext:
     if ([_assertion isValid]) {
         FBSSceneDefinition *definition = [a1 definition];
         FBSSceneClientSettings *_clientSettings = [a1 _clientSettings];
-        id v5 = [self _createSceneWithDefinition:definition settings:v0 initialClientSettings:_clientSettings transitionContext:v1 fromRemnant:a1 usingClientProvider:_workspace completion:0];
+        id v5 = [self _createSceneWithDefinition:definition settings:a2 initialClientSettings:_clientSettings transitionContext:a3 fromRemnant:a1 usingClientProvider:_workspace completion:0];
         if ([v5 isValid]) {
             return v5;
         }

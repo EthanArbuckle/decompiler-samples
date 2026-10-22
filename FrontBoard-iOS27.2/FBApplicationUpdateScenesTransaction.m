@@ -359,14 +359,13 @@ FBApplicationUpdateScenesTransaction *-[FBApplicationUpdateScenesTransaction _ex
     if (self->_hasScheduledProcessLaunch) {
         return self;
     }
-    FBApplicationUpdateScenesTransaction *_isReadyToLaunch = [self _isReadyToLaunch];
-    self = _isReadyToLaunch;
+    id _isReadyToLaunch = [self _isReadyToLaunch];
     if (!_isReadyToLaunch) {
-        return self;
+        return _isReadyToLaunch;
     }
-    self->_hasScheduledProcessLaunch = YES;
-    [self->_processLaunchTransaction addObserver:self];
-    return [self addChildTransaction:self->_processLaunchTransaction];
+    _isReadyToLaunch->_hasScheduledProcessLaunch = 1;
+    [_isReadyToLaunch->_processLaunchTransaction addObserver:_isReadyToLaunch];
+    return [_isReadyToLaunch addChildTransaction:_isReadyToLaunch->_processLaunchTransaction];
 }
 
 

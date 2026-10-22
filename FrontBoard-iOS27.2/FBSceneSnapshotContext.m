@@ -1,3 +1,10 @@
+struct AnonymousStruct_1 {
+    double field_0; // +0x0
+    double field_8; // +0x8
+    double field_16; // +0x10
+    double field_24; // +0x18
+};
+
 struct CGRect {
     CGPoint origin; // +0x0
     CGSize size; // +0x10
@@ -33,18 +40,14 @@ void -[FBSceneSnapshotContext .cxx_destruct](void)
 
 FBSceneSnapshotContext *-[FBSceneSnapshotContext initWithScene:configurator:](id a1, void (^a2)(FBSceneSnapshotContext *))
 {
-    struct CGRect v10;
-    long v11;
-    long v12;
-    long v13;
     if (!a1) {
-        NSString *v17 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"scene"];
+        NSString *v15 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"scene"];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSString *v2 = NSStringFromSelector(_cmd);
-            NSString *v18 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v2, v18, self, @"FBSceneSnapshotContext.m", 33, v17);
+            NSString *v16 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v2, v16, self, @"FBSceneSnapshotContext.m", 33, v15);
         }
-        _bs_set_crash_log_message([v17 UTF8String]);
+        _bs_set_crash_log_message([v15 UTF8String]);
         __break(0);
     }
     FBSceneSnapshotContext *v3 = [super init];
@@ -53,11 +56,12 @@ FBSceneSnapshotContext *-[FBSceneSnapshotContext initWithScene:configurator:](id
         v3->_sceneID = [identifier copy];
         FBSSceneSettings *settings = [a1 settings];
         v3->_settings = [settings copy];
-        BSRectWithSize([v3->_settings frame]);
-        v3->_frame.origin = v10;
-        v3->_frame.origin.y = v11;
-        v3->_frame.size = v12;
-        v3->_frame.size.height = v13;
+        CGRect frame = [v3->_settings frame];
+        struct AnonymousStruct_1 v11 = BSRectWithSize(frame.size.width, frame.size.height);
+        v3->_frame.origin.x = v11.field_0;
+        v3->_frame.origin.y = v11.field_8;
+        v3->_frame.size.width = v11.field_16;
+        v3->_frame.size.height = v11.field_24;
         FBSSceneClientSettings *clientSettings = [a1 clientSettings];
         v3->_clientSettings = [clientSettings copy];
         v3->_opaque = YES;
@@ -85,22 +89,23 @@ FBSceneSnapshotContext *-[FBSceneSnapshotContext initWithFBSContext:](id a1)
         FBSSceneSettings *settings = [a1 settings];
         v2->_settings = [settings copy];
         v2->_orientation = 0;
-        [v2->_settings frame];
+        CGRect frame2 = [v2->_settings frame];
         CGRect frame = [a1 frame];
-        BSRectWithSize(a1);
-        CGRect v10 = CGRectIntersection([a1 frame]);
-        v2->_frame.origin = frame.origin.x;
+        CGRect r1 = BSRectWithSize(frame2.size.width, frame2.size.height);
+        CGRect r2 = [a1 frame];
+        CGRect v13 = CGRectIntersection(r1, r2);
+        v2->_frame.origin.x = frame.origin.x;
         v2->_frame.origin.y = frame.origin.y;
-        v2->_frame.size = v10.size.width;
-        v2->_frame.size.height = v10.size.height;
+        v2->_frame.size.width = v13.size.width;
+        v2->_frame.size.height = v13.size.height;
         NSSet *layersToExclude = [a1 layersToExclude];
         if (layersToExclude != nil) {
             NSMutableSet *set = [NSMutableSet set];
             NSSet *layersToExclude2 = [a1 layersToExclude];
             for (id v1 in layersToExclude2) {
-                id v20 = [FBSceneLayer layerWithFBSSceneLayer:v1];
-                if (v20 != nil) {
-                    [set addObject:v20];
+                id v23 = [FBSceneLayer layerWithFBSSceneLayer:v1];
+                if (v23 != nil) {
+                    [set addObject:v23];
                 }
             }
             v2->_layersToExclude = set;
@@ -141,30 +146,31 @@ void -[FBSceneSnapshotContext applyContext:](id a1)
         NSString *v5 = [NSString stringWithFormat:@"attempt to `applyContext:` for id='%@' to scene with id='%@'", sceneID2, self->_sceneID];
         if (os_log_type_enabled(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR)) {
             NSString *v0 = NSStringFromSelector(_cmd);
-            NSString *v28 = NSStringFromClass([self class]);
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v0, v28, self, @"FBSceneSnapshotContext.m", 122, v5);
+            NSString *v31 = NSStringFromClass([self class]);
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failure in %{public}@ of <%{public}@:%p> (%{public}@:%i) : %{public}@", v0, v31, self, @"FBSceneSnapshotContext.m", 122, v5);
         }
         _bs_set_crash_log_message([v5 UTF8String]);
         __break(0);
     }
     FBSSceneSettings *settings = [a1 settings];
     self->_settings = [settings copy];
-    [self->_settings frame];
+    CGRect frame2 = [self->_settings frame];
     CGRect frame = [a1 frame];
-    BSRectWithSize(a1);
-    CGRect v10 = CGRectIntersection([a1 frame]);
-    self->_frame.origin = frame.origin.x;
+    CGRect r1 = BSRectWithSize(frame2.size.width, frame2.size.height);
+    CGRect r2 = [a1 frame];
+    CGRect v13 = CGRectIntersection(r1, r2);
+    self->_frame.origin.x = frame.origin.x;
     self->_frame.origin.y = frame.origin.y;
-    self->_frame.size = v10.size.width;
-    self->_frame.size.height = v10.size.height;
+    self->_frame.size.width = v13.size.width;
+    self->_frame.size.height = v13.size.height;
     NSSet *layersToExclude = [a1 layersToExclude];
     if (layersToExclude != nil) {
         NSMutableSet *set = [NSMutableSet set];
         NSSet *layersToExclude2 = [a1 layersToExclude];
-        for (id v19 in layersToExclude2) {
-            id v20 = [FBSceneLayer layerWithFBSSceneLayer:v19];
-            if (v20 != nil) {
-                [set addObject:v20];
+        for (id v22 in layersToExclude2) {
+            id v23 = [FBSceneLayer layerWithFBSSceneLayer:v22];
+            if (v23 != nil) {
+                [set addObject:v23];
             }
         }
         self->_layersToExclude = set;
@@ -215,7 +221,7 @@ id -[FBSceneSnapshotContext descriptionBuilderWithMultilinePrefix:](id a1)
     id succinctDescriptionBuilder = [self succinctDescriptionBuilder];
     [succinctDescriptionBuilder appendBodySectionWithName:0 multilinePrefix:a1 block:^void(void) {
         [succinctDescriptionBuilder appendObject:self->_settings withName:@"settings"];
-        objc_msgSend$appendRect:withName:(succinctDescriptionBuilder, @"frame", self->_frame.origin);
+        objc_msgSend$appendRect:withName:(succinctDescriptionBuilder, @"frame", self->_frame);
         [succinctDescriptionBuilder appendBool:self->_opaque withName:@"opaque"];
         long v5 = self->_orientation;
         if (!self->_orientation) {
@@ -291,7 +297,7 @@ void -[FBSceneSnapshotContext setUserInfo:](id a1)
 
 double -[FBSceneSnapshotContext frame](void)
 {
-    return self->_frame.origin;
+    return self->_frame.origin.x;
 }
 
 
@@ -301,9 +307,9 @@ void -[FBSceneSnapshotContext setFrame:](long a1)
     long v1;
     long v2;
     long v3;
-    self->_frame.origin = v0;
+    self->_frame.origin.x = v0;
     self->_frame.origin.y = v1;
-    self->_frame.size = v2;
+    self->_frame.size.width = v2;
     self->_frame.size.height = v3;
 }
 

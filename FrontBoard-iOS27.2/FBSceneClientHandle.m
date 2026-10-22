@@ -3,7 +3,7 @@ struct FBSceneClientHandle {
     FBProcess *_legacyProcess; // +0x10
 };
 
-FBSceneClientHandle *+[FBSceneClientHandle handleForScene:clientProcess:](id a1, id a2)
+FBSceneClientHandle *+[FBSceneClientHandle handleForScene:clientProcess:](id a1, FBProcess *a2)
 {
     if (!a1) {
         NSString *v1 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"scene != ((void *)0)"];

@@ -7,7 +7,6 @@ struct _FBLocalSceneInfo {
 
 _FBLocalSceneInfo *-[_FBLocalSceneInfo initWithScene:](FBSScene *a1)
 {
-    _FBLocalSceneInfo *self;
     if (self != nil) {
         if (!a1) {
             NSString *v1 = [NSString stringWithFormat:@"Invalid condition not satisfying: %@", @"scene != ((void *)0)"];

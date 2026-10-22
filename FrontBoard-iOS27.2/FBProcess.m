@@ -145,11 +145,11 @@ FBProcess *-[FBProcess _initWithProcessManager:identity:handle:executionContext:
 
 NSString *-[FBProcess logProem](void)
 {
-    NSString *self;
+    NSString *v0 = nil;
     if (self != nil) {
-        self = (!self->_handleDescription) ? [NSString stringWithFormat:@"[%@:-1]", self->_identityDescription] : self->_handleDescription;
+        v0 = (!self->_handleDescription) ? [NSString stringWithFormat:@"[%@:-1]", self->_identityDescription] : self->_handleDescription;
     }
-    return self;
+    return v0;
 }
 
 
@@ -265,8 +265,8 @@ void -[FBProcess _bootstrapAndExec](void)
     if (launchIntent) {
         if (v5) {
             id v7 = FBProcessLaunchIntentDescription(launchIntent);
-            NSString *v37 = self->_identityDescription;
-            os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "Bootstrapping %{public}@ with intent %{public}@", v37, v7);
+            NSString *v31 = self->_identityDescription;
+            os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "Bootstrapping %{public}@ with intent %{public}@", v31, v7);
         }
     } else if (v5) {
         NSString *v4 = self->_identityDescription;
@@ -295,7 +295,7 @@ blk_1c4ed71dc:
                     if (count != 0 && !v22) {
                         os_log_t oslog5 = FBLogProcess();
                         if (os_log_type_enabled(oslog5, OS_LOG_TYPE_ERROR)) {
-                            long requiredExistingProcess = [_createBootstrapContext requiredExistingProcess];
+                            id requiredExistingProcess = [_createBootstrapContext requiredExistingProcess];
                             v6.tv_sec = 0x8420402;
                             v6.field_4 = self->_identityDescription;
                             v6.field_12 = 2114;
@@ -323,7 +323,7 @@ blk_1c4ed71dc:
                     }];
                     FBSMutableSceneSettings *v76 = [[FBSMutableSceneSettings alloc] init];
                     [v76 setForeground:v9 > 1];
-                    long v78 = [FBProcessWatchdogEventContext contextForEvent:1 settings:v76 transitionContext:0];
+                    id v78 = [FBProcessWatchdogEventContext contextForEvent:1 settings:v76 transitionContext:0];
                     long v79 = [self _startWatchdogTimerForContext:v78];
                     if (!v22) {
                         [self _bootstrapDidComplete];
@@ -468,7 +468,7 @@ blk_1c4ed7588:
                             [self->_workspace _noteProcessBootstrapped:self withHandle:0 assertion:0 outgoingEndpointPromise:v16];
                             return;
                         }
-                        long v95 = [RBSProcessIdentifier identifierForIdentifier:v91];
+                        id v95 = [RBSProcessIdentifier identifierForIdentifier:v91];
                         id v96 = nil;
                         v15 = [RBSProcessHandle forceLookupIdentifer:v95 error:&v96];
                         v30 = v96;
@@ -478,8 +478,8 @@ blk_1c4ed7588:
                             if (v98) {
                                 int pid4 = [self->_rbsHandle pid];
                                 id v100 = [v30 descriptionWithMultilinePrefix:0];
-                                NSString *v39 = self->_identityDescription;
-                                os_log_with_type(oslog8, OS_LOG_TYPE_ERROR, "%{public}@ Error looking up handle matching %i : %{public}@", v39, pid4, v100);
+                                NSString *v37 = self->_identityDescription;
+                                os_log_with_type(oslog8, OS_LOG_TYPE_ERROR, "%{public}@ Error looking up handle matching %i : %{public}@", v37, pid4, v100);
                             }
                             v15 = self->_rbsHandle;
                         } else {
@@ -490,15 +490,15 @@ blk_1c4ed7588:
                             *(__uint128_t *)&v1[208] = 0;
                             *(__uint128_t *)&v1[224] = 0;
                             [v15 auditToken:&v103];
-                            long identity = [self->_rbsHandle identity];
-                            long identity2 = [v15 identity];
+                            id identity = [self->_rbsHandle identity];
+                            id identity2 = [v15 identity];
                             long v107 = BSEqualObjects(identity, identity2);
                             if (((((((v6.tv_sec == v103) ? v6.tv_nsec == *(uint64_t *)&v103[8] : 0) == 1) ? v6.field_16 == *(uint64_t *)&v103[16] : 0) == 1) ? v6.field_24 == *(uint64_t *)&v103[24] : 0) == 0 || (v107 & 1) == 0) {
                                 os_log_t oslog = FBLogProcess();
                                 if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
-                                    NSString *v44 = self->_identityDescription;
-                                    RBSProcessHandle *v47 = self->_rbsHandle;
-                                    os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "%{public}@ Fallback lookup of processHandle is a mismatch : %{public}@ != %{public}@", v44, v47, v15);
+                                    NSString *v39 = self->_identityDescription;
+                                    RBSProcessHandle *v44 = self->_rbsHandle;
+                                    os_log_with_type(oslog, OS_LOG_TYPE_ERROR, "%{public}@ Fallback lookup of processHandle is a mismatch : %{public}@ != %{public}@", v39, v44, v15);
                                 }
                                 v15 = nil;
                             }
@@ -548,7 +548,7 @@ blk_1c4ed7588:
             }
             int pid3 = [v15 pid];
             NSNumber *v18 = [NSNumber numberWithInt:pid3];
-            long v19 = [RBSTarget targetWithProcessIdentifier:v18];
+            id v19 = [RBSTarget targetWithProcessIdentifier:v18];
             v22 = [[RBSAssertion alloc] initWithExplanation:[_createBootstrapContext explanation] target:v19 attributes:v11];
             id v23 = nil;
             long v24 = [v22 acquireWithError:&v23];
@@ -568,7 +568,7 @@ blk_1c4ed7588:
             }
             goto blk_1c4ed71dc;
         }
-        long v27 = [RBSProcessIdentifier identifierForIdentifier:self->_rbsHandle];
+        id v27 = [RBSProcessIdentifier identifierForIdentifier:self->_rbsHandle];
         [_createBootstrapContext setRequiredExistingProcess:v27];
     }
     v28 = [[RBSLaunchRequest alloc] initWithContext:_createBootstrapContext];
@@ -597,7 +597,7 @@ blk_1c4ed7588:
             NSDictionary<NSErrorUserInfoKey, id> *userInfo = [error userInfo];
             id v60 = [userInfo objectForKey:v46];
             double doubleValue = [v60 doubleValue];
-            double v62 = BSAbsoluteMachTimeNow(v60);
+            double v62 = BSAbsoluteMachTimeNow();
             double v63 = fmin(fmax(doubleValue - v62, 0.0), 30.0);
             os_log_t oslog3 = FBLogProcess();
             if (v60 != nil) {
@@ -651,11 +651,11 @@ blk_1c4ed7588:
                                 if (standardErrorPath == nil) {
                                     os_log_t oslog9 = FBLogProcess();
                                     if (os_log_type_enabled(oslog9, OS_LOG_TYPE_DEFAULT)) {
-                                        NSString *v48 = self->_identityDescription;
-                                        os_log_with_type(oslog9, OS_LOG_TYPE_DEFAULT, "%{public}@ was already running!", v48);
-                                        goto blk_1c4ed6e18;
+                                        NSString *v47 = self->_identityDescription;
+                                        os_log_with_type(oslog9, OS_LOG_TYPE_DEFAULT, "%{public}@ was already running!", v47);
+                                        goto blk_1c4ed6e1c;
                                     }
-                                    goto blk_1c4ed6e18;
+                                    goto blk_1c4ed6e1c;
                                 }
                             }
                         }
@@ -664,12 +664,12 @@ blk_1c4ed7588:
             }
             os_log_t oslog10 = FBLogProcess();
             if (os_log_type_enabled(oslog10, OS_LOG_TYPE_ERROR)) {
-                NSString *v49 = self->_identityDescription;
-                os_log_with_type(oslog10, OS_LOG_TYPE_ERROR, "%{public}@ was already running! Some execution context (arguments, environment, etc) may have been lost.", v49);
+                NSString *v48 = self->_identityDescription;
+                os_log_with_type(oslog10, OS_LOG_TYPE_ERROR, "%{public}@ was already running! Some execution context (arguments, environment, etc) may have been lost.", v48);
             }
         }
     }
-blk_1c4ed6e18:
+blk_1c4ed6e1c:
     NSString *identifier = [FBSWorkspaceServiceSpecification identifier];
     v41 = [BSServiceConnectionEndpoint endpointOfLaunchIdentifier:FBSSceneClientIdentityDirectLaunchIdentifier fromLaunchResponse:v30 withService:identifier instance:0 error:0];
     if (!v41) {
@@ -677,8 +677,8 @@ blk_1c4ed6e18:
     } else {
         os_log_t oslog2 = FBLogProcess();
         if (os_log_type_enabled(oslog2, OS_LOG_TYPE_DEFAULT)) {
-            NSString *v50 = self->_identityDescription;
-            os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "%{public}@ has an outgoing endpoint", v50);
+            NSString *v49 = self->_identityDescription;
+            os_log_with_type(oslog2, OS_LOG_TYPE_DEFAULT, "%{public}@ has an outgoing endpoint", v49);
         }
         v16 = [[FBWorkspaceEndpointPromise alloc] initWithEndpoint:v41];
     }
@@ -1025,11 +1025,11 @@ bool -[FBProcess _startWatchdogTimerForContext:](id a1)
 }
 
 
-FBProcessWatchdog *-[FBProcess _newWatchdogForContext:completion:](id a1, void (^a2)(long))
+FBProcessWatchdog *-[FBProcess _newWatchdogForContext:completion:](id a1, void (^a2)(FBProcessWatchdog *))
 {
     FBSProcessWatchdogPolicy *v10;
     FBProcessWatchdog *v13;
-    void (^v1)(id) = a2;
+    void (^v1)(FBProcessWatchdog *) = a2;
     long event = [a1 event];
     os_unfair_recursive_lock_lock_with_options(&self->_lock, 0);
     FBSSceneTransitionContext *sceneTransitionContext = [a1 sceneTransitionContext];
@@ -1235,7 +1235,7 @@ void -[FBProcess _executeBlockAfterLaunchCompletes:](void (^a1)(bool))
                 self->_lock_launchCompletionBlocks = [NSMutableArray arrayWithObject:v2];
             } else {
                 v2 = [a1 copy];
-                void *v4 = _Block_copy(v2);
+                void (^v4)(bool) = _Block_copy(v2);
                 [self->_lock_launchCompletionBlocks addObject:v4];
             }
             os_unfair_recursive_lock_unlock(&self->_lock);
@@ -1559,41 +1559,41 @@ void -[FBProcess _notePendingExitForReason:](id a1)
                 self->_lock_exitTimer = [[BSAbsoluteMachTimer alloc] initWithIdentifier:logProem2];
                 NSObject<OS_dispatch_workloop> *userInitiatedWorkloop = [FBProcess userInitiatedWorkloop];
                 objc_msgSend$scheduleRepeatingWithFireInterval:repeatInterval:leewayInterval:queue:handler:(self->_lock_exitTimer, userInitiatedWorkloop, ^void(BSAbsoluteMachTimer *arg1) {
-                    id v22 = (self->_lock_attemptedGracefulTermination == 0) ? [self->_rbsHandle lastExitContext] : nil;
-                    if (![v22 type]) {
+                    id v21 = (self->_lock_attemptedGracefulTermination == 0) ? [self->_rbsHandle lastExitContext] : nil;
+                    if (![v21 type]) {
                         NSTimeInterval timeIntervalSinceNow = [date timeIntervalSinceNow];
-                        v32++;
-                        unsigned long v33 = v32 * 0xcccccccccccccccd;
-                        v9 = v32;
-                        os_log_type_t type = (((v33 >> 1) | (v33 << 63)) < 0x199999999999999a) ? OS_LOG_TYPE_ERROR : OS_LOG_TYPE_DEBUG;
-                        os_log_t oslog2 = FBLogProcess();
-                        if (os_log_type_enabled(oslog2, type)) {
-                            os_log_with_type(oslog2, type, "%{public}@: Still waiting on exit context after %.1f seconds", logProem2, -timeIntervalSinceNow);
+                        long v4 = v9 + 1;
+                        unsigned long v32 = v4 * 0xcccccccccccccccd;
+                        v9 = v4;
+                        os_log_type_t type = (((v32 >> 1) | (v32 << 63)) < 0x199999999999999a) ? OS_LOG_TYPE_ERROR : OS_LOG_TYPE_DEBUG;
+                        os_log_t v33 = FBLogProcess();
+                        if (os_log_type_enabled(v33, type)) {
+                            os_log_with_type(v33, type, "%{public}@: Still waiting on exit context after %.1f seconds", logProem2, -timeIntervalSinceNow);
                         }
                         if (timeIntervalSinceNow <= -300.0) {
-                            os_log_t v34 = FBLogProcess();
-                            if (os_log_type_enabled(v34, OS_LOG_TYPE_ERROR)) {
-                                os_log_with_type(v34, OS_LOG_TYPE_ERROR, "No exit notification received for %{public}@ after 5 minutes", logProem2);
+                            os_log_t oslog2 = FBLogProcess();
+                            if (os_log_type_enabled(oslog2, OS_LOG_TYPE_ERROR)) {
+                                os_log_with_type(oslog2, OS_LOG_TYPE_ERROR, "No exit notification received for %{public}@ after 5 minutes", logProem2);
                             }
-                            id v24 = [NSError bs_errorWithDomain:@"FBProcessTermination" code:2 configuration:^void(id<BSErrorConfiguring> arg1) {
+                            id v22 = [NSError bs_errorWithDomain:@"FBProcessTermination" code:2 configuration:^void(id<BSErrorConfiguring> arg1) {
                                 [arg1 setFailureDescription:@"Timed out waiting for process termination"];
                                 [arg1 setFailureReason:@"No exit notification received after 5 minutes"];
                                 [arg1 setCodeDescription:@"timed-out"];
                             }];
-                            [self _processDidExitWithContext:[[FBProcessExitContext alloc] initWithTerminationError:v24]];
-                            RBSTerminateContext *v26 = [RBSTerminateContext alloc];
-                            id userInfo = [v24 userInfo];
-                            RBSTerminateContext *v29 = [v26 initWithExplanation:[userInfo objectForKey:NSLocalizedFailureReasonErrorKey]];
-                            [v29 setReportType:0];
-                            [v29 setExceptionDomain:10];
-                            [v29 setExceptionCode:0xfa1cdead];
-                            [v29 setMaximumTerminationResistance:40];
-                            RBSTerminateRequest *v30 = [RBSTerminateRequest alloc];
-                            id v18 = [RBSProcessPredicate predicateMatching:self->_rbsHandle];
-                            [[v30 initWithPredicate:v18 context:v29] execute:0];
+                            [self _processDidExitWithContext:[[FBProcessExitContext alloc] initWithTerminationError:v22]];
+                            RBSTerminateContext *v24 = [RBSTerminateContext alloc];
+                            id userInfo = [v22 userInfo];
+                            RBSTerminateContext *v27 = [v24 initWithExplanation:[userInfo objectForKey:NSLocalizedFailureReasonErrorKey]];
+                            [v27 setReportType:0];
+                            [v27 setExceptionDomain:10];
+                            [v27 setExceptionCode:0xfa1cdead];
+                            [v27 setMaximumTerminationResistance:40];
+                            RBSTerminateRequest *v28 = [RBSTerminateRequest alloc];
+                            id v29 = [RBSProcessPredicate predicateMatching:self->_rbsHandle];
+                            [[v28 initWithPredicate:v29 context:v27] execute:0];
                         }
                     } else {
-                        [self _processDidExitWithContext:[[FBProcessExitContext alloc] initWithUnderlyingContext:v22]];
+                        [self _processDidExitWithContext:[[FBProcessExitContext alloc] initWithUnderlyingContext:v21]];
                     }
                 }, 10.0, 1.0, 0.1);
             }
@@ -1920,7 +1920,7 @@ void -[FBProcess _executeBlockAfterBootstrap:](void (^a1)(FBProcess *, NSError *
             });
         } else {
             void (^aBlock)(FBProcess *, NSError *) = [v0 copy];
-            id v5 = _Block_copy(aBlock);
+            void (^v5)(FBProcess *, NSError *) = _Block_copy(aBlock);
             [self->_lock_bootstrapBlocks addObject:v5];
         }
         os_unfair_recursive_lock_unlock(&self->_lock);
@@ -2035,7 +2035,7 @@ void -[FBProcess _terminateWithRequest:completion:](id a1, void (^a2)(long))
                 self->_lock_terminateRequestCompletionBlocks = v5;
             } else {
                 v4 = [v1 copy];
-                void *v32 = _Block_copy(v4);
+                void (^v32)(long) = _Block_copy(v4);
                 [v3 addObject:v32];
             }
         }
@@ -2269,7 +2269,7 @@ void -[FBProcess _lock_consumeLock_performGracefulKill](void)
     [self _notePendingExitForReason:@"pending graceful exit"];
     FBSSceneTransitionContext *v0 = [[FBSSceneTransitionContext alloc] init];
     if ([self isApplicationProcess] != 0 && UIKitLibraryCore(0) != 0 && getUIApplicationSceneTransitionContextClass() != 0) {
-        long v1 = UIKitLibraryCore(0);
+        Class v1 = UIKitLibraryCore(0);
         if (v1 != 0) {
             v1 = getUIApplicationSceneTransitionContextClass();
         }
@@ -2280,7 +2280,7 @@ void -[FBProcess _lock_consumeLock_performGracefulKill](void)
         }
         v0 = v48;
     }
-    __weak id v3 = self;
+    __weak FBProcess *v3 = self;
     RBSProcessHandle *v4 = self->_rbsHandle;
     FBSProcessTerminationRequest *v5 = self->_lock_terminationRequest;
     FBSMutableSceneSettings *v6 = [[FBSMutableSceneSettings alloc] init];
@@ -2309,7 +2309,7 @@ void -[FBProcess _lock_consumeLock_performGracefulKill](void)
             v12 += FBSProcessResourceTimeIntervalForValue(v20);
         }
     }
-    double v23 = (BSFloatIsZero() != 0) ? 5.0 : v12;
+    double v23 = (BSFloatIsZero(v12) != 0) ? 5.0 : v12;
     os_log_t oslog = FBLogProcess();
     if (os_log_type_enabled(oslog, OS_LOG_TYPE_DEFAULT)) {
         NSString *logProem = [self logProem];
@@ -2326,7 +2326,7 @@ void -[FBProcess _lock_consumeLock_performGracefulKill](void)
     [v33 setExpirationWarningHandler:^void(RBSAssertion *arg1) {
         [arg1 invalidate];
         if (v3 != nil) {
-            id logProem = [v3 logProem];
+            NSString *logProem = [v3 logProem];
             NSString *v51 = [NSString stringWithFormat:@"%@ Failed to terminate gracefully after %.1fs", logProem, v23];
             os_log_t oslog = FBLogProcess();
             if (os_log_type_enabled(oslog, OS_LOG_TYPE_ERROR)) {
@@ -2343,7 +2343,7 @@ void -[FBProcess _lock_consumeLock_performGracefulKill](void)
             v3->_lock_watchdogCPUStatistics = v11;
             v3->_lock_latestViolatedProvision = [FBSProcessResourceProvision provisionWithResourceType:1 timeInterval:v23];
             if (v3->_lock_gracefulExitAssertion == arg1) {
-                v3->_lock_gracefulExitAssertion = 0;
+                v3->_lock_gracefulExitAssertion = nil;
             }
             [v3 _lock_consumeLock_executeTerminationRequest];
         }
@@ -2352,7 +2352,7 @@ void -[FBProcess _lock_consumeLock_performGracefulKill](void)
         if (v3 != nil) {
             os_unfair_recursive_lock_lock_with_options(&v3->_lock, 0);
             if (arg1 == v3->_lock_gracefulExitAssertion) {
-                v3->_lock_gracefulExitAssertion = 0;
+                v3->_lock_gracefulExitAssertion = nil;
             }
             os_unfair_recursive_lock_unlock(&v3->_lock);
         }
@@ -2477,7 +2477,7 @@ BSAuditToken *-[FBProcess auditToken](void)
 }
 
 
-long -[FBProcess(FBApplicationProcess) isSystemApplicationProcess](void)
+bool -[FBProcess(FBApplicationProcess) isSystemApplicationProcess](void)
 {
     return [self isCurrentProcess];
 }

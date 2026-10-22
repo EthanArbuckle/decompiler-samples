@@ -441,7 +441,7 @@ void -[FBSqliteApplicationDataStoreRepository _dbQueue_load](void)
         if (v2) {
             os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "Waiting to load application data store for first unlock.");
         }
-        __weak id v3 = self;
+        __weak FBSqliteApplicationDataStoreRepository *v3 = self;
         notify_register_dispatch("com.apple.mobile.keybagd.first_unlock", &self->_dbQueue_firstUnlockToken, self->_dbQueue, ^void(int arg1) {
             long _dbQueue_loadDatabase = [v3 _dbQueue_loadDatabase];
             os_log_t oslog = FBLogAppDataStore();

@@ -1,8 +1,8 @@
 void -[_FBDefaultFencingProvider synchronizeDrawingWithFence:](id a1)
 {
     if (UIKitLibraryCore(0) != 0) {
-        long v1 = getUIWindowClass();
-        if (v1 != 0) {
+        id v1 = getUIWindowClass();
+        if (v1 != nil) {
             [v1 _synchronizeDrawingWithFence:a1];
         }
     }

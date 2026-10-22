@@ -223,7 +223,7 @@ BSSimpleAssertion *-[FBSceneLayerManager _suspendUpdatesWithReason:](id a1)
     if (![NSThread isMainThread]) {
         __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBSceneLayerManager _suspendUpdatesWithReason:]");
     }
-    __weak id v1 = self;
+    __weak FBSceneLayerManager *v1 = self;
     BSSimpleAssertion *v6 = [[BSSimpleAssertion alloc] initWithReason:a1 invalidatedWithContextBlock:^void(id<BSSimpleAssertionInvalidationContext> arg1) {
         if (![NSThread isMainThread]) {
             __FB_REPORT_MAIN_THREAD_VIOLATION__(0, "-[FBSceneLayerManager _suspendUpdatesWithReason:]_block_invoke");

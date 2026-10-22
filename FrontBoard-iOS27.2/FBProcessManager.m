@@ -165,7 +165,7 @@ long +[FBProcessManager sharedInstance](void)
 }
 
 
-void -[FBProcessManager noteProcessAssertionStateDidChange:](long a1)
+void -[FBProcessManager noteProcessAssertionStateDidChange:](id a1)
 {
     RBSAssertion *v25;
     id domain = [self->_eventDispatcher domain];
@@ -898,7 +898,7 @@ id -[FBProcessManager watchdogPolicyForProcess:eventContext:](id a1, id a2)
 }
 
 
-void *-[FBProcessManager _initWithWorkspaceDomain:](id a1, long a2)
+FBProcessManager *-[FBProcessManager _initWithWorkspaceDomain:](id a1, long a2)
 {
     id v0 = a1;
     if (!self) {
@@ -996,7 +996,6 @@ void *-[FBProcessManager _initWithWorkspaceDomain:](id a1, long a2)
         _bs_set_crash_log_message([v77 UTF8String]);
         __break(0);
     }
-    struct FBProcessManager *v36 = self;
     [v31 bootstrapLock:^void(id<FBProcessBootstrapping> arg1) {
         [arg1 bootstrapWithDelegate:self];
     }];
@@ -1009,7 +1008,7 @@ void *-[FBProcessManager _initWithWorkspaceDomain:](id a1, long a2)
     NSMutableArray<FBProcess *> *v41 = [NSMutableArray arrayWithObject:self->_currentProcess];
     RBSProcessIdentity *identity2 = [self->_currentProcess identity];
     [self->_lock_processesByIdentity setObject:v41 forKey:identity2];
-    __weak id v33 = v36;
+    __weak FBProcessManager *v33 = self;
     self->_processMonitor = [RBSProcessMonitor monitorWithConfiguration:^void(id<RBSProcessMonitorConfiguring> arg1) {
         RBSProcessStateDescriptor *v82 = [[RBSProcessStateDescriptor alloc] init];
         [v82 setValues:3];
@@ -1036,8 +1035,7 @@ void *-[FBProcessManager _initWithWorkspaceDomain:](id a1, long a2)
     id domain = [self->_eventDispatcher domain];
     id domain2 = [domain domain];
     long _isSharedInstance = [domain2 _isSharedInstance];
-    NSString *v50 = ((_isSharedInstance & 1) == 0) ? [NSString stringWithFormat:@"FBProcessManager-%p", v36] : @"FBProcessManager-sharedInstance";
-    self = v36;
+    NSString *v50 = ((_isSharedInstance & 1) == 0) ? [NSString stringWithFormat:@"FBProcessManager-%p", self] : @"FBProcessManager-sharedInstance";
     self->_stateCaptureAssertion = BSLogAddStateCaptureBlockForUserRequestsOnlyWithTitle(0, v50, ^id(void) {
         return [self description];
     });

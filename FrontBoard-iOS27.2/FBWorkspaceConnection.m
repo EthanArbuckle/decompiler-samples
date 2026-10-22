@@ -10,7 +10,6 @@ static long _MergedGlobals;
 
 FBWorkspaceConnection *-[FBWorkspaceConnection _initWithWorkspace:](FBWorkspace *a1)
 {
-    FBWorkspaceConnection *self;
     if (self != nil) {
         self = [super init];
         if (self != nil) {
@@ -46,7 +45,7 @@ void -[FBWorkspaceConnection workspaceLock_enqueueConnectBlock:](void (^a1)(long
             }];
         } else {
             id aBlock = [v0 copy];
-            void *v4 = _Block_copy(aBlock);
+            id v4 = _Block_copy(aBlock);
             [self->_workspaceLock_waitForConnectBlocks addObject:v4];
             id _synchronizer = [self->_workspace _synchronizer];
             [_synchronizer _setWaitingForConnect];
@@ -147,12 +146,12 @@ id +[FBWorkspaceConnection currentWorkspaceConnection](void)
 
 BSServiceConnection *-[FBWorkspaceConnection _workspaceLock_connection](void)
 {
-    BSServiceConnection *self;
+    BSServiceConnection *v0 = nil;
     if (self != nil) {
         [self->_workspace _assertLocked];
-        self = self->_workspaceLock_connection;
+        v0 = self->_workspaceLock_connection;
     }
-    return self;
+    return v0;
 }
 
 
@@ -203,7 +202,7 @@ void -[FBWorkspaceConnection _workspaceLock_consumeConnection:](BSServiceConnect
 
 void -[FBWorkspaceConnection _flushConnectBlocksWithProxy:](id a1)
 {
-    if (self != 0) {
+    if (self != nil) {
         [self->_workspace _lock];
         NSMutableArray *v1 = self->_workspaceLock_waitForConnectBlocks;
         self->_workspaceLock_waitForConnectBlocks = nil;
@@ -228,7 +227,7 @@ id -[FBWorkspaceConnection _acquireAssertionForWorkspaceScene:withState:](id a1,
 
 NSMutableArray *-[FBWorkspaceConnection workspaceLock_invalidate](void)
 {
-    NSMutableArray *self;
+    NSMutableArray *v8 = nil;
     if (self != nil) {
         [self->_workspace _assertLocked];
         NSMutableArray *v1 = self->_workspaceLock_waitForConnectBlocks;
@@ -249,9 +248,9 @@ NSMutableArray *-[FBWorkspaceConnection workspaceLock_invalidate](void)
         os_unfair_lock_unlock(&_MergedGlobals);
         [self->_workspaceLock_connection invalidate];
         self->_workspaceLock_valid = NO;
-        self = (![v1 count]) ? nil : v1;
+        v8 = (![v1 count]) ? nil : v1;
     }
-    return self;
+    return v8;
 }
 
 
@@ -265,19 +264,19 @@ void -[FBWorkspaceConnection .cxx_destruct](void)
 
 FBWorkspace *-[FBWorkspaceConnection _workspace](void)
 {
-    FBWorkspace *self;
+    FBWorkspace *v0 = nil;
     if (self != nil) {
-        self = self->_workspace;
+        v0 = self->_workspace;
     }
-    return self;
+    return v0;
 }
 
 
 FBProcess *-[FBWorkspaceConnection remoteProcess](void)
 {
-    FBProcess *self;
+    FBProcess *v0 = nil;
     if (self != nil) {
-        self = [self->_workspace process];
+        v0 = [self->_workspace process];
     }
-    return self;
+    return v0;
 }
